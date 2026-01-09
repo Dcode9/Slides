@@ -56,6 +56,8 @@
             filter: blur(80px);
             opacity: 0.6;
             animation: float 20s infinite ease-in-out alternate;
+            /* Smooth transition for position changes between slides */
+            transition: top 2s ease-in-out, left 2s ease-in-out, right 2s ease-in-out, bottom 2s ease-in-out;
         }
         .blob-1 { width: 60vw; height: 60vw; background: #4f46e5; top: -10%; left: -10%; animation-duration: 25s; }
         .blob-2 { width: 50vw; height: 50vw; background: #fbbf24; top: 40%; right: -10%; animation-duration: 22s; animation-delay: -5s; }
@@ -158,14 +160,27 @@
             border-color: rgba(255,255,255,0.5);
         }
 
+        /* Animation Delays (Extended) */
         .stagger-1 { animation-delay: 0.1s; }
         .stagger-2 { animation-delay: 0.2s; }
         .stagger-3 { animation-delay: 0.3s; }
         .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+        .stagger-7 { animation-delay: 0.7s; }
+        .stagger-8 { animation-delay: 0.8s; }
+        .stagger-9 { animation-delay: 0.9s; }
+        .stagger-10 { animation-delay: 1.0s; }
 
         /* Progress Bar */
         .progress-bar {
             transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hide UI in Fullscreen Mode */
+        body:fullscreen .ui-controls, 
+        body:-webkit-full-screen .ui-controls {
+            display: none !important;
         }
     </style>
 </head>
@@ -186,8 +201,8 @@
         <!-- Views will be injected here by JS -->
     </main>
 
-    <!-- Navigation Overlay -->
-    <div class="fixed bottom-0 left-0 w-full p-8 z-50 flex flex-col gap-4 pointer-events-none">
+    <!-- Navigation Overlay (UI Controls) -->
+    <div class="ui-controls fixed bottom-0 left-0 w-full p-8 z-50 flex flex-col gap-4 pointer-events-none transition-opacity duration-300">
         
         <!-- Controls -->
         <div class="flex justify-between items-end w-full pointer-events-auto">
@@ -214,7 +229,6 @@
 
     <script>
         // --- Data: The 10 Views ---
-        // PASTE YOUR GITHUB LINKS IN THE PLACEHOLDERS BELOW
         const views = [
             {
                 id: 1,
@@ -233,15 +247,13 @@
                         label: "Honey", 
                         sub: "Food source", 
                         color: "from-amber-400 to-orange-600", 
-                        // ORIGINALLY: golden honey texture abstract macro
-                        img: "PLACEHOLDER_LINK_HERE" 
+                        img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Honey.jpeg" 
                     },
                     { 
                         label: "Wax", 
                         sub: "Medicinal", 
                         color: "from-yellow-100 to-yellow-300", 
-                        // ORIGINALLY: beeswax texture soft yellow macro
-                        img: "PLACEHOLDER_LINK_HERE" 
+                        img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Honeycomb.jfif" 
                     }
                 ]
             },
@@ -254,20 +266,17 @@
                     { 
                         title: "Apis cerana indica", 
                         sub: "Indian Bee", 
-                        // ORIGINALLY: Apis cerana indica bee macro
-                        img: "PLACEHOLDER_LINK_HERE" 
+                        img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Apis%20cerena%20indica%20(potrait).jfif" 
                     },
                     { 
                         title: "Apis dorsata", 
                         sub: "Rock Bee", 
-                        // ORIGINALLY: Apis dorsata rock bee macro
-                        img: "PLACEHOLDER_LINK_HERE" 
+                        img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Apis%20dorsata.jpeg" 
                     },
                     { 
                         title: "Apis florae", 
                         sub: "Little Bee", 
-                        // ORIGINALLY: Apis florea little bee macro
-                        img: "PLACEHOLDER_LINK_HERE" 
+                        img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Apis%20florea%20(Landscape).jpeg" 
                     }
                 ]
             },
@@ -276,8 +285,7 @@
                 type: 'spotlight',
                 title: "The Italian Guest",
                 subtitle: "Apis mellifera",
-                // ORIGINALLY: Apis mellifera Italian bee macro high quality
-                img: "PLACEHOLDER_LINK_HERE",
+                img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Apis%20melifera.jpeg",
                 points: ["High honey collection capacity", "Stings less", "Breeds well", "Stays in hive longer"]
             },
             {
@@ -287,8 +295,7 @@
                 term: "Pasturage",
                 def: "The flowers available for nectar and pollen.",
                 effect: "The kind of flowers determines the taste of the honey.",
-                // ORIGINALLY: beautiful field of wildflowers macro blur bokeh
-                bg: "PLACEHOLDER_LINK_HERE"
+                bg: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Wide_panoramic_shot_2k_202601091941.jpeg"
             },
             {
                 id: 6,
@@ -324,14 +331,12 @@
                     { 
                         title: "Capture", 
                         desc: "From nature", 
-                        // ORIGINALLY: fishing net in ocean illustration
-                        img: "PLACEHOLDER_LINK_HERE" 
+                        img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Cinematic_illustration_of_2k_202601091942.jpeg" 
                     },
                     { 
                         title: "Culture", 
                         desc: "Fish farming", 
-                        // ORIGINALLY: fish farm pond illustration
-                        img: "PLACEHOLDER_LINK_HERE" 
+                        img: "https://raw.githubusercontent.com/Dcode9/Slides/b66fca0180f326cafadabd1b0fb3a024fc50cb25/Peaceful_view_of_2k_202601091942.jpeg" 
                     }
                 ],
                 highlight: "Composite Fish Culture: 5-6 species in one pond."
@@ -370,6 +375,23 @@
             }
         }
 
+        function updateBackground(index) {
+            const blobs = document.querySelectorAll('.blob');
+            blobs.forEach((blob, bIndex) => {
+                // Generate deterministic random positions based on slide index and blob index
+                // This ensures each slide has a unique but consistent background layout
+                const seed = (index + 1) * (bIndex + 5) * 17;
+                
+                // Allow positions to range widely (-20% to 90%)
+                const top = (seed % 110) - 20; 
+                const left = ((seed * 31) % 110) - 20;
+                
+                // Apply new "fixed" starting positions (which they will animate around)
+                blob.style.top = `${top}%`;
+                blob.style.left = `${left}%`;
+            });
+        }
+
         function switchSlide(newIndex) {
             const currentEl = document.querySelector('.view-active');
             if (currentEl) {
@@ -377,12 +399,14 @@
                 currentEl.classList.add('animate-pop-out');
                 currentEl.classList.remove('view-active');
                 
-                // Wait for exit to mostly finish before rendering next for overlap effect
                 setTimeout(() => {
                     currentEl.remove();
                 }, 500);
             }
 
+            // Update Background positions for the new slide
+            updateBackground(newIndex);
+            
             renderSlide(newIndex, 'next');
             currentIndex = newIndex;
             updateProgress();
@@ -392,7 +416,6 @@
             const data = views[index];
             const el = document.createElement('section');
             el.className = `view-container view-active flex-col`;
-            // Add entry animation to the container's children, not the container itself to avoid layout shift
             el.innerHTML = generateHTML(data);
             stage.appendChild(el);
             
