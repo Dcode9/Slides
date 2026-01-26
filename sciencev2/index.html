@@ -67,10 +67,12 @@
             filter: blur(80px);
             opacity: 0.5;
             animation: float 20s infinite ease-in-out alternate;
+            /* Added transition for position changes with bouncy ease */
+            transition: top 2.5s cubic-bezier(0.34, 1.3, 0.64, 1), left 2.5s cubic-bezier(0.34, 1.3, 0.64, 1);
         }
         .blob-1 { width: 60vw; height: 60vw; background: #3730a3; top: -10%; left: -10%; animation-duration: 25s; } /* Indigo */
-        .blob-2 { width: 50vw; height: 50vw; background: #b45309; top: 40%; right: -10%; animation-duration: 22s; animation-delay: -5s; } /* Amber */
-        .blob-3 { width: 40vw; height: 40vw; background: #064e3b; bottom: -10%; left: 20%; animation-duration: 28s; animation-delay: -10s; } /* Emerald */
+        .blob-2 { width: 50vw; height: 50vw; background: #b45309; top: 40%; left: 60%; animation-duration: 22s; animation-delay: -5s; } /* Amber */
+        .blob-3 { width: 40vw; height: 40vw; background: #064e3b; top: 80%; left: 20%; animation-duration: 28s; animation-delay: -10s; } /* Emerald */
 
         @keyframes float {
             0% { transform: translate(0, 0) scale(1); }
@@ -116,9 +118,10 @@
             pointer-events: auto;
         }
 
-        /* Animations */
-        .animate-enter { animation: enter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; transform: translateY(20px); }
-        .animate-scale { animation: scaleIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; transform: scale(0.9); }
+        /* Animations - Updated with Bouncy Easing */
+        /* cubic-bezier(0.34, 1.56, 0.64, 1) creates the bouncy overshoot effect */
+        .animate-enter { animation: enter 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; transform: translateY(40px); }
+        .animate-scale { animation: scaleIn 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; transform: scale(0.8); }
         
         @keyframes enter { to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
@@ -247,9 +250,10 @@
 
     <!-- Background -->
     <div class="gradient-bg">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+        <!-- Blobs will be moved by JS -->
+        <div class="blob blob-1" id="blob-1"></div>
+        <div class="blob blob-2" id="blob-2"></div>
+        <div class="blob blob-3" id="blob-3"></div>
     </div>
 
     <!-- Custom Cursor -->
@@ -451,12 +455,46 @@
             }, 500);
         }
 
+        // --- Background Blob Animation Logic ---
+        function updateBlobs(index) {
+            const b1 = document.getElementById('blob-1');
+            const b2 = document.getElementById('blob-2');
+            const b3 = document.getElementById('blob-3');
+
+            // Generate deterministic but "random" positions based on slide index
+            // Using percentages for Top and Left to keep them on screen
+            
+            // Blob 1 (Indigo - Large)
+            const b1T = -20 + ((index * 37) % 60); // Range -20% to 40%
+            const b1L = -20 + ((index * 19) % 50); // Range -20% to 30%
+            
+            // Blob 2 (Amber - Medium)
+            const b2T = 20 + ((index * 23) % 60);  // Range 20% to 80%
+            const b2L = 40 + ((index * 41) % 50);  // Range 40% to 90%
+            
+            // Blob 3 (Emerald - Small)
+            const b3T = 50 + ((index * 53) % 40);  // Range 50% to 90%
+            const b3L = -10 + ((index * 67) % 90); // Range -10% to 80%
+
+            b1.style.top = `${b1T}%`;
+            b1.style.left = `${b1L}%`;
+            
+            b2.style.top = `${b2T}%`;
+            b2.style.left = `${b2L}%`;
+            
+            b3.style.top = `${b3T}%`;
+            b3.style.left = `${b3L}%`;
+        }
+
         // --- Render Functions ---
 
         function renderSlide(index) {
             const data = views[index];
             const html = generateHTML(data);
             
+            // Update Background Blobs
+            updateBlobs(index);
+
             // Create container
             const container = document.createElement('div');
             container.className = 'view-container view-active';
