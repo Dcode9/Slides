@@ -161,7 +161,7 @@
             transform: scale(1.05);
         }
 
-        /* Progress Bar */
+        /* Progress Bar & Controls */
         .progress-container {
             position: fixed;
             bottom: 2rem;
@@ -171,7 +171,16 @@
             display: flex;
             align-items: center;
             gap: 1.5rem;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
         }
+
+        /* State: Hidden in Fullscreen (Taskbar style) */
+        .ui-hidden {
+            transform: translateY(150%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .progress-track {
             flex: 1;
             height: 4px;
@@ -186,9 +195,55 @@
             transition: width 0.5s ease;
             box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 2rem;
+            z-index: 40; /* Behind controls if they overlap */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: none;
+            text-align: right;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        /* Loading Overlay */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #020617;
+            z-index: 10000;
+            display: flex;
+            flex-col;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(251, 191, 36, 0.3);
+            border-radius: 50%;
+            border-top-color: #fbbf24;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+    <!-- Loading Screen -->
+    <div id="loader">
+        <div class="loader-spinner"></div>
+        <div class="text-amber-400 font-mono text-sm tracking-widest uppercase">Loading Assets...</div>
+        <div id="loader-progress" class="text-gray-500 text-xs mt-2 font-mono">0%</div>
+    </div>
 
     <!-- Background -->
     <div class="gradient-bg">
@@ -205,8 +260,22 @@
         <!-- Views rendered by JS -->
     </main>
 
+    <!-- Watermark -->
+    <div class="watermark">
+        <div class="flex flex-col">
+            <span class="text-[10px] text-gray-500 font-light tracking-widest uppercase opacity-40 leading-none mb-1">Hosted On</span>
+            <span class="text-sm text-gray-300 font-serif italic tracking-wide opacity-70">D'Verse</span>
+        </div>
+        <!-- Using a placeholder SVG since I don't have the local file, but structured to accept it -->
+        <!-- Replace src with "D_Ai_Logo.ico" if running locally with the file -->
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 159' fill='none'%3E%3Cpath d='M60 20 L120 20 C160 20 190 50 190 80 C190 110 160 140 120 140 L60 140 L60 20 Z' stroke='%23fbbf24' stroke-width='8' fill='none'/%3E%3Cpath d='M80 40 L80 120' stroke='%23fbbf24' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E" 
+             alt="D'Verse Logo" 
+             class="h-10 w-auto opacity-80"
+             onerror="this.style.display='none'">
+    </div>
+
     <!-- Controls & Progress -->
-    <div class="progress-container glass-panel px-6 py-4">
+    <div id="ui-controls" class="progress-container glass-panel px-6 py-4">
         <button onclick="prevSlide()" class="hover:text-amber-400 transition-colors" data-hover>
             <span class="material-symbols-outlined">arrow_back</span>
         </button>
@@ -341,6 +410,49 @@
         const stage = document.getElementById('stage');
         const progressFill = document.getElementById('progress');
         const slideCount = document.getElementById('slide-count');
+        const uiControls = document.getElementById('ui-controls');
+        const loader = document.getElementById('loader');
+        const loaderProgress = document.getElementById('loader-progress');
+
+        // --- Asset Preloading System ---
+        async function preloadAssets() {
+            // Collect all images from data
+            const imageUrls = [];
+            views.forEach(view => {
+                if(view.img) imageUrls.push(view.img);
+                if(view.cards) view.cards.forEach(c => imageUrls.push(c.img));
+                if(view.left && view.left.img) imageUrls.push(view.left.img);
+                if(view.right && view.right.img) imageUrls.push(view.right.img);
+            });
+
+            const total = imageUrls.length;
+            let loaded = 0;
+
+            const loadPromise = (url) => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = () => {
+                        loaded++;
+                        loaderProgress.innerText = Math.round((loaded/total) * 100) + "%";
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        loaded++; // Resolve anyway to not block
+                        resolve();
+                    };
+                });
+            };
+
+            await Promise.all(imageUrls.map(url => loadPromise(url)));
+            
+            // Fade out loader
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+                renderSlide(0); // Start show
+            }, 500);
+        }
 
         // --- Render Functions ---
 
@@ -642,6 +754,8 @@
             if(currentIndex > 0) switchSlide(currentIndex - 1);
         }
 
+        // --- Fullscreen & UI Logic ---
+
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
@@ -650,13 +764,33 @@
             }
         }
 
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                uiControls.classList.add('ui-hidden');
+            } else {
+                uiControls.classList.remove('ui-hidden');
+            }
+        });
+
+        // Mouse Tracking for Fullscreen UI
+        document.addEventListener('mousemove', (e) => {
+            if (document.fullscreenElement) {
+                // If mouse is within bottom 100px
+                if (window.innerHeight - e.clientY < 100) {
+                    uiControls.classList.remove('ui-hidden');
+                } else {
+                    uiControls.classList.add('ui-hidden');
+                }
+            }
+        });
+
         document.addEventListener('keydown', (e) => {
             if(e.key === 'ArrowRight' || e.key === ' ') nextSlide();
             if(e.key === 'ArrowLeft') prevSlide();
         });
 
-        // Initialize
-        renderSlide(0);
+        // Initialize with Preloader
+        preloadAssets();
 
 
         /* * Physics Cursor Engine 
