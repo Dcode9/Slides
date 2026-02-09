@@ -237,6 +237,61 @@
             margin-bottom: 1rem;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Mobile Optimizations --- */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            *, *::before, *::after {
+                cursor: auto !important;
+            }
+
+            #cursor-canvas {
+                display: none;
+            }
+
+            .view-container {
+                padding: 1rem;
+                align-items: flex-start;
+                padding-top: 2rem;
+                min-height: 100vh;
+                height: auto;
+            }
+
+            .glass-panel {
+                border-radius: 16px;
+            }
+
+            .progress-container {
+                bottom: 0.75rem;
+                left: 0.75rem;
+                right: 0.75rem;
+                padding: 0.5rem 1rem;
+                gap: 0.75rem;
+                border-radius: 16px;
+            }
+
+            .watermark {
+                bottom: 4rem;
+                right: 1rem;
+                gap: 8px;
+            }
+
+            .watermark img {
+                height: 1.5rem;
+            }
+
+            .blob {
+                filter: blur(60px);
+                opacity: 0.3;
+            }
+            .blob-1 { width: 80vw; height: 80vw; }
+            .blob-2 { width: 60vw; height: 60vw; }
+            .blob-3 { width: 50vw; height: 50vw; }
+        }
     </style>
 </head>
 <body>
@@ -314,6 +369,21 @@
             },
             {
                 id: 2,
+                type: 'team',
+                title: "Meet Our Team",
+                subtitle: "The Minds Behind This Presentation",
+                members: [
+                    { name: "Member Name 1", role: "leader" },
+                    { name: "Member Name 2", role: "member" },
+                    { name: "Member Name 3", role: "member" },
+                    { name: "Member Name 4", role: "member" },
+                    { name: "Member Name 5", role: "member" },
+                    { name: "Member Name 6", role: "member" },
+                    { name: "Member Name 7", role: "member" }
+                ]
+            },
+            {
+                id: 3,
                 type: 'split',
                 title: "The Economics of Apiculture",
                 subtitle: "Low Investment, High Returns",
@@ -325,7 +395,7 @@
                 img: "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQonwiI9akioRoAIspSEfXRPSs8WlRyCQBZyw8IvjNSIg5XdHLf27U1HuJs7sM"
             },
             {
-                id: 3,
+                id: 4,
                 type: 'grid-3',
                 title: "Indigenous vs. Exotic Species",
                 subtitle: "Selecting the Right Biological Agent",
@@ -336,7 +406,7 @@
                 ]
             },
             {
-                id: 4,
+                id: 5,
                 type: 'spotlight',
                 title: "The Apis mellifera Advantage",
                 subtitle: "The Gold Standard for Commercial Production",
@@ -348,7 +418,7 @@
                 img: "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSETXJ_ZZaXk5uAHV5DClhaOelMrGNrvaCT3RJe03L-27KKbUrWNZa-9ctdLQ"
             },
             {
-                id: 5,
+                id: 6,
                 type: 'concept',
                 title: "The Science of Pasturage",
                 term: "Pasturage",
@@ -357,7 +427,7 @@
                 img: "https://images.unsplash.com/photo-1469598614039-ccfeb0a21111?q=80&w=1600&auto=format&fit=crop"
             },
             {
-                id: 6,
+                id: 7,
                 type: 'diagram-split',
                 title: "Crop Production Management",
                 content: [
@@ -368,7 +438,7 @@
                 img: "https://raw.githubusercontent.com/Dcode9/Slides/refs/heads/main/e82ccdf9-8424-4ba0-a7e2-0d362dd8b304.png"
             },
             {
-                id: 7,
+                id: 8,
                 type: 'card-feature',
                 title: "Cattle Farming Optimization",
                 subtitle: "Milk, Draught, and Genetic Improvement",
@@ -378,7 +448,7 @@
                 img: "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcQeEJ33gppF95wi16X31AwtIJjiAnz5ixKwnx7QSv6Cu7DPaua9tgTgiMnhUyOJ2170-1BSNp5-Y2cLH4E"
             },
             {
-                id: 8,
+                id: 9,
                 type: 'compare-cards',
                 title: "Poultry Production Systems",
                 subtitle: "Specialization: Layers vs. Broilers",
@@ -386,7 +456,7 @@
                 right: { title: "Broilers", desc: "Raised for Meat.", diet: "Diet focus: Protein & Fat for rapid growth", img: "https://raw.githubusercontent.com/Dcode9/Slides/refs/heads/main/edbec58c-205d-4198-875e-5c9acd019a5c.png" }
             },
             {
-                id: 9,
+                id: 10,
                 type: 'layers',
                 title: "Fish Production Strategies",
                 subtitle: "Composite Fish Culture: Poly-culture system",
@@ -398,12 +468,20 @@
                 img: "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTMi9P0diakPI0v9OH1Va6PxyLppxc-glzZ_dNKFfAD5Aza0gGVLM1cM770LlSa0NJTvsTD6xxlRyOWnbM"
             },
             {
-                id: 10,
+                id: 11,
                 type: 'hero-end',
                 title: "Sustainable Farming for the Future",
                 subtitle: "Integrated Resource Management",
                 text: "Meeting the food demands of a growing population without environmental degradation through a holistic approach integrating Apiculture, Agriculture, and Animal Husbandry.",
                 img: "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRIERAWFsluzCFbo00bZGSFwwIcBcq4eQjz_KMmbesh9z5OIZJmo3aHe6RfhNg"
+            },
+            {
+                id: 12,
+                type: 'quiz',
+                title: "It's Quiz Time!",
+                subtitle: "Test your knowledge on Improvement in Food Resources",
+                buttonText: "Start Quiz",
+                buttonLink: "https://example.com/quiz-placeholder" // TODO: Replace with actual quiz URL
             }
         ];
 
@@ -545,6 +623,27 @@
                         </div>
                     `;
 
+                case 'team':
+                    return `
+                        <div class="flex flex-col items-center justify-center h-full text-center">
+                            <div class="${anim('delay-1')} mb-4 md:mb-8">
+                                <h2 class="text-amber-400 font-bold tracking-widest uppercase text-sm mb-3">${data.subtitle}</h2>
+                                <h1 class="text-4xl md:text-6xl font-serif text-white">${data.title}</h1>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-6 max-w-4xl mx-auto mt-4 md:mt-8">
+                                ${data.members.map((m, i) => `
+                                    <div class="glass-panel p-3 md:p-6 flex flex-col items-center ${m.role === 'leader' ? 'border-amber-500/50 ring-2 ring-amber-500/30' : ''} ${anim(`delay-${i+2}`)}" data-hover>
+                                        <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-br ${m.role === 'leader' ? 'from-amber-400 to-amber-600' : 'from-slate-400 to-slate-600'} flex items-center justify-center mb-2 md:mb-4">
+                                            <span class="material-symbols-outlined text-white text-xl md:text-2xl">person</span>
+                                        </div>
+                                        <h3 class="text-sm md:text-lg font-bold ${m.role === 'leader' ? 'text-amber-400' : 'text-white'}">${m.name}${m.role === 'leader' ? ' <span class="text-amber-300 font-mono text-xs md:text-sm">(L)</span>' : ''}</h3>
+                                        ${m.role === 'leader' ? '<span class="text-[10px] md:text-xs uppercase tracking-widest text-amber-500/80 mt-1">Team Leader</span>' : '<span class="text-[10px] md:text-xs uppercase tracking-widest text-gray-500 mt-1">Member</span>'}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+
                 case 'split':
                     return `
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center h-full">
@@ -591,21 +690,21 @@
 
                 case 'spotlight':
                     return `
-                        <div class="relative w-full h-[70vh] rounded-3xl overflow-hidden glass-panel ${anim('delay-1')}">
+                        <div class="relative w-full min-h-[50vh] md:h-[70vh] rounded-3xl overflow-hidden glass-panel ${anim('delay-1')}">
                             <img src="${data.img}" class="absolute inset-0 w-full h-full object-cover opacity-40">
-                            <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent p-12 flex flex-col justify-center">
-                                <div class="max-w-2xl space-y-8">
+                            <div class="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black via-black/80 to-transparent p-6 md:p-12 flex flex-col justify-center">
+                                <div class="max-w-2xl space-y-6 md:space-y-8">
                                     <div class="${anim('delay-2')}">
-                                        <h2 class="text-amber-500 font-bold mb-2 uppercase tracking-wide">${data.subtitle}</h2>
-                                        <h1 class="text-6xl font-serif text-white">${data.title}</h1>
+                                        <h2 class="text-amber-500 font-bold mb-2 uppercase tracking-wide text-sm">${data.subtitle}</h2>
+                                        <h1 class="text-4xl md:text-6xl font-serif text-white">${data.title}</h1>
                                     </div>
                                     <div class="space-y-4">
                                         ${data.points.map((p, i) => `
                                             <div class="flex gap-4 items-start ${anim(`delay-${i+3}`)}">
-                                                <div class="w-12 h-1 bg-amber-500 mt-3 rounded-full"></div>
+                                                <div class="w-8 md:w-12 h-1 bg-amber-500 mt-3 rounded-full flex-shrink-0"></div>
                                                 <div>
-                                                    <h3 class="text-xl font-bold text-white">${p.label}</h3>
-                                                    <p class="text-gray-400">${p.text}</p>
+                                                    <h3 class="text-lg md:text-xl font-bold text-white">${p.label}</h3>
+                                                    <p class="text-gray-400 text-sm md:text-base">${p.text}</p>
                                                 </div>
                                             </div>
                                         `).join('')}
@@ -684,7 +783,7 @@
                                     <img src="${data.img}" class="w-full h-full object-cover">
                                 </div>
                                 <!-- Floating Genetic Card -->
-                                <div class="absolute -bottom-8 -left-8 bg-slate-900 border border-amber-500/30 p-6 rounded-2xl shadow-2xl max-w-xs animate-enter delay-6">
+                                <div class="hidden md:block absolute -bottom-8 -left-8 bg-slate-900 border border-amber-500/30 p-6 rounded-2xl shadow-2xl max-w-xs animate-enter delay-6">
                                     <h4 class="text-amber-400 font-bold mb-3 border-b border-amber-500/30 pb-2">Genetic Strategy</h4>
                                     <div class="space-y-2 text-sm">
                                         <div class="flex justify-between text-white"><span>Exotic Male</span> <span class="text-gray-500">→</span></div>
@@ -727,24 +826,24 @@
 
                 case 'layers':
                     return `
-                        <div class="flex gap-12 h-[60vh]">
-                            <div class="w-1/3 flex flex-col justify-center space-y-6">
+                        <div class="flex flex-col md:flex-row gap-6 md:gap-12 md:h-[60vh]">
+                            <div class="w-full md:w-1/3 flex flex-col justify-center space-y-6">
                                 <div class="${anim('delay-1')}">
-                                    <h1 class="text-4xl font-serif leading-tight">${data.title}</h1>
+                                    <h1 class="text-3xl md:text-4xl font-serif leading-tight">${data.title}</h1>
                                     <p class="text-amber-400 mt-2">${data.subtitle}</p>
                                 </div>
                                 <div class="space-y-2">
                                     ${data.layers.map((l, i) => `
                                         <div class="p-4 border-l-2 border-white/20 hover:border-amber-400 hover:bg-white/5 transition-all cursor-pointer ${anim(`delay-${i+2}`)}" data-hover>
                                             <div class="text-xs uppercase tracking-wider text-gray-400">${l.name}</div>
-                                            <div class="text-2xl font-bold text-white">${l.fish}</div>
+                                            <div class="text-xl md:text-2xl font-bold text-white">${l.fish}</div>
                                             <div class="text-sm text-gray-500">${l.desc}</div>
                                         </div>
                                     `).join('')}
                                 </div>
                             </div>
-                            <div class="w-2/3 relative ${anim('delay-5')}">
-                                <div class="img-card w-full h-full" data-hover>
+                            <div class="w-full md:w-2/3 relative ${anim('delay-5')}">
+                                <div class="img-card w-full aspect-video md:h-full" data-hover>
                                     <img src="${data.img}" class="w-full h-full object-cover">
                                 </div>
                                 <!-- Layer Overlays -->
@@ -769,6 +868,22 @@
                                 <img src="${data.img}" class="h-32 w-64 object-cover rounded-xl opacity-60 hover:opacity-100 transition-opacity">
                                 <div class="mt-2 text-xs uppercase tracking-widest text-gray-400">Restart Presentation</div>
                             </div>
+                        </div>
+                    `;
+
+                case 'quiz':
+                    return `
+                        <div class="flex flex-col items-center justify-center h-full text-center space-y-8 md:space-y-12">
+                            <div class="${anim('delay-1')}">
+                                <span class="material-symbols-outlined text-amber-400 text-6xl md:text-8xl mb-4 block">quiz</span>
+                            </div>
+                            <h1 class="text-5xl md:text-8xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 ${anim('delay-2')}">${data.title}</h1>
+                            <p class="text-lg md:text-2xl text-gray-400 max-w-2xl ${anim('delay-3')}">${data.subtitle}</p>
+                            <a href="${data.buttonLink}" target="_blank" rel="noopener noreferrer"
+                               class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg md:text-xl px-8 md:px-12 py-4 md:py-5 rounded-2xl transition-all duration-300 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 ${anim('delay-4')}" data-hover>
+                                <span class="material-symbols-outlined">play_arrow</span>
+                                ${data.buttonText}
+                            </a>
                         </div>
                     `;
             }
@@ -823,6 +938,21 @@
             if(e.key === 'ArrowRight' || e.key === ' ') nextSlide();
             if(e.key === 'ArrowLeft') prevSlide();
         });
+
+        // Touch/Swipe Support for Mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+            }
+        }, { passive: true });
 
         // Initialize with Preloader
         preloadAssets();
