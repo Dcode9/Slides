@@ -800,7 +800,7 @@
 
     const TOTAL_SLIDES = 6;
     let currentSlide = 1;
-    let currentStep = -1; // -1 means slide just appeared, first arrow press triggers step 0
+    let currentStep = 0; // 0 is the initial step, triggered on slide entry
 
     // Compute total steps across all slides for progress bar
     function getTotalSteps() {
