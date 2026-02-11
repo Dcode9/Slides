@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Temps et La Conjugaison</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === RESET & BASE === */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            color: #f1f5f9;
+            background: #0c0a1a;
+        }
+
+        /* === CUSTOM CURSOR CANVAS === */
+        #cursor-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: exclusion;
+            transition: opacity 0.2s ease;
+        }
+
+        /* === BACKGROUND MESH ANIMATION === */
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a0e2e, #0c0a1a);
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+            transition: top 2s ease-in-out, left 2s ease-in-out, right 2s ease-in-out, bottom 2s ease-in-out;
+        }
+
+        .blob-1 { width: 60vw; height: 60vw; background: #7c3aed; top: -10%; left: -10%; animation-duration: 25s; }
+        .blob-2 { width: 50vw; height: 50vw; background: #f43f5e; top: 40%; right: -10%; animation-duration: 22s; animation-delay: -5s; }
+        .blob-3 { width: 40vw; height: 40vw; background: #06b6d4; bottom: -10%; left: 20%; animation-duration: 28s; animation-delay: -10s; }
+
+        @keyframes float {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(100px, 50px) scale(1.1); }
+            100% { transform: translate(-50px, 100px) scale(0.9); }
+        }
+
+        /* === PRESENTATION CONTAINER === */
+        #presentation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* === TYPOGRAPHY === */
+        .serif { font-family: 'Playfair Display', serif; }
+        .sans { font-family: 'Inter', sans-serif; }
+
+        /* === ENTRY ANIMATION (blur + slide up) === */
+        .step-hidden {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(20px);
+            transition: opacity 0.7s ease, filter 0.7s ease, transform 0.7s ease;
+        }
+
+        .step-visible {
+            opacity: 1;
+            filter: blur(0px);
+            transform: translateY(0);
+        }
+
+        /* === SLIDE 1 STYLES === */
+        #slide-1 .title-main {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #c084fc, #f472b6, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 1s ease, transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #slide-1 .title-main.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #slide-1 .title-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(0.9rem, 2vw, 1.3rem);
+            font-weight: 300;
+            color: rgba(241, 245, 249, 0.6);
+            margin-top: 1.5rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+        }
+
+        #slide-1 .title-sub.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #slide-1 .nav-hint {
+            position: absolute;
+            bottom: 3rem;
+            font-size: 0.8rem;
+            color: rgba(241, 245, 249, 0.3);
+            letter-spacing: 0.15em;
+            opacity: 0;
+            animation: pulseHint 2s ease-in-out infinite 2s;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* === SLIDES 2-5: HERO-TO-HEADER PATTERN === */
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: absolute;
+            transition: all 0.9s cubic-bezier(0.34, 1.2, 0.64, 1);
+            z-index: 5;
+        }
+
+        .hero-title.centered {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+        }
+
+        .hero-title.header {
+            top: 2rem;
+            left: 3rem;
+            transform: translate(0, 0);
+            font-size: clamp(1.3rem, 2.5vw, 2rem);
+        }
+
+        .presenter-name {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            font-weight: 300;
+            color: rgba(241, 245, 249, 0.5);
+            position: absolute;
+            top: calc(50% + 3rem);
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            letter-spacing: 0.15em;
+            transition: opacity 0.6s ease, filter 0.6s ease;
+        }
+
+        .presenter-name.hidden {
+            opacity: 0;
+            filter: blur(8px);
+        }
+
+        /* === CONTENT AREA === */
+        .content-area {
+            position: absolute;
+            top: 7rem;
+            left: 3rem;
+            right: 3rem;
+            bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-content: flex-start;
+            overflow-y: auto;
+            padding-top: 1rem;
+        }
+
+        /* === CARD STYLES === */
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            backdrop-filter: blur(10px);
+            flex: 1 1 calc(50% - 1rem);
+            min-width: 280px;
+        }
+
+        .card-full {
+            flex: 1 1 100%;
+        }
+
+        .card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #c084fc;
+        }
+
+        .card p, .card li {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: rgba(241, 245, 249, 0.8);
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card ul li {
+            padding: 0.25rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .card ul li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: #f472b6;
+            font-weight: 700;
+        }
+
+        .card .example {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 8px;
+            padding: 0.2rem 0.6rem;
+            margin: 0.2rem 0.15rem;
+            font-size: 0.85rem;
+            color: #e0d0ff;
+        }
+
+        .card .verb-table {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.3rem 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .card .verb-table .pronoun {
+            color: #f472b6;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .card .verb-table .form {
+            color: rgba(241, 245, 249, 0.85);
+        }
+
+        .card .highlight {
+            color: #fb923c;
+            font-weight: 600;
+        }
+
+        .card .tag {
+            display: inline-block;
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            border-radius: 6px;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.75rem;
+            color: #fda4af;
+            margin-right: 0.4rem;
+            margin-bottom: 0.3rem;
+        }
+
+        /* === COMPARISON BOX === */
+        .comparison {
+            display: flex;
+            gap: 1.5rem;
+            flex: 1 1 100%;
+        }
+
+        .comparison .side {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .comparison .side h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: #c084fc;
+            margin-bottom: 0.5rem;
+        }
+
+        /* === DR MRS VANDERTRAMP VISUAL === */
+        .vandertramp {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .vandertramp .letter-block {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.2rem;
+            height: 2.2rem;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(244, 63, 94, 0.3));
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #e0d0ff;
+        }
+
+        .vandertramp .verb-label {
+            font-size: 0.8rem;
+            color: rgba(241, 245, 249, 0.6);
+            margin-left: 0.3rem;
+            margin-right: 0.8rem;
+        }
+
+        /* === SLIDE 6: MIND MAP === */
+        #slide-6 {
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+
+        .mindmap-viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .mindmap-container {
+            position: absolute;
+            width: 100%;
+            height: 300vh;
+            transition: transform 1s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+
+        .mindmap-container svg.lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .mindmap-container svg.lines line,
+        .mindmap-container svg.lines path {
+            stroke: rgba(192, 132, 252, 0.3);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 8, 6;
+        }
+
+        .node {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(192, 132, 252, 0.25);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            z-index: 1;
+            max-width: 260px;
+        }
+
+        .node.start {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(244, 63, 94, 0.2));
+            border-color: rgba(192, 132, 252, 0.5);
+        }
+
+        .node h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: #c084fc;
+            margin-bottom: 0.3rem;
+        }
+
+        .node p {
+            font-size: 0.8rem;
+            color: rgba(241, 245, 249, 0.7);
+            line-height: 1.4;
+        }
+
+        .node .node-tag {
+            display: inline-block;
+            background: rgba(251, 146, 60, 0.15);
+            border: 1px solid rgba(251, 146, 60, 0.3);
+            border-radius: 6px;
+            padding: 0.1rem 0.4rem;
+            font-size: 0.7rem;
+            color: #fdba74;
+            margin-top: 0.3rem;
+        }
+
+        /* === PROGRESS BAR === */
+        #progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7c3aed, #f43f5e, #fb923c);
+            z-index: 100;
+            transition: width 0.4s ease;
+        }
+
+        /* === SLIDE COUNTER === */
+        #slide-counter {
+            position: fixed;
+            bottom: 1rem;
+            right: 1.5rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            color: rgba(241, 245, 249, 0.3);
+            z-index: 100;
+            letter-spacing: 0.1em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Mesh -->
+    <div class="gradient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Custom Cursor Canvas -->
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- Progress Bar -->
+    <div id="progress-bar" style="width: 0%;"></div>
+    <div id="slide-counter">1 / 6</div>
+
+    <!-- Presentation -->
+    <div id="presentation">
+
+        <!-- ========== SLIDE 1: Title ========== -->
+        <div class="slide active" id="slide-1">
+            <div class="title-main" id="s1-title">Les Temps<br>et La Conjugaison</div>
+            <div class="title-sub" id="s1-sub">Maîtrisez la grammaire française</div>
+            <div class="nav-hint">Appuyez sur → pour continuer</div>
+        </div>
+
+        <!-- ========== SLIDE 2: Le Présent & L'Impératif ========== -->
+        <div class="slide" id="slide-2">
+            <div class="hero-title centered" id="s2-hero">Le Présent &amp; L'Impératif</div>
+            <div class="presenter-name" id="s2-name">Presented by User 1</div>
+
+            <div class="content-area">
+                <!-- Step 2: Le Présent -->
+                <div class="card step-hidden" data-slide="2" data-step="2">
+                    <h3>Le Présent — Les 3 Groupes</h3>
+                    <ul>
+                        <li><span class="highlight">-ER</span> (parler): je parl<span class="highlight">e</span>, tu parl<span class="highlight">es</span>, il parl<span class="highlight">e</span>, nous parl<span class="highlight">ons</span>, vous parl<span class="highlight">ez</span>, ils parl<span class="highlight">ent</span></li>
+                        <li><span class="highlight">-IR</span> (finir): je fin<span class="highlight">is</span>, tu fin<span class="highlight">is</span>, il fin<span class="highlight">it</span>, nous fin<span class="highlight">issons</span>, vous fin<span class="highlight">issez</span>, ils fin<span class="highlight">issent</span></li>
+                        <li><span class="highlight">-RE</span> (vendre): je vend<span class="highlight">s</span>, tu vend<span class="highlight">s</span>, il vend, nous vend<span class="highlight">ons</span>, vous vend<span class="highlight">ez</span>, ils vend<span class="highlight">ent</span></li>
+                    </ul>
+                </div>
+
+                <!-- Step 3: L'Impératif -->
+                <div class="card step-hidden" data-slide="2" data-step="3">
+                    <h3>L'Impératif</h3>
+                    <p>Uses only <span class="tag">Tu</span><span class="tag">Nous</span><span class="tag">Vous</span> forms — no subject pronoun!</p>
+                    <ul>
+                        <li><span class="highlight">Parle !</span> (Speak!) — tu form, drop the -s for -ER verbs</li>
+                        <li><span class="highlight">Parlons !</span> (Let's speak!) — nous form</li>
+                        <li><span class="highlight">Parlez !</span> (Speak!) — vous form</li>
+                    </ul>
+                </div>
+
+                <!-- Step 4: Comparison -->
+                <div class="comparison step-hidden" data-slide="2" data-step="4">
+                    <div class="side">
+                        <h4>Présent</h4>
+                        <p><span class="example">Tu parles français.</span></p>
+                        <p style="font-size:0.8rem; color: rgba(241,245,249,0.5); margin-top:0.5rem;">Statement of fact</p>
+                    </div>
+                    <div class="side">
+                        <h4>Impératif</h4>
+                        <p><span class="example">Parle français !</span></p>
+                        <p style="font-size:0.8rem; color: rgba(241,245,249,0.5); margin-top:0.5rem;">Command / Order</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SLIDE 3: Le Passé ========== -->
+        <div class="slide" id="slide-3">
+            <div class="hero-title centered" id="s3-hero">Le Passé</div>
+            <div class="presenter-name" id="s3-name">Presented by User 2</div>
+
+            <div class="content-area">
+                <!-- Step 2: Passé Récent -->
+                <div class="card step-hidden" data-slide="3" data-step="2">
+                    <h3>Le Passé Récent</h3>
+                    <p>Formula: <span class="highlight">Venir de</span> + Infinitif</p>
+                    <ul>
+                        <li><span class="example">Je viens de manger.</span> — I just ate.</li>
+                        <li><span class="example">Elle vient de partir.</span> — She just left.</li>
+                    </ul>
+                    <p style="margin-top:0.5rem; font-size:0.85rem; color: rgba(241,245,249,0.5);">Expresses a very recent action.</p>
+                </div>
+
+                <!-- Step 3: Passé Composé -->
+                <div class="card step-hidden" data-slide="3" data-step="3">
+                    <h3>Le Passé Composé</h3>
+                    <p>Formula: <span class="highlight">Auxiliaire (avoir/être)</span> + Participe Passé</p>
+                    <ul>
+                        <li><span class="example">J'ai mangé.</span> — I ate. (avoir)</li>
+                        <li><span class="example">Elle est partie.</span> — She left. (être — agreement!)</li>
+                    </ul>
+                    <p style="margin-top:0.5rem; font-size:0.85rem; color: rgba(241,245,249,0.5);">Completed actions in the past.</p>
+                </div>
+
+                <!-- Step 4: Dr Mrs Vandertramp -->
+                <div class="card card-full step-hidden" data-slide="3" data-step="4">
+                    <h3>🏠 Dr. Mrs. Vandertramp — Verbes avec "Être"</h3>
+                    <div class="vandertramp">
+                        <span class="letter-block">D</span><span class="verb-label">Devenir</span>
+                        <span class="letter-block">R</span><span class="verb-label">Revenir</span>
+                        <span class="letter-block">M</span><span class="verb-label">Mourir</span>
+                        <span class="letter-block">R</span><span class="verb-label">Retourner</span>
+                        <span class="letter-block">S</span><span class="verb-label">Sortir</span>
+                        <span class="letter-block">V</span><span class="verb-label">Venir</span>
+                        <span class="letter-block">A</span><span class="verb-label">Arriver</span>
+                        <span class="letter-block">N</span><span class="verb-label">Naître</span>
+                        <span class="letter-block">D</span><span class="verb-label">Descendre</span>
+                        <span class="letter-block">E</span><span class="verb-label">Entrer</span>
+                        <span class="letter-block">R</span><span class="verb-label">Rentrer</span>
+                        <span class="letter-block">T</span><span class="verb-label">Tomber</span>
+                        <span class="letter-block">R</span><span class="verb-label">Rester</span>
+                        <span class="letter-block">A</span><span class="verb-label">Aller</span>
+                        <span class="letter-block">M</span><span class="verb-label">Monter</span>
+                        <span class="letter-block">P</span><span class="verb-label">Partir</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SLIDE 4: Le Futur ========== -->
+        <div class="slide" id="slide-4">
+            <div class="hero-title centered" id="s4-hero">Le Futur</div>
+            <div class="presenter-name" id="s4-name">Presented by User 3</div>
+
+            <div class="content-area">
+                <!-- Step 2: Futur Proche -->
+                <div class="card step-hidden" data-slide="4" data-step="2">
+                    <h3>Le Futur Proche</h3>
+                    <p>Formula: <span class="highlight">Aller</span> (conjugated) + Infinitif</p>
+                    <ul>
+                        <li><span class="example">Je vais manger.</span> — I am going to eat.</li>
+                        <li><span class="example">Nous allons partir.</span> — We are going to leave.</li>
+                    </ul>
+                    <p style="margin-top:0.5rem; font-size:0.85rem; color: rgba(241,245,249,0.5);">Expresses a near/certain future event.</p>
+                </div>
+
+                <!-- Step 3: Futur Simple -->
+                <div class="card step-hidden" data-slide="4" data-step="3">
+                    <h3>Le Futur Simple</h3>
+                    <p>Formula: <span class="highlight">Infinitif (stem)</span> + endings from "avoir"</p>
+                    <div class="verb-table" style="margin-top:0.5rem;">
+                        <span class="pronoun">je</span><span class="form">parler<span class="highlight">ai</span></span>
+                        <span class="pronoun">tu</span><span class="form">parler<span class="highlight">as</span></span>
+                        <span class="pronoun">il/elle</span><span class="form">parler<span class="highlight">a</span></span>
+                        <span class="pronoun">nous</span><span class="form">parler<span class="highlight">ons</span></span>
+                        <span class="pronoun">vous</span><span class="form">parler<span class="highlight">ez</span></span>
+                        <span class="pronoun">ils/elles</span><span class="form">parler<span class="highlight">ont</span></span>
+                    </div>
+                    <p style="margin-top:0.5rem; font-size:0.85rem; color: rgba(241,245,249,0.5);">Note: -RE verbs drop the final <span class="highlight">e</span> (vendr<span class="highlight">ai</span>).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SLIDE 5: Imparfait & Conditionnel ========== -->
+        <div class="slide" id="slide-5">
+            <div class="hero-title centered" id="s5-hero">L'Imparfait &amp; Le Conditionnel</div>
+            <div class="presenter-name" id="s5-name">Presented by User 4</div>
+
+            <div class="content-area">
+                <!-- Step 2: L'Imparfait -->
+                <div class="card step-hidden" data-slide="5" data-step="2">
+                    <h3>L'Imparfait</h3>
+                    <p>Used for <span class="highlight">descriptions</span> and <span class="highlight">habitual actions</span> in the past.</p>
+                    <p style="margin-top:0.5rem;">Stem: <span class="highlight">Nous</span> form of Présent (drop -ons) + endings:</p>
+                    <div class="verb-table" style="margin-top:0.5rem;">
+                        <span class="pronoun">je</span><span class="form">parl<span class="highlight">ais</span></span>
+                        <span class="pronoun">tu</span><span class="form">parl<span class="highlight">ais</span></span>
+                        <span class="pronoun">il/elle</span><span class="form">parl<span class="highlight">ait</span></span>
+                        <span class="pronoun">nous</span><span class="form">parl<span class="highlight">ions</span></span>
+                        <span class="pronoun">vous</span><span class="form">parl<span class="highlight">iez</span></span>
+                        <span class="pronoun">ils/elles</span><span class="form">parl<span class="highlight">aient</span></span>
+                    </div>
+                    <ul style="margin-top:0.5rem;">
+                        <li><span class="example">Quand j'étais jeune, je jouais dehors.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Step 3: Le Conditionnel -->
+                <div class="card step-hidden" data-slide="5" data-step="3">
+                    <h3>Le Conditionnel</h3>
+                    <p>Used for <span class="highlight">politeness</span> and <span class="highlight">hypothetical</span> situations.</p>
+                    <p style="margin-top:0.5rem;">Stem: <span class="highlight">Futur Simple stem</span> + Imparfait endings:</p>
+                    <div class="verb-table" style="margin-top:0.5rem;">
+                        <span class="pronoun">je</span><span class="form">parler<span class="highlight">ais</span></span>
+                        <span class="pronoun">tu</span><span class="form">parler<span class="highlight">ais</span></span>
+                        <span class="pronoun">il/elle</span><span class="form">parler<span class="highlight">ait</span></span>
+                        <span class="pronoun">nous</span><span class="form">parler<span class="highlight">ions</span></span>
+                        <span class="pronoun">vous</span><span class="form">parler<span class="highlight">iez</span></span>
+                        <span class="pronoun">ils/elles</span><span class="form">parler<span class="highlight">aient</span></span>
+                    </div>
+                    <ul style="margin-top:0.5rem;">
+                        <li><span class="example">Je voudrais un café, s'il vous plaît.</span> (politeness)</li>
+                        <li><span class="example">Si j'avais de l'argent, je voyagerais.</span> (hypothetical)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SLIDE 6: Grand Mind Map ========== -->
+        <div class="slide" id="slide-6">
+            <div class="mindmap-viewport">
+                <div class="mindmap-container" id="mindmap-container">
+                    <!-- SVG Connector Lines -->
+                    <svg class="lines" viewBox="0 0 1000 3000" preserveAspectRatio="xMidYMid meet">
+                        <!-- Start -> Timeframe -->
+                        <line x1="500" y1="100" x2="500" y2="220" class="step-hidden" data-slide="6" data-step="1" />
+                        <!-- Timeframe -> Past -->
+                        <line x1="350" y1="300" x2="200" y2="450" class="step-hidden" data-slide="6" data-step="2" />
+                        <!-- Timeframe -> Present -->
+                        <line x1="500" y1="300" x2="500" y2="450" class="step-hidden" data-slide="6" data-step="2" />
+                        <!-- Timeframe -> Future -->
+                        <line x1="650" y1="300" x2="800" y2="450" class="step-hidden" data-slide="6" data-step="2" />
+                        <!-- Past -> Recent -->
+                        <line x1="120" y1="560" x2="100" y2="700" class="step-hidden" data-slide="6" data-step="3" />
+                        <!-- Past -> Finished -->
+                        <line x1="200" y1="560" x2="280" y2="700" class="step-hidden" data-slide="6" data-step="3" />
+                        <!-- Past -> Habit -->
+                        <line x1="280" y1="560" x2="460" y2="700" class="step-hidden" data-slide="6" data-step="3" />
+                        <!-- Future -> Proche -->
+                        <line x1="730" y1="560" x2="680" y2="700" class="step-hidden" data-slide="6" data-step="4" />
+                        <!-- Future -> Simple -->
+                        <line x1="830" y1="560" x2="880" y2="700" class="step-hidden" data-slide="6" data-step="4" />
+                        <!-- Hypothetical -> Conditionnel -->
+                        <line x1="500" y1="900" x2="500" y2="1020" class="step-hidden" data-slide="6" data-step="5" />
+                    </svg>
+
+                    <!-- Row 1: Start Node -->
+                    <div class="node start step-hidden" data-slide="6" data-step="0" style="left: 50%; top: 3%; transform: translateX(-50%);">
+                        <h4>🗣️ J'ai une phrase...</h4>
+                        <p>What tense do I need?</p>
+                    </div>
+
+                    <!-- Row 2: Timeframe Branches -->
+                    <div class="node step-hidden" data-slide="6" data-step="1" style="left: 50%; top: 9%; transform: translateX(-50%);">
+                        <h4>⏳ Quand ?</h4>
+                        <p>Determine the Timeframe</p>
+                        <span class="node-tag">Past</span>
+                        <span class="node-tag">Present</span>
+                        <span class="node-tag">Future</span>
+                    </div>
+
+                    <!-- Row 3: Past / Present / Future -->
+                    <div class="node step-hidden" data-slide="6" data-step="2" style="left: 15%; top: 17%; transform: translateX(-50%);">
+                        <h4>📜 Le Passé</h4>
+                        <p>Something happened before now</p>
+                    </div>
+                    <div class="node step-hidden" data-slide="6" data-step="2" style="left: 50%; top: 17%; transform: translateX(-50%);">
+                        <h4>🔵 Le Présent</h4>
+                        <p>Happening right now</p>
+                        <span class="node-tag">Le Présent</span>
+                        <span class="node-tag">L'Impératif</span>
+                    </div>
+                    <div class="node step-hidden" data-slide="6" data-step="2" style="left: 85%; top: 17%; transform: translateX(-50%);">
+                        <h4>🔮 Le Futur</h4>
+                        <p>Something will happen</p>
+                    </div>
+
+                    <!-- Row 4: Past Decisions -->
+                    <div class="node step-hidden" data-slide="6" data-step="3" style="left: 5%; top: 27%; transform: translateX(-50%);">
+                        <h4>Passé Récent</h4>
+                        <p>Just happened?</p>
+                        <span class="node-tag">venir de + inf.</span>
+                    </div>
+                    <div class="node step-hidden" data-slide="6" data-step="3" style="left: 25%; top: 27%; transform: translateX(-50%);">
+                        <h4>Passé Composé</h4>
+                        <p>Completed action?</p>
+                        <span class="node-tag">avoir/être + p.p.</span>
+                    </div>
+                    <div class="node step-hidden" data-slide="6" data-step="3" style="left: 45%; top: 27%; transform: translateX(-50%);">
+                        <h4>L'Imparfait</h4>
+                        <p>Habit / Description?</p>
+                        <span class="node-tag">nous stem + endings</span>
+                    </div>
+
+                    <!-- Row 4: Future Decisions -->
+                    <div class="node step-hidden" data-slide="6" data-step="4" style="left: 70%; top: 27%; transform: translateX(-50%);">
+                        <h4>Futur Proche</h4>
+                        <p>About to happen?</p>
+                        <span class="node-tag">aller + inf.</span>
+                    </div>
+                    <div class="node step-hidden" data-slide="6" data-step="4" style="left: 90%; top: 27%; transform: translateX(-50%);">
+                        <h4>Futur Simple</h4>
+                        <p>Planned / Certain?</p>
+                        <span class="node-tag">stem + avoir endings</span>
+                    </div>
+
+                    <!-- Row 5: Hypothetical -->
+                    <div class="node start step-hidden" data-slide="6" data-step="5" style="left: 50%; top: 35%; transform: translateX(-50%);">
+                        <h4>💭 Et si... ? — Le Conditionnel</h4>
+                        <p>Politeness or Hypothetical situation</p>
+                        <span class="node-tag">futur stem + imparfait endings</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /presentation -->
+
+    <script>
+    // ===========================================
+    //  STEP SEQUENCER ENGINE
+    // ===========================================
+    const SLIDE_CONFIG = {
+        1: { totalSteps: 1 },  // Title entrance
+        2: { totalSteps: 4 },  // Hero center -> header -> 3 content steps
+        3: { totalSteps: 4 },  // Hero center -> header -> 3 content steps
+        4: { totalSteps: 3 },  // Hero center -> header -> 2 content steps
+        5: { totalSteps: 3 },  // Hero center -> header -> 2 content steps
+        6: { totalSteps: 5 }   // Mind map scroll sections
+    };
+
+    const TOTAL_SLIDES = 6;
+    let currentSlide = 1;
+    let currentStep = -1; // -1 means slide just appeared, first arrow press triggers step 0
+
+    // Compute total steps across all slides for progress bar
+    function getTotalSteps() {
+        let total = 0;
+        for (let s = 1; s <= TOTAL_SLIDES; s++) {
+            total += SLIDE_CONFIG[s].totalSteps + 1; // +1 for the entry step
+        }
+        return total;
+    }
+
+    function getCompletedSteps() {
+        let completed = 0;
+        for (let s = 1; s < currentSlide; s++) {
+            completed += SLIDE_CONFIG[s].totalSteps + 1;
+        }
+        completed += currentStep + 1;
+        return completed;
+    }
+
+    function updateProgress() {
+        const total = getTotalSteps();
+        const done = getCompletedSteps();
+        const pct = Math.min((done / total) * 100, 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('slide-counter').textContent = currentSlide + ' / ' + TOTAL_SLIDES;
+    }
+
+    // Show a slide
+    function showSlide(n) {
+        document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+        const slide = document.getElementById('slide-' + n);
+        if (slide) slide.classList.add('active');
+    }
+
+    // ===========================================
+    //  SLIDE 1 LOGIC
+    // ===========================================
+    function triggerSlide1Step(step) {
+        if (step === 0) {
+            document.getElementById('s1-title').classList.add('visible');
+            document.getElementById('s1-sub').classList.add('visible');
+        }
+    }
+
+    // ===========================================
+    //  SLIDES 2-5: HERO-TO-HEADER LOGIC
+    // ===========================================
+    function triggerHeroSlideStep(slideNum, step) {
+        const hero = document.getElementById('s' + slideNum + '-hero');
+        const name = document.getElementById('s' + slideNum + '-name');
+
+        if (step === 0) {
+            // Step 0: Title centered + Name visible (already in HTML default state)
+            hero.classList.add('centered');
+            hero.classList.remove('header');
+            if (name) name.classList.remove('hidden');
+        } else if (step === 1) {
+            // Step 1: Title moves to header, name fades out
+            hero.classList.remove('centered');
+            hero.classList.add('header');
+            if (name) name.classList.add('hidden');
+        } else {
+            // Step 2+: Reveal content cards
+            const cards = document.querySelectorAll('[data-slide="' + slideNum + '"][data-step="' + step + '"]');
+            cards.forEach(c => {
+                c.classList.remove('step-hidden');
+                c.classList.add('step-visible');
+            });
+        }
+    }
+
+    // ===========================================
+    //  SLIDE 6: MIND MAP SCROLL LOGIC
+    // ===========================================
+    const MINDMAP_SCROLL_POSITIONS = [0, 0, 0, -30, -50, -60]; // vh offsets per step
+
+    function triggerSlide6Step(step) {
+        const container = document.getElementById('mindmap-container');
+
+        // Reveal elements for this step
+        const els = document.querySelectorAll('[data-slide="6"][data-step="' + step + '"]');
+        els.forEach(el => {
+            el.classList.remove('step-hidden');
+            el.classList.add('step-visible');
+        });
+
+        // Scroll the container
+        if (step < MINDMAP_SCROLL_POSITIONS.length) {
+            const offset = MINDMAP_SCROLL_POSITIONS[step];
+            container.style.transform = 'translateY(' + offset + 'vh)';
+        }
+    }
+
+    // ===========================================
+    //  RESET A SLIDE (when navigating away and back)
+    // ===========================================
+    function resetSlide(slideNum) {
+        // Reset hero title
+        const hero = document.getElementById('s' + slideNum + '-hero');
+        if (hero) {
+            hero.classList.add('centered');
+            hero.classList.remove('header');
+        }
+        // Reset presenter name
+        const name = document.getElementById('s' + slideNum + '-name');
+        if (name) name.classList.remove('hidden');
+
+        // Reset all step elements for this slide
+        const stepEls = document.querySelectorAll('[data-slide="' + slideNum + '"]');
+        stepEls.forEach(el => {
+            el.classList.add('step-hidden');
+            el.classList.remove('step-visible');
+        });
+
+        // Slide 1 specifics
+        if (slideNum === 1) {
+            const s1t = document.getElementById('s1-title');
+            const s1s = document.getElementById('s1-sub');
+            if (s1t) s1t.classList.remove('visible');
+            if (s1s) s1s.classList.remove('visible');
+        }
+
+        // Slide 6 specifics
+        if (slideNum === 6) {
+            const mc = document.getElementById('mindmap-container');
+            if (mc) mc.style.transform = 'translateY(0)';
+        }
+    }
+
+    // ===========================================
+    //  STEP DISPATCHER
+    // ===========================================
+    function triggerStep(slideNum, step) {
+        if (slideNum === 1) {
+            triggerSlide1Step(step);
+        } else if (slideNum >= 2 && slideNum <= 5) {
+            triggerHeroSlideStep(slideNum, step);
+        } else if (slideNum === 6) {
+            triggerSlide6Step(step);
+        }
+        updateProgress();
+    }
+
+    // ===========================================
+    //  NAVIGATION
+    // ===========================================
+    function goNext() {
+        const maxStep = SLIDE_CONFIG[currentSlide].totalSteps;
+        if (currentStep < maxStep) {
+            currentStep++;
+            triggerStep(currentSlide, currentStep);
+        } else {
+            // Move to next slide
+            if (currentSlide < TOTAL_SLIDES) {
+                currentSlide++;
+                currentStep = 0;
+                showSlide(currentSlide);
+                triggerStep(currentSlide, currentStep);
+            }
+        }
+    }
+
+    function goPrev() {
+        if (currentStep > 0) {
+            // We can't easily un-animate, so go back to the slide start
+            resetSlide(currentSlide);
+            currentStep = 0;
+            triggerStep(currentSlide, 0);
+        } else {
+            // Move to previous slide
+            if (currentSlide > 1) {
+                resetSlide(currentSlide);
+                currentSlide--;
+                currentStep = SLIDE_CONFIG[currentSlide].totalSteps;
+                showSlide(currentSlide);
+                // Re-play all steps to restore the slide to its final state
+                for (let s = 0; s <= currentStep; s++) {
+                    triggerStep(currentSlide, s);
+                }
+            }
+        }
+    }
+
+    // Keyboard listener
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            goNext();
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goPrev();
+        }
+    });
+
+    // Initialize first slide
+    showSlide(1);
+    currentStep = 0;
+    triggerStep(1, 0);
+
+    // ===========================================
+    //  PHYSICS CURSOR ENGINE
+    //  (Adapted from science/index.html)
+    // ===========================================
+    const canvas = document.getElementById('cursor-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    const resize = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Physics State
+    let mouse = { x: width / 2, y: height / 2 };
+    let cursorPos = { x: width / 2, y: height / 2, w: 20, h: 20, r: 10 };
+    let velocity = { x: 0, y: 0 };
+    let targetPos = { x: width / 2, y: height / 2, w: 20, h: 20, r: 10 };
+    let hoverEl = null;
+    let hoverTimeout = null;
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+
+        const el = e.target.closest('[data-hover]');
+
+        if (el) {
+            if (hoverTimeout) clearTimeout(hoverTimeout);
+            hoverEl = el;
+            const rect = el.getBoundingClientRect();
+            const style = window.getComputedStyle(el);
+            const borderRadius = parseFloat(style.borderRadius) || 0;
+
+            targetPos.x = rect.left + rect.width / 2;
+            targetPos.y = rect.top + rect.height / 2;
+            targetPos.w = rect.width + 12;
+            targetPos.h = rect.height + 12;
+            targetPos.r = borderRadius + 6;
+        } else {
+            if (!hoverTimeout && hoverEl) {
+                hoverTimeout = setTimeout(() => {
+                    hoverEl = null;
+                    hoverTimeout = null;
+                    targetPos.w = 20;
+                    targetPos.h = 20;
+                    targetPos.r = 10;
+                }, 60);
+            } else if (!hoverEl) {
+                targetPos.x = mouse.x;
+                targetPos.y = mouse.y;
+                targetPos.w = 20;
+                targetPos.h = 20;
+                targetPos.r = 10;
+            }
+        }
+    });
+
+    const cursorLoop = () => {
+        const stiff = 0.2;
+        const damp = 0.55;
+
+        let tx = targetPos.x;
+        let ty = targetPos.y;
+
+        if (!hoverEl && !hoverTimeout) {
+            tx = mouse.x;
+            ty = mouse.y;
+            if (canvas.style.mixBlendMode !== 'exclusion') {
+                canvas.style.mixBlendMode = 'exclusion';
+            }
+        } else {
+            if (canvas.style.mixBlendMode !== 'normal') {
+                canvas.style.mixBlendMode = 'normal';
+            }
+        }
+
+        let ax = (tx - cursorPos.x) * stiff;
+        let ay = (ty - cursorPos.y) * stiff;
+
+        velocity.x = (velocity.x + ax) * damp;
+        velocity.y = (velocity.y + ay) * damp;
+
+        cursorPos.x += velocity.x;
+        cursorPos.y += velocity.y;
+
+        cursorPos.w += (targetPos.w - cursorPos.w) * 0.25;
+        cursorPos.h += (targetPos.h - cursorPos.h) * 0.25;
+        cursorPos.r += (targetPos.r - cursorPos.r) * 0.25;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.save();
+        ctx.translate(cursorPos.x, cursorPos.y);
+
+        // Progressive Stretching
+        if (!hoverEl && !hoverTimeout) {
+            const speed = Math.sqrt(velocity.x ** 2 + velocity.y ** 2);
+            const angle = Math.atan2(velocity.y, velocity.x);
+            const stretchAmount = Math.min(Math.pow(speed * 0.04, 1.2), 0.4);
+
+            ctx.rotate(angle);
+            ctx.scale(1 + stretchAmount, 1 - stretchAmount);
+            ctx.rotate(-angle);
+        }
+
+        const rw = cursorPos.w;
+        const rh = cursorPos.h;
+        const rr = Math.min(cursorPos.r, Math.min(rw, rh) / 2);
+
+        ctx.beginPath();
+        ctx.roundRect(-rw / 2, -rh / 2, rw, rh, rr);
+
+        if (hoverEl || hoverTimeout) {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#c084fc';
+            ctx.shadowColor = '#c084fc';
+            ctx.shadowBlur = 15;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(192, 132, 252, 0.05)';
+            ctx.fill();
+        } else {
+            ctx.fillStyle = 'white';
+            ctx.shadowBlur = 0;
+            ctx.fill();
+        }
+
+        ctx.restore();
+        requestAnimationFrame(cursorLoop);
+    };
+    cursorLoop();
+    </script>
+</body>
+</html>
