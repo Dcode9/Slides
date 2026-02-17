@@ -1,1252 +1,630 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Présentation - Mes Loisirs</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lora:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@700&display=swap');
-
-  :root {
-    --paper-white: #f5f0e8;
-    --paper-cream: #ebe3d5;
-    --paper-tan: #d4c5a9;
-    --paper-brown: #b8a082;
-    --paper-dark: #8b7355;
-    --forest-green: #2d5a3d;
-    --deep-green: #1a3a25;
-    --warm-gold: #c4973b;
-    --rust: #a0522d;
-    --soft-shadow: rgba(80, 50, 20, 0.3);
-    --deep-shadow: rgba(40, 25, 10, 0.5);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html, body {
-    width: 100%; height: 100%;
-    overflow: hidden;
-    background: #2a2118;
-    font-family: 'Lora', serif;
-  }
-
-  /* ═══════════════ SLIDE SYSTEM ═══════════════ */
-  .slides-container {
-    width: 100%; height: 100%;
-    position: relative;
-  }
-
-  .slide {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: none;
-    overflow: hidden;
-  }
-
-  .slide.active {
-    opacity: 1;
-    pointer-events: all;
-    z-index: 10;
-  }
-
-  /* ═══════════════ PAPER TEXTURE BG ═══════════════ */
-  .paper-bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(139,115,85,0.03) 3px,
-        rgba(139,115,85,0.03) 4px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 5px,
-        rgba(139,115,85,0.02) 5px,
-        rgba(139,115,85,0.02) 6px
-      ),
-      radial-gradient(ellipse at 20% 50%, rgba(212,197,169,0.4) 0%, transparent 70%),
-      radial-gradient(ellipse at 80% 30%, rgba(196,151,59,0.1) 0%, transparent 60%),
-      linear-gradient(135deg, var(--paper-white) 0%, var(--paper-cream) 50%, var(--paper-tan) 100%);
-    z-index: 0;
-  }
-
-  /* ═══════════════ PAPER LAYER SYSTEM ═══════════════ */
-  .paper-layer {
-    position: absolute;
-    border-radius: 8px;
-    transform-style: preserve-3d;
-    will-change: transform, opacity;
-  }
-
-  .paper-layer::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    border-radius: inherit;
-    background:
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.01) 2px,
-        rgba(0,0,0,0.01) 3px
-      );
-    pointer-events: none;
-  }
-
-  /* Depth layers with increasing shadows */
-  .paper-layer.depth-1 {
-    filter: drop-shadow(2px 3px 4px var(--soft-shadow));
-    z-index: 1;
-  }
-  .paper-layer.depth-2 {
-    filter: drop-shadow(4px 6px 8px var(--soft-shadow))
-            drop-shadow(1px 2px 2px rgba(80,50,20,0.15));
-    z-index: 2;
-  }
-  .paper-layer.depth-3 {
-    filter: drop-shadow(6px 10px 15px var(--deep-shadow))
-            drop-shadow(2px 4px 4px rgba(80,50,20,0.2));
-    z-index: 3;
-  }
-  .paper-layer.depth-4 {
-    filter: drop-shadow(8px 14px 20px var(--deep-shadow))
-            drop-shadow(3px 5px 6px rgba(80,50,20,0.25));
-    z-index: 4;
-  }
-  .paper-layer.depth-5 {
-    filter: drop-shadow(10px 18px 28px var(--deep-shadow))
-            drop-shadow(4px 7px 8px rgba(80,50,20,0.3));
-    z-index: 5;
-  }
-
-  /* ═══════════════ PAPER CRUMBLE ANIMATIONS ═══════════════ */
-
-  /* --- INTRO: Paper unfolds/uncrumbles into view --- */
-  @keyframes paperUnfoldCenter {
-    0% {
-      transform: perspective(800px) rotateY(90deg) rotateX(15deg) scale(0.3);
-      opacity: 0;
-      filter: drop-shadow(0px 0px 0px transparent) brightness(0.7);
-    }
-    30% {
-      transform: perspective(800px) rotateY(-15deg) rotateX(-5deg) scale(0.85);
-      opacity: 0.7;
-    }
-    60% {
-      transform: perspective(800px) rotateY(8deg) rotateX(3deg) scale(1.02);
-      opacity: 0.9;
-    }
-    100% {
-      transform: perspective(800px) rotateY(0deg) rotateX(0deg) scale(1);
-      opacity: 1;
-      filter: drop-shadow(6px 10px 15px var(--deep-shadow)) brightness(1);
-    }
-  }
-
-  @keyframes paperUnfoldLeft {
-    0% {
-      transform: perspective(900px) rotateY(120deg) rotateZ(-10deg) translateX(-200px) scale(0.2);
-      opacity: 0;
-      filter: brightness(0.5);
-    }
-    40% {
-      transform: perspective(900px) rotateY(-10deg) rotateZ(3deg) translateX(20px) scale(0.95);
-      opacity: 0.8;
-    }
-    70% {
-      transform: perspective(900px) rotateY(5deg) rotateZ(-1deg) translateX(-5px) scale(1.01);
-    }
-    100% {
-      transform: perspective(900px) rotateY(0deg) rotateZ(0deg) translateX(0px) scale(1);
-      opacity: 1;
-      filter: brightness(1);
-    }
-  }
-
-  @keyframes paperUnfoldRight {
-    0% {
-      transform: perspective(900px) rotateY(-120deg) rotateZ(10deg) translateX(200px) scale(0.2);
-      opacity: 0;
-      filter: brightness(0.5);
-    }
-    40% {
-      transform: perspective(900px) rotateY(10deg) rotateZ(-3deg) translateX(-20px) scale(0.95);
-      opacity: 0.8;
-    }
-    70% {
-      transform: perspective(900px) rotateY(-5deg) rotateZ(1deg) translateX(5px) scale(1.01);
-    }
-    100% {
-      transform: perspective(900px) rotateY(0deg) rotateZ(0deg) translateX(0px) scale(1);
-      opacity: 1;
-      filter: brightness(1);
-    }
-  }
-
-  @keyframes paperUnfoldTop {
-    0% {
-      transform: perspective(800px) rotateX(-120deg) translateY(-150px) scale(0.3);
-      opacity: 0;
-      filter: brightness(0.5);
-    }
-    50% {
-      transform: perspective(800px) rotateX(10deg) translateY(10px) scale(1.02);
-      opacity: 0.85;
-    }
-    100% {
-      transform: perspective(800px) rotateX(0deg) translateY(0px) scale(1);
-      opacity: 1;
-      filter: brightness(1);
-    }
-  }
-
-  @keyframes paperUnfoldBottom {
-    0% {
-      transform: perspective(800px) rotateX(120deg) translateY(150px) scale(0.3);
-      opacity: 0;
-    }
-    50% {
-      transform: perspective(800px) rotateX(-10deg) translateY(-10px) scale(1.02);
-      opacity: 0.85;
-    }
-    100% {
-      transform: perspective(800px) rotateX(0deg) translateY(0px) scale(1);
-      opacity: 1;
-    }
-  }
-
-  @keyframes paperCrumpleIn {
-    0% {
-      transform: perspective(600px) rotateY(45deg) rotateX(30deg) rotateZ(15deg) scale(0.1);
-      opacity: 0;
-      filter: brightness(0.4) saturate(0.5);
-    }
-    25% {
-      transform: perspective(600px) rotateY(-20deg) rotateX(-15deg) rotateZ(-8deg) scale(0.6);
-      opacity: 0.5;
-    }
-    50% {
-      transform: perspective(600px) rotateY(10deg) rotateX(8deg) rotateZ(4deg) scale(0.9);
-      opacity: 0.8;
-    }
-    75% {
-      transform: perspective(600px) rotateY(-3deg) rotateX(-2deg) rotateZ(-1deg) scale(1.02);
-    }
-    100% {
-      transform: perspective(600px) rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(1);
-      opacity: 1;
-      filter: brightness(1) saturate(1);
-    }
-  }
-
-  @keyframes floatPaper {
-    0% {
-      transform: perspective(600px) rotateX(-90deg) rotateZ(30deg) translateY(-300px) scale(0.4);
-      opacity: 0;
-    }
-    40% {
-      transform: perspective(600px) rotateX(5deg) rotateZ(-5deg) translateY(20px) scale(1.02);
-      opacity: 0.9;
-    }
-    60% {
-      transform: perspective(600px) rotateX(-3deg) rotateZ(2deg) translateY(-10px) scale(0.99);
-    }
-    100% {
-      transform: perspective(600px) rotateX(0deg) rotateZ(0deg) translateY(0px) scale(1);
-      opacity: 1;
-    }
-  }
-
-  /* --- EXIT: Paper crumbles/folds away --- */
-  @keyframes paperCrumbleOut {
-    0% {
-      transform: perspective(800px) rotateY(0deg) rotateX(0deg) scale(1);
-      opacity: 1;
-    }
-    40% {
-      transform: perspective(800px) rotateY(25deg) rotateX(15deg) rotateZ(5deg) scale(0.7);
-      opacity: 0.6;
-      filter: brightness(0.6);
-    }
-    100% {
-      transform: perspective(800px) rotateY(90deg) rotateX(45deg) rotateZ(20deg) scale(0.1);
-      opacity: 0;
-      filter: brightness(0.3);
-    }
-  }
-
-  @keyframes paperFoldAway {
-    0% {
-      transform: perspective(800px) rotateX(0deg) scale(1);
-      opacity: 1;
-    }
-    100% {
-      transform: perspective(800px) rotateX(120deg) translateY(-200px) scale(0.2);
-      opacity: 0;
-    }
-  }
-
-  /* --- Decorative float --- */
-  @keyframes gentleFloat {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-8px) rotate(1deg); }
-  }
-
-  @keyframes gentleFloatAlt {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-6px) rotate(-1.5deg); }
-  }
-
-  /* ═══════════════ ANIMATION CLASSES ═══════════════ */
-  .anim-unfold-center { animation: paperUnfoldCenter 1s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-  .anim-unfold-left   { animation: paperUnfoldLeft 1s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-  .anim-unfold-right  { animation: paperUnfoldRight 1s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-  .anim-unfold-top    { animation: paperUnfoldTop 0.9s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-  .anim-unfold-bottom { animation: paperUnfoldBottom 0.9s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-  .anim-crumple-in    { animation: paperCrumpleIn 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-  .anim-float-paper   { animation: floatPaper 1.1s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-
-  .anim-exit-crumble  { animation: paperCrumbleOut 0.7s cubic-bezier(0.55, 0, 1, 0.45) forwards; }
-  .anim-exit-fold     { animation: paperFoldAway 0.6s cubic-bezier(0.55, 0, 1, 0.45) forwards; }
-
-  .anim-idle-float    { animation: gentleFloat 4s ease-in-out infinite; }
-  .anim-idle-float-alt { animation: gentleFloatAlt 5s ease-in-out infinite; }
-
-  /* Stagger delays */
-  .delay-1 { animation-delay: 0.1s; opacity: 0; }
-  .delay-2 { animation-delay: 0.25s; opacity: 0; }
-  .delay-3 { animation-delay: 0.4s; opacity: 0; }
-  .delay-4 { animation-delay: 0.55s; opacity: 0; }
-  .delay-5 { animation-delay: 0.7s; opacity: 0; }
-  .delay-6 { animation-delay: 0.85s; opacity: 0; }
-  .delay-7 { animation-delay: 1.0s; opacity: 0; }
-  .delay-8 { animation-delay: 1.15s; opacity: 0; }
-  .delay-9 { animation-delay: 1.3s; opacity: 0; }
-  .delay-10 { animation-delay: 1.45s; opacity: 0; }
-
-  /* ═══════════════ PAPER DECORATIVE ELEMENTS ═══════════════ */
-  .paper-wave {
-    position: absolute;
-    width: 100%;
-    overflow: hidden;
-    z-index: 1;
-  }
-
-  .paper-wave svg {
-    display: block;
-    width: 100%;
-  }
-
-  .paper-corner-fold {
-    position: absolute;
-    width: 60px; height: 60px;
-    z-index: 10;
-  }
-
-  .paper-corner-fold::before {
-    content: '';
-    position: absolute;
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, var(--paper-tan) 0%, var(--paper-brown) 50%, transparent 50%);
-    filter: drop-shadow(-2px 2px 3px rgba(0,0,0,0.2));
-  }
-
-  .corner-top-right {
-    top: 0; right: 0;
-    transform: rotate(90deg);
-  }
-  .corner-bottom-left {
-    bottom: 0; left: 0;
-    transform: rotate(-90deg);
-  }
-
-  /* ═══════════════ LEAF / FEATHER PAPER SHAPES ═══════════════ */
-  .paper-leaf {
-    position: absolute;
-    width: 40px; height: 70px;
-    border-radius: 50% 0 50% 0;
-    transform-origin: bottom center;
-  }
-
-  .paper-feather {
-    position: absolute;
-    width: 15px; height: 50px;
-    border-radius: 50% 50% 20% 20%;
-    transform-origin: bottom center;
-  }
-
-  .paper-circle {
-    position: absolute;
-    border-radius: 50%;
-  }
-
-  .paper-wheat {
-    position: absolute;
-    width: 8px; height: 35px;
-    border-radius: 40%;
-    transform-origin: bottom center;
-  }
-
-  /* ═══════════════ CONTENT CARD STYLING ═══════════════ */
-  .content-card {
-    position: relative;
-    background: linear-gradient(145deg, var(--paper-white), var(--paper-cream));
-    border-radius: 12px;
-    padding: 30px 35px;
-    max-width: 70%;
-    border: 1px solid rgba(180,160,130,0.3);
-  }
-
-  .content-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    border-radius: inherit;
-    background:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 4px,
-        rgba(139,115,85,0.02) 4px,
-        rgba(139,115,85,0.02) 5px
-      );
-    pointer-events: none;
-  }
-
-  /* ═══════════════ TYPOGRAPHY ═══════════════ */
-  .title-main {
-    font-family: 'Playfair Display', serif;
-    font-weight: 900;
-    color: var(--deep-green);
-    line-height: 1.1;
-    letter-spacing: -1px;
-  }
-
-  .title-accent {
-    color: var(--warm-gold);
-  }
-
-  .subtitle {
-    font-family: 'Lora', serif;
-    font-style: italic;
-    color: var(--paper-dark);
-    font-size: 1.2rem;
-    margin-top: 10px;
-  }
-
-  .body-text {
-    font-family: 'Lora', serif;
-    color: #4a3f35;
-    font-size: 1rem;
-    line-height: 1.8;
-  }
-
-  .script-text {
-    font-family: 'Dancing Script', cursive;
-    color: var(--forest-green);
-  }
-
-  /* ═══════════════ IMAGE CONTAINER ═══════════════ */
-  .img-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-    background: var(--paper-tan);
-    border: 3px solid var(--paper-brown);
-  }
-
-  .img-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .img-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Lora', serif;
-    color: var(--paper-dark);
-    font-style: italic;
-    font-size: 0.85rem;
-    text-align: center;
-    padding: 20px;
-    min-height: 120px;
-    background:
-      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(180,160,130,0.1) 10px, rgba(180,160,130,0.1) 11px),
-      linear-gradient(to bottom, var(--paper-cream), var(--paper-tan));
-  }
-
-  /* ═══════════════ NAME TAG ═══════════════ */
-  .name-tag {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--forest-green), var(--deep-green));
-    color: var(--paper-white);
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    padding: 8px 25px;
-    border-radius: 6px;
-    position: relative;
-    filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.3));
-  }
-
-  .name-tag::before {
-    content: '';
-    position: absolute;
-    top: 3px; left: 3px;
-    right: -3px; bottom: -3px;
-    background: rgba(0,0,0,0.15);
-    border-radius: 6px;
-    z-index: -1;
-  }
-
-  /* ═══════════════ NAVIGATION ═══════════════ */
-  .nav-controls {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 15px;
-    z-index: 1000;
-  }
-
-  .nav-btn {
-    width: 50px; height: 50px;
-    border-radius: 50%;
-    border: 2px solid var(--paper-brown);
-    background: linear-gradient(145deg, var(--paper-white), var(--paper-cream));
-    color: var(--paper-dark);
-    font-size: 1.3rem;
-    cursor: pointer;
-    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Lora', serif;
-  }
-
-  .nav-btn:hover {
-    background: linear-gradient(145deg, var(--paper-cream), var(--paper-tan));
-    filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.3));
-    transform: scale(1.1);
-  }
-
-  .slide-counter {
-    position: fixed;
-    bottom: 35px;
-    right: 40px;
-    font-family: 'Playfair Display', serif;
-    font-size: 0.9rem;
-    color: var(--paper-dark);
-    background: linear-gradient(145deg, var(--paper-white), var(--paper-cream));
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid var(--paper-brown);
-    filter: drop-shadow(2px 3px 5px rgba(0,0,0,0.15));
-    z-index: 1000;
-  }
-
-  /* ═══════════════ SLIDE-SPECIFIC STYLES ═══════════════ */
-
-  /* SLIDE 1: Welcome */
-  .slide-welcome .paper-border-top {
-    position: absolute; top: 0; left: 0; right: 0;
-    height: 120px;
-    background: linear-gradient(180deg, var(--paper-tan), transparent);
-    clip-path: polygon(0 0, 100% 0, 100% 60%, 85% 80%, 70% 55%, 55% 85%, 40% 60%, 25% 90%, 10% 65%, 0 80%);
-  }
-
-  .slide-welcome .paper-border-bottom {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 120px;
-    background: linear-gradient(0deg, var(--paper-brown), transparent);
-    clip-path: polygon(0 40%, 15% 20%, 30% 45%, 45% 15%, 60% 40%, 75% 10%, 90% 35%, 100% 20%, 100% 100%, 0 100%);
-  }
-
-  .welcome-center {
-    text-align: center;
-    z-index: 5;
-    position: relative;
-  }
-
-  .welcome-center .title-main {
-    font-size: 4.5rem;
-  }
-
-  .welcome-center .subtitle {
-    font-size: 1.5rem;
-    margin-top: 15px;
-  }
-
-  .welcome-divider {
-    width: 200px;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--warm-gold), transparent);
-    margin: 20px auto;
-    border-radius: 2px;
-  }
-
-  /* SLIDE 2: Mes Loisirs */
-  .loisirs-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    width: 80%;
-    max-width: 900px;
-    z-index: 5;
-    position: relative;
-  }
-
-  .loisir-card {
-    background: linear-gradient(145deg, var(--paper-white), var(--paper-cream));
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid rgba(180,160,130,0.4);
-    text-align: center;
-    position: relative;
-  }
-
-  .loisir-card .loisir-icon {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  .loisir-card h3 {
-    font-family: 'Playfair Display', serif;
-    color: var(--forest-green);
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-  }
-
-  .loisir-card p {
-    font-family: 'Lora', serif;
-    color: var(--paper-dark);
-    font-size: 0.85rem;
-    line-height: 1.5;
-  }
-
-  /* SLIDE 3: Person - Cricket & Travel */
-  .person-slide {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-    z-index: 5;
-    position: relative;
-    width: 85%;
-    max-width: 950px;
-  }
-
-  .hobby-row {
-    display: flex;
-    gap: 30px;
-    width: 100%;
-  }
-
-  .hobby-panel {
-    flex: 1;
-    background: linear-gradient(145deg, var(--paper-white), var(--paper-cream));
-    border-radius: 14px;
-    padding: 25px;
-    border: 1px solid rgba(180,160,130,0.3);
-    text-align: center;
-  }
-
-  .hobby-panel h3 {
-    font-family: 'Playfair Display', serif;
-    color: var(--forest-green);
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-  }
-
-  /* SLIDE 4: Guitar, Painting, Basketball */
-  .hobbies-detail {
-    width: 85%;
-    max-width: 950px;
-    z-index: 5;
-    position: relative;
-  }
-
-  .hobbies-detail .body-text {
-    text-align: justify;
-    line-height: 2;
-    font-size: 1.05rem;
-  }
-
-  .hobby-highlights {
-    display: flex;
-    gap: 20px;
-    margin-top: 25px;
-  }
-
-  .hobby-highlight-item {
-    flex: 1;
-    background: linear-gradient(145deg, var(--paper-white), var(--paper-cream));
-    border-radius: 12px;
-    padding: 20px 15px;
-    text-align: center;
-    border: 1px solid rgba(180,160,130,0.3);
-  }
-
-  .hobby-highlight-item .hl-icon {
-    font-size: 2.2rem;
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  .hobby-highlight-item h4 {
-    font-family: 'Playfair Display', serif;
-    color: var(--forest-green);
-    font-size: 1rem;
-  }
-
-  .hobby-highlight-item p {
-    font-family: 'Lora', serif;
-    color: var(--paper-dark);
-    font-size: 0.8rem;
-    margin-top: 5px;
-  }
-
-  /* SLIDE 5: Badminton */
-  .badminton-layout {
-    display: flex;
-    gap: 35px;
-    align-items: center;
-    width: 85%;
-    max-width: 1000px;
-    z-index: 5;
-    position: relative;
-  }
-
-  .badminton-text {
-    flex: 1.2;
-  }
-
-  .badminton-visual {
-    flex: 0.8;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-  }
-
-  .stat-card {
-    background: linear-gradient(135deg, var(--forest-green), var(--deep-green));
-    color: var(--paper-white);
-    border-radius: 10px;
-    padding: 15px 25px;
-    text-align: center;
-    width: 100%;
-    max-width: 220px;
-  }
-
-  .stat-card .stat-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    font-weight: 900;
-  }
-
-  .stat-card .stat-label {
-    font-family: 'Lora', serif;
-    font-size: 0.85rem;
-    opacity: 0.85;
-  }
-
-  /* SLIDE 6: Mind Map Placeholder */
-  .mindmap-container {
-    width: 90%;
-    max-width: 1100px;
-    height: 75vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    z-index: 5;
-    position: relative;
-    background: linear-gradient(145deg, var(--paper-white), var(--paper-cream));
-    border-radius: 16px;
-    padding: 40px;
-    border: 2px solid var(--paper-tan);
-    scrollbar-width: thin;
-    scrollbar-color: var(--paper-brown) var(--paper-cream);
-  }
-
-  .mindmap-container::-webkit-scrollbar {
-    width: 8px;
-  }
-  .mindmap-container::-webkit-scrollbar-track {
-    background: var(--paper-cream);
-    border-radius: 4px;
-  }
-  .mindmap-container::-webkit-scrollbar-thumb {
-    background: var(--paper-brown);
-    border-radius: 4px;
-  }
-
-  .mindmap-center {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-
-  .mindmap-node {
-    background: linear-gradient(135deg, var(--paper-cream), var(--paper-tan));
-    border-radius: 12px;
-    padding: 20px;
-    margin: 15px 0;
-    border-left: 4px solid var(--forest-green);
-    position: relative;
-  }
-
-  .mindmap-node h3 {
-    font-family: 'Playfair Display', serif;
-    color: var(--forest-green);
-    margin-bottom: 8px;
-  }
-
-  .mindmap-node p {
-    font-family: 'Lora', serif;
-    color: var(--paper-dark);
-    font-size: 0.9rem;
-    line-height: 1.6;
-  }
-
-  .mindmap-placeholder {
-    text-align: center;
-    padding: 60px 20px;
-    font-family: 'Lora', serif;
-    font-style: italic;
-    color: var(--paper-dark);
-    font-size: 1.1rem;
-  }
-
-  /* SLIDE 7: Merci */
-  .merci-center {
-    text-align: center;
-    z-index: 5;
-    position: relative;
-  }
-
-  .merci-center .title-main {
-    font-size: 5rem;
-    background: linear-gradient(135deg, var(--forest-green), var(--warm-gold));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .merci-flourish {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .merci-flourish span {
-    display: inline-block;
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    animation: gentleFloat 3s ease-in-out infinite;
-  }
-
-  .merci-flourish span:nth-child(1) { background: var(--forest-green); animation-delay: 0s; }
-  .merci-flourish span:nth-child(2) { background: var(--warm-gold); animation-delay: 0.3s; }
-  .merci-flourish span:nth-child(3) { background: var(--rust); animation-delay: 0.6s; }
-  .merci-flourish span:nth-child(4) { background: var(--paper-brown); animation-delay: 0.9s; }
-  .merci-flourish span:nth-child(5) { background: var(--forest-green); animation-delay: 1.2s; }
-
-  /* ═══════════════ RESPONSIVE ═══════════════ */
-  @media (max-width: 768px) {
-    .welcome-center .title-main { font-size: 2.8rem; }
-    .loisirs-grid { grid-template-columns: 1fr; width: 90%; }
-    .hobby-row { flex-direction: column; }
-    .hobby-highlights { flex-direction: column; }
-    .badminton-layout { flex-direction: column; }
-    .merci-center .title-main { font-size: 3rem; }
-    .content-card { max-width: 90%; padding: 20px; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Présentation de Français</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (for JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Playfair+Display:wght@700&family=Permanent+Marker&display=swap');
+
+        /* Custom Styles from previous React component */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .paper-texture-bg {
+            background-color: #f8f5e6;
+            background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png");
+            background-blend-mode: multiply;
+        }
+        .crumpled-texture {
+            background-color: #fff;
+            background-image: url("https://www.transparenttextures.com/patterns/crinkle-paper.png");
+            background-size: 400px;
+        }
+
+        .clip-torn-1 { clip-path: polygon(2% 0%, 98% 2%, 100% 95%, 95% 100%, 5% 98%, 0% 5%); }
+        .clip-torn-2 { clip-path: polygon(0% 0%, 100% 0%, 95% 90%, 85% 100%, 10% 95%, 0% 85%); }
+
+        .shadow-layered { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.15)); }
+        
+        .pin-container {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            z-index: 100; pointer-events: none;
+        }
+        .pin-head {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c92a2a);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4);
+        }
+        .pin-shadow {
+            position: absolute; top: 5px; left: 5px; width: 20px; height: 20px;
+            background: rgba(0,0,0,0.2); border-radius: 50%;
+            transform: skewX(45deg); filter: blur(2px); z-index: -1;
+        }
+
+        .thread {
+            position: absolute; background: #d63031; height: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); transform-origin: 0 50%;
+            z-index: 0; opacity: 0.9; pointer-events: none;
+        }
+
+        @keyframes float-continuous {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, -15px) rotate(5deg); }
+            50% { transform: translate(-5px, 10px) rotate(-2deg); }
+            75% { transform: translate(-15px, -5px) rotate(3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        .animate-float-bg { animation: float-continuous 8s ease-in-out infinite; }
+
+        .slide-enter-element { opacity: 0; animation: unfold-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .slide-exit-element { animation: crumple-throw 0.7s ease-in forwards; }
+
+        @keyframes unfold-pop {
+            0% { transform: scale(0.2) rotate(-5deg); opacity: 0; }
+            100% { transform: scale(1) rotate(var(--final-rotation, 0deg)); opacity: 1; }
+        }
+        @keyframes crumple-throw {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.3) rotate(20deg) translate(500px, 800px); opacity: 0; }
+        }
+
+        .font-marker { font-family: 'Permanent Marker', cursive; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-hand { font-family: 'Patrick Hand', cursive; }
+    </style>
 </head>
 <body>
+    <div id="root"></div>
 
-<div class="slides-container" id="slidesContainer">
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-  <!-- ╔══════════════════════════════════════════════════════════════╗ -->
-  <!-- ║                   SLIDE 1 — BIENVENUE                       ║ -->
-  <!-- ╚══════════════════════════════════════════════════════════════╝ -->
-  <div class="slide slide-welcome active" data-slide="0">
-    <div class="paper-bg"></div>
+        // --- ICONS (SVG Components) ---
+        const ArrowLeft = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        );
+        const ArrowRight = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        );
+        const Maximize2 = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
+        );
+        const RotateCcw = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        );
 
-    <!-- Paper wave decorations top -->
-    <div class="paper-wave" style="top: 0;">
-      <svg viewBox="0 0 1440 180" preserveAspectRatio="none" style="height: 140px;">
-        <path d="M0,0 L1440,0 L1440,80 Q1200,160 960,80 Q720,0 480,80 Q240,160 0,80 Z"
-              fill="#d4c5a9" opacity="0.5"/>
-        <path d="M0,0 L1440,0 L1440,60 Q1100,140 800,60 Q500,0 200,60 Q50,100 0,60 Z"
-              fill="#b8a082" opacity="0.4"/>
-      </svg>
-    </div>
+        // --- DATA ---
+        const slidesData = [
+            {
+                id: 'welcome',
+                type: 'hero',
+                title: "Bienvenue",
+                subtitle: "Présentation de Français",
+                bgConfig: { count: 25, spread: 'center' }
+            },
+            {
+                id: 'group-intro',
+                type: 'intro-split',
+                personName: "Le Groupe",
+                title: "Nos Loisirs",
+                content: "Nous sommes quatre amis avec des passions très différentes. De la technologie au sport, en passant par l'art, voici ce qui nous anime au quotidien.",
+                image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=800",
+                bgConfig: { count: 20, spread: 'edges' }
+            },
+            {
+                id: 'dhairya',
+                type: 'dhairya-tech',
+                personName: "Dhairya Shah",
+                title: "Technologie & Innovation",
+                content: [
+                    "Je suis passionné par le codage et le développement web.",
+                    "Créer des sites en HTML et CSS est mon activité favorite.",
+                    "J'aime résoudre des problèmes complexes avec la logique.",
+                    "L'intelligence artificielle me fascine énormément."
+                ],
+                stickers: ['💻', '⚡', '🌐'],
+                bgConfig: { count: 30, spread: 'random' }
+            },
+            {
+                id: 'person2',
+                type: 'polaroids',
+                personName: "Aarav",
+                title: "L'Explorateur Sportif",
+                items: [
+                    { 
+                        title: "Le Cricket", 
+                        desc: "Esprit d'équipe", 
+                        img: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&q=80&w=400" 
+                    },
+                    { 
+                        title: "Les Voyages", 
+                        desc: "Découvrir le monde", 
+                        img: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=400" 
+                    }
+                ],
+                bgConfig: { count: 20, spread: 'corners' }
+            },
+            {
+                id: 'person3',
+                type: 'paper-note',
+                personName: "Rohan",
+                title: "L'Artiste Polyvalent",
+                text: "J'ai plusieurs passe-temps que j'apprécie énormément. L'un de mes préférés est la guitare 🎸. J'aime particulièrement jouer du rock. J'aime aussi peindre 🎨 de nouveaux paysages et des scènes complexes de mémoire. J'aime également beaucoup jouer au basket 🏀 tous les jours.",
+                stickers: ['🎸', '🎨', '🏀'],
+                bg: 'bg-yellow-50',
+                bgConfig: { count: 25, spread: 'random' }
+            },
+            {
+                id: 'person4',
+                type: 'paper-note',
+                personName: "Ishaan",
+                title: "Le Stratège (Badminton)",
+                text: "Mon passe-temps favori est le badminton 🏸. C'est un sport rapide qui demande adresse et stratégie. Le score est de 21 points. Je pratique ce sport depuis quatre ans et j'adore la compétition, que ce soit en simple ou en double.",
+                stickers: ['🏸', '🥇', '👟'],
+                bg: 'bg-emerald-50',
+                bgConfig: { count: 18, spread: 'edges' }
+            },
+            {
+                id: 'mindmap',
+                type: 'mindmap',
+                title: "Chapitre 6: Les Loisirs",
+                nodes: [
+                    { id: 'root', text: "Les Loisirs", img: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=300", x: 42, y: 5, w: 250, rotate: -1, type: 'root' },
+                    { id: 'sport', text: "Faire du...", img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=300", x: 10, y: 35, w: 200, rotate: 3, parent: 'root' },
+                    { id: 'game', text: "Jouer à...", img: "https://images.unsplash.com/photo-1606166325683-16b7dd22d257?auto=format&fit=crop&q=80&w=300", x: 75, y: 40, w: 200, rotate: -2, parent: 'root' },
+                    { id: 'music', text: "Jouer de...", img: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=300", x: 45, y: 75, w: 220, rotate: 1, parent: 'root' },
+                    { id: 's-swim', text: "Natation", img: "https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=200", x: 2, y: 70, w: 160, rotate: -4, parent: 'sport' },
+                    { id: 's-ski', text: "Ski", img: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&q=80&w=200", x: 20, y: 80, w: 160, rotate: 2, parent: 'sport' },
+                    { id: 'g-foot', text: "Football", img: "https://images.unsplash.com/photo-1579952363873-27f3bde9be2b?auto=format&fit=crop&q=80&w=200", x: 65, y: 85, w: 160, rotate: -3, parent: 'game' },
+                    { id: 'g-chess', text: "Échecs", img: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&q=80&w=200", x: 85, y: 75, w: 160, rotate: 4, parent: 'game' },
+                    { id: 'm-guit', text: "Guitare", img: "https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&q=80&w=200", x: 35, y: 110, w: 160, rotate: -2, parent: 'music' },
+                    { id: 'm-piano', text: "Piano", img: "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&q=80&w=200", x: 60, y: 110, w: 160, rotate: 3, parent: 'music' },
+                ],
+                bgConfig: { count: 15, spread: 'edges' }
+            },
+            {
+                id: 'end',
+                type: 'hero',
+                title: "Merci Beaucoup",
+                subtitle: "Fin",
+                bgConfig: { count: 40, spread: 'center' }
+            }
+        ];
 
-    <!-- Decorative paper leaves - left side -->
-    <div class="paper-layer depth-2 delay-3 paper-elem" data-anim-in="anim-unfold-left"
-         style="left: 3%; top: 15%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #8b6914, #c4973b); transform: rotate(-30deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-5 paper-elem" data-anim-in="anim-unfold-left"
-         style="left: 6%; top: 35%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #6b8e50, #9ab87a); width: 35px; height: 60px; transform: rotate(-15deg);"></div>
-    </div>
-    <div class="paper-layer depth-3 delay-7 paper-elem" data-anim-in="anim-unfold-left"
-         style="left: 2%; bottom: 25%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #a0522d, #cd853f); width: 45px; height: 75px; transform: rotate(20deg);"></div>
-    </div>
-
-    <!-- Decorative paper leaves - right side -->
-    <div class="paper-layer depth-2 delay-4 paper-elem" data-anim-in="anim-unfold-right"
-         style="right: 4%; top: 20%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #c4973b, #daa520); transform: rotate(25deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-6 paper-elem" data-anim-in="anim-unfold-right"
-         style="right: 7%; top: 45%;">
-      <div class="paper-feather" style="background: linear-gradient(180deg, #8b4513, #a0522d); transform: rotate(15deg);"></div>
-    </div>
-    <div class="paper-layer depth-2 delay-8 paper-elem" data-anim-in="anim-unfold-right"
-         style="right: 3%; bottom: 30%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #6b8e50, #8fbc6f); width: 50px; height: 80px; transform: rotate(-20deg);"></div>
-    </div>
-
-    <!-- Small paper circles (eggs/dots) -->
-    <div class="paper-layer depth-1 delay-6 paper-elem" data-anim-in="anim-crumple-in"
-         style="left: 12%; top: 25%;">
-      <div class="paper-circle" style="width: 20px; height: 25px; background: linear-gradient(135deg, #f5f0e8, #ebe3d5);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-7 paper-elem" data-anim-in="anim-crumple-in"
-         style="right: 12%; top: 30%;">
-      <div class="paper-circle" style="width: 18px; height: 22px; background: linear-gradient(135deg, #ebe3d5, #d4c5a9);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-9 paper-elem" data-anim-in="anim-crumple-in"
-         style="left: 15%; bottom: 35%;">
-      <div class="paper-circle" style="width: 15px; height: 18px; background: linear-gradient(135deg, #d4c5a9, #b8a082);"></div>
-    </div>
-
-    <!-- Paper wheat stalks -->
-    <div class="paper-layer depth-1 delay-8 paper-elem" data-anim-in="anim-float-paper"
-         style="right: 15%; bottom: 20%;">
-      <div class="paper-wheat" style="background: linear-gradient(180deg, #daa520, #b8860b); transform: rotate(10deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-9 paper-elem" data-anim-in="anim-float-paper"
-         style="right: 17%; bottom: 22%;">
-      <div class="paper-wheat" style="background: linear-gradient(180deg, #c4973b, #8b6914); transform: rotate(-5deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-10 paper-elem" data-anim-in="anim-float-paper"
-         style="left: 13%; bottom: 18%;">
-      <div class="paper-wheat" style="background: linear-gradient(180deg, #daa520, #b8860b); transform: rotate(-12deg);"></div>
-    </div>
-
-    <!-- Paper wave bottom -->
-    <div class="paper-wave" style="bottom: 0; transform: rotate(180deg);">
-      <svg viewBox="0 0 1440 180" preserveAspectRatio="none" style="height: 130px;">
-        <path d="M0,0 L1440,0 L1440,90 Q1200,170 960,70 Q720,0 480,90 Q240,170 0,70 Z"
-              fill="#d4c5a9" opacity="0.5"/>
-        <path d="M0,0 L1440,0 L1440,70 Q1100,150 800,50 Q500,0 200,70 Q50,110 0,50 Z"
-              fill="#b8a082" opacity="0.35"/>
-      </svg>
-    </div>
-
-    <!-- Corner folds -->
-    <div class="paper-corner-fold corner-top-right paper-layer depth-2 delay-2 paper-elem" data-anim-in="anim-unfold-top"></div>
-
-    <!-- Main welcome content -->
-    <div class="welcome-center paper-layer depth-5 delay-1 paper-elem" data-anim-in="anim-unfold-center">
-      <div class="subtitle" style="font-size: 1rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px;">
-        Une Présentation en Français
-      </div>
-      <h1 class="title-main">
-        B<span class="title-accent">i</span>envenue
-      </h1>
-      <div class="welcome-divider"></div>
-      <p class="subtitle">Découvrez mes passions, mes loisirs et mon monde</p>
-      <div style="margin-top: 25px;">
-        <div class="name-tag" style="font-size: 1.1rem;">
-          🇫🇷 Présenté avec ❤️
-        </div>
-      </div>
-
-      <!-- Image container for welcome -->
-      <div class="img-container paper-layer depth-3 delay-4 paper-elem" data-anim-in="anim-unfold-bottom"
-           style="margin-top: 30px; width: 280px; height: 80px; margin-left: auto; margin-right: auto;">
-        <div class="img-placeholder">
-          <!-- 🖼️ IMAGE: French flag / France-themed welcome image -->
-          📷 Image de bienvenue ici
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ╔══════════════════════════════════════════════════════════════╗ -->
-  <!-- ║                   SLIDE 2 — MES LOISIRS                     ║ -->
-  <!-- ╚══════════════════════════════════════════════════════════════╝ -->
-  <div class="slide" data-slide="1">
-    <div class="paper-bg"></div>
-
-    <!-- Decorative paper elements -->
-    <div class="paper-layer depth-1 delay-5 paper-elem" data-anim-in="anim-unfold-left" style="left: 2%; top: 10%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #8b6914, #c4973b); transform: rotate(-25deg); width: 35px; height: 55px;"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-6 paper-elem" data-anim-in="anim-unfold-right" style="right: 3%; bottom: 15%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #6b8e50, #9ab87a); transform: rotate(30deg); width: 40px; height: 65px;"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-7 paper-elem" data-anim-in="anim-crumple-in" style="right: 8%; top: 8%;">
-      <div class="paper-circle" style="width: 22px; height: 26px; background: linear-gradient(135deg, #f5f0e8, #d4c5a9);"></div>
-    </div>
-
-    <!-- Section title -->
-    <div style="position: absolute; top: 40px; width: 100%; text-align: center; z-index: 5;">
-      <div class="paper-layer depth-4 delay-1 paper-elem" data-anim-in="anim-unfold-top"
-           style="display: inline-block; position: relative;">
-        <h2 class="title-main" style="font-size: 2.8rem;">
-          Mes L<span class="title-accent">o</span>isirs
-        </h2>
-        <p class="subtitle">Les choses que j'aime faire ✨</p>
-      </div>
-    </div>
-
-    <!-- Loisirs Grid -->
-    <div class="loisirs-grid" style="margin-top: 40px;">
-
-      <div class="loisir-card paper-layer depth-3 delay-2 paper-elem" data-anim-in="anim-unfold-left">
-        <span class="loisir-icon">🏸</span>
-        <h3>Le Badminton</h3>
-        <p>Mon sport favori depuis 4 ans</p>
-        <div class="img-container" style="margin-top: 12px; height: 100px;">
-          <div class="img-placeholder">📷 Badminton image</div>
-        </div>
-      </div>
-
-      <div class="loisir-card paper-layer depth-3 delay-3 paper-elem" data-anim-in="anim-unfold-right">
-        <span class="loisir-icon">🎸</span>
-        <h3>La Guitare</h3>
-        <p>J'aime jouer du rock</p>
-        <div class="img-container" style="margin-top: 12px; height: 100px;">
-          <div class="img-placeholder">📷 Guitar image</div>
-        </div>
-      </div>
-
-      <div class="loisir-card paper-layer depth-3 delay-4 paper-elem" data-anim-in="anim-unfold-left">
-        <span class="loisir-icon">🎨</span>
-        <h3>La Peinture</h3>
-        <p>Des paysages et scènes complexes</p>
-        <div class="img-container" style="margin-top: 12px; height: 100px;">
-          <div class="img-placeholder">📷 Painting image</div>
-        </div>
-      </div>
-
-      <div class="loisir-card paper-layer depth-3 delay-5 paper-elem" data-anim-in="anim-unfold-right">
-        <span class="loisir-icon">🏀</span>
-        <h3>Le Basket</h3>
-        <p>Je pratique ce sport tous les jours</p>
-        <div class="img-container" style="margin-top: 12px; height: 100px;">
-          <div class="img-placeholder">📷 Basketball image</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- ╔══════════════════════════════════════════════════════════════╗ -->
-  <!-- ║             SLIDE 3 — PERSON (Cricket & Travel)             ║ -->
-  <!-- ╚════════════════════════════════════════════���═════════════════╝ -->
-  <div class="slide" data-slide="2">
-    <div class="paper-bg"></div>
-
-    <!-- Decorative -->
-    <div class="paper-layer depth-1 delay-6 paper-elem" data-anim-in="anim-unfold-left" style="left: 2%; top: 12%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #a0522d, #cd853f); transform: rotate(-20deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-7 paper-elem" data-anim-in="anim-unfold-right" style="right: 2%; bottom: 15%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #c4973b, #daa520); transform: rotate(15deg);"></div>
-    </div>
-
-    <div class="person-slide">
-      <!-- Person Name Tag -->
-      <div class="paper-layer depth-4 delay-1 paper-elem" data-anim-in="anim-unfold-top">
-        <div class="name-tag" style="font-size: 1.5rem; padding: 12px 40px;">
-          <!-- 🏷️ PERSON NAME CONTAINER -->
-          <span id="personName1">[ Nom de la Personne ]</span>
-        </div>
-      </div>
-
-      <div class="hobby-row">
-        <!-- Cricket Panel -->
-        <div class="hobby-panel paper-layer depth-3 delay-2 paper-elem" data-anim-in="anim-unfold-left">
-          <h3>🏏 Le Cricket</h3>
-          <div class="img-container" style="height: 200px; margin-bottom: 15px;">
-            <div class="img-placeholder">
-              📷 Image: jouant au cricket<br>
-              <small>(photo sans fond pour l'effet de profondeur)</small>
+        // --- COMPONENTS ---
+        const Pin = ({ color = "#e53e3e" }) => (
+            <div className="pin-container">
+                <div className="pin-shadow"></div>
+                <div className="pin-head" style={{ background: `radial-gradient(circle at 30% 30%, #ff8f8f, ${color})` }}></div>
             </div>
-          </div>
-          <p class="body-text" style="font-size: 0.9rem; text-align: center;">
-            Un sport passionnant qui demande précision et stratégie
-          </p>
-        </div>
+        );
 
-        <!-- Travel Panel -->
-        <div class="hobby-panel paper-layer depth-3 delay-3 paper-elem" data-anim-in="anim-unfold-right">
-          <h3>✈️ Les Voyages</h3>
-          <div class="img-container" style="height: 200px; margin-bottom: 15px;">
-            <div class="img-placeholder">
-              📷 Image: en voyage / traveling<br>
-              <small>(photo sans fond pour l'effet de profondeur)</small>
+        const Thread = ({ x1, y1, x2, y2 }) => {
+            const length = Math.hypot(x2 - x1, y2 - y1);
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            return (
+                <div 
+                    className="thread"
+                    style={{
+                        left: `${x1}%`,
+                        top: `${y1}%`,
+                        width: `${length}%`,
+                        transform: `rotate(${angle}deg)`
+                    }}
+                />
+            );
+        };
+
+        const NameTag = ({ name }) => (
+            <div className="absolute -top-6 -left-6 bg-white border border-slate-200 shadow-md px-4 py-1 transform -rotate-6 z-[100] rounded-sm pointer-events-none">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <div className="w-12 h-4 bg-slate-200/50 blur-sm"></div>
+                </div>
+                <span className="font-hand font-bold text-lg text-slate-800">{name}</span>
             </div>
-          </div>
-          <p class="body-text" style="font-size: 0.9rem; text-align: center;">
-            Découvrir de nouveaux horizons et de nouvelles cultures
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+        );
 
+        const BackgroundManager = ({ config }) => {
+            const pool = useMemo(() => {
+                const colors = ['bg-rose-300', 'bg-amber-300', 'bg-emerald-300', 'bg-blue-300', 'bg-violet-300', 'bg-orange-300'];
+                const shapes = ['rounded-full', 'rounded-lg', 'clip-blob-1', 'clip-blob-2', 'rounded-3xl'];
+                return Array.from({ length: 50 }).map((_, i) => ({
+                    id: i,
+                    shape: shapes[i % shapes.length],
+                    color: colors[i % colors.length],
+                    size: 30 + Math.random() * 80,
+                    zIndex: 0
+                }));
+            }, []);
+            
+            const activeElements = useMemo(() => {
+                return pool.map((el, i) => {
+                    const isActive = i < config.count;
+                    let targetX, targetY, targetRot;
+                    
+                    if (!isActive) {
+                        const side = i % 4;
+                        if (side === 0) { targetX = -20; targetY = Math.random() * 100; }
+                        else if (side === 1) { targetX = 120; targetY = Math.random() * 100; }
+                        else if (side === 2) { targetX = Math.random() * 100; targetY = -20; }
+                        else { targetX = Math.random() * 100; targetY = 120; }
+                        targetRot = Math.random() * 720;
+                    } else {
+                        if (config.spread === 'center') {
+                            targetX = 20 + Math.random() * 60;
+                            targetY = 20 + Math.random() * 60;
+                        } else if (config.spread === 'edges') {
+                            targetX = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+                            targetY = Math.random() * 100;
+                        } else if (config.spread === 'corners') {
+                            targetX = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+                            targetY = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+                        } else if (config.spread === 'random') {
+                            targetX = Math.random() * 90;
+                            targetY = Math.random() * 90;
+                        } else {
+                            targetX = Math.random() * 100;
+                            targetY = Math.random() * 100;
+                        }
+                        targetRot = Math.random() * 360;
+                    }
+                    return { ...el, isActive, left: targetX, top: targetY, rotation: targetRot };
+                });
+            }, [pool, config]);
 
-  <!-- ╔══════════════════════════════════════════════════════════════╗ -->
-  <!-- ║          SLIDE 4 — Guitare, Peinture, Basket                ║ -->
-  <!-- ╚══════════════════════════════════════════════════════════════╝ -->
-  <div class="slide" data-slide="3">
-    <div class="paper-bg"></div>
+            return (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+                    {activeElements.map((el) => (
+                        <div
+                            key={el.id}
+                            className={`absolute transition-all duration-[1500ms] ease-in-out ${el.color} ${el.shape} mix-blend-multiply shadow-sm`}
+                            style={{
+                                left: `${el.left}%`,
+                                top: `${el.top}%`,
+                                width: `${el.size}px`,
+                                height: `${el.size}px`,
+                                opacity: el.isActive ? 0.6 : 0,
+                                zIndex: el.zIndex,
+                                transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`
+                            }}
+                        >
+                            <div className="w-full h-full animate-float-bg"></div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
 
-    <!-- Decorative layers -->
-    <div class="paper-layer depth-2 delay-6 paper-elem" data-anim-in="anim-float-paper" style="left: 3%; top: 8%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #6b8e50, #9ab87a); transform: rotate(-35deg); width: 45px; height: 70px;"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-7 paper-elem" data-anim-in="anim-float-paper" style="right: 5%; top: 15%;">
-      <div class="paper-feather" style="background: linear-gradient(180deg, #c4973b, #8b6914); transform: rotate(20deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-8 paper-elem" data-anim-in="anim-crumple-in" style="left: 8%; bottom: 10%;">
-      <div class="paper-wheat" style="background: linear-gradient(180deg, #daa520, #b8860b); transform: rotate(-8deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-8 paper-elem" data-anim-in="anim-crumple-in" style="right: 6%; bottom: 20%;">
-      <div class="paper-circle" style="width: 20px; height: 24px; background: linear-gradient(135deg, #ebe3d5, #d4c5a9);"></div>
-    </div>
+        const SlideContent = ({ data, isExiting }) => {
+            const animationClass = isExiting ? 'slide-exit-element' : 'slide-enter-element';
 
-    <div class="hobbies-detail">
-      <!-- Title -->
-      <div class="paper-layer depth-4 delay-1 paper-elem" data-anim-in="anim-unfold-top" style="text-align: center; margin-bottom: 25px;">
-        <h2 class="title-main" style="font-size: 2.2rem;">
-          Mes Passe-<span class="title-accent">T</span>emps Préférés
-        </h2>
-      </div>
+            if (data.type === 'hero') {
+                return (
+                    <div className="relative z-10 flex flex-col items-center justify-center h-full w-full">
+                        <div className={`relative max-w-4xl rotate-2 ${animationClass}`} style={{ '--final-rotation': '2deg' }}>
+                            <Pin color="#d63031" />
+                            <div className="bg-white p-12 md:p-16 clip-torn-2 shadow-layered crumpled-texture relative">
+                                <h1 className="text-7xl md:text-9xl font-marker text-slate-800 mb-6 text-center leading-normal">
+                                    {data.title}
+                                </h1>
+                                <div className="w-full h-2 bg-amber-400 mb-6 rounded-full transform -rotate-1"></div>
+                                <p className="text-3xl md:text-4xl font-hand text-slate-600 text-center pb-4">{data.subtitle}</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
-      <!-- Text content card -->
-      <div class="content-card paper-layer depth-3 delay-2 paper-elem" data-anim-in="anim-unfold-center"
-           style="max-width: 100%; margin-bottom: 25px;">
-        <p class="body-text">
-          J'ai plusieurs passe-temps que j'apprécie énormément. L'un de mes préférés est <strong>la guitare</strong>. J'aime particulièrement jouer du rock. J'aime aussi <strong>peindre</strong>. J'adore peindre de nouveaux paysages. Je me lance des défis en essayant de peindre des scènes complexes de mémoire. J'aime également beaucoup jouer au <strong>basket</strong>. Je pratique ce sport tous les jours.
-        </p>
-      </div>
+            if (data.type === 'intro-split') {
+                return (
+                    <div className="h-full w-full flex flex-col md:flex-row items-center justify-center gap-12 p-8 relative z-10">
+                        <div className={`flex-1 max-w-md relative rotate-1 ${animationClass}`} style={{ animationDelay: '0.1s', '--final-rotation': '1deg' }}>
+                            <Pin color="#0984e3" />
+                            {data.personName && <NameTag name={data.personName} />}
+                            <div className="bg-white p-8 clip-torn-1 shadow-layered crumpled-texture relative z-0">
+                                <h2 className="text-5xl font-serif text-slate-800 mb-6 mt-4">{data.title}</h2>
+                                <p className="text-2xl font-hand leading-relaxed text-slate-800 font-bold opacity-80">{data.content}</p>
+                            </div>
+                        </div>
+                        <div className={`flex-1 max-w-md relative group ${animationClass}`} style={{ animationDelay: '0.3s', '--final-rotation': '-3deg' }}>
+                            <div className="relative bg-white p-3 pb-12 shadow-layered -rotate-3 transition-transform crumpled-texture">
+                                <div className="overflow-hidden h-64 w-full bg-slate-200 relative">
+                                    <img src={data.image} alt="Intro" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 shadow-inner"></div>
+                                </div>
+                                <p className="absolute bottom-4 left-0 right-0 text-center font-hand text-xl text-slate-500">Notre Groupe</p>
+                                <Pin color="#fdcb6e" />
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
-      <!-- Highlight cards -->
-      <div class="hobby-highlights">
-        <div class="hobby-highlight-item paper-layer depth-3 delay-3 paper-elem" data-anim-in="anim-unfold-left">
-          <span class="hl-icon">🎸</span>
-          <h4>La Guitare</h4>
-          <p>Jouer du rock avec passion</p>
-          <div class="img-container" style="margin-top: 10px; height: 80px;">
-            <div class="img-placeholder">📷 Rock guitar</div>
-          </div>
-        </div>
+            if (data.type === 'dhairya-tech') {
+                return (
+                    <div className="h-full w-full flex items-center justify-center p-4 relative z-10">
+                        <div className={`relative max-w-3xl w-full transform rotate-1 ${animationClass}`} style={{ '--final-rotation': '-1deg' }}>
+                            <Pin color="#2d3436" />
+                            <NameTag name={data.personName} />
+                            <div className="p-10 bg-blue-50 clip-torn-1 shadow-layered crumpled-texture relative z-0">
+                                <h2 className="text-4xl md:text-5xl font-marker text-slate-900 mb-6 text-center">{data.title}</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white p-4 shadow-sm rotate-1 border border-slate-200">
+                                        <code className="text-sm text-blue-600 block mb-2">&lt;Passion /&gt;</code>
+                                        <ul className="list-disc pl-5 font-hand text-xl text-slate-800 leading-loose">
+                                            {data.content.slice(0,2).map((c, i) => <li key={i}>{c}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div className="bg-white p-4 shadow-sm -rotate-1 border border-slate-200">
+                                        <code className="text-sm text-green-600 block mb-2">// Skills</code>
+                                        <ul className="list-disc pl-5 font-hand text-xl text-slate-800 leading-loose">
+                                            {data.content.slice(2).map((c, i) => <li key={i}>{c}</li>)}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div className="mt-8 flex justify-center gap-6 text-4xl">
+                                    {data.stickers.map((s, i) => <span key={i} className="animate-bounce" style={{ animationDelay: `${i*0.2}s` }}>{s}</span>)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
-        <div class="hobby-highlight-item paper-layer depth-3 delay-4 paper-elem" data-anim-in="anim-unfold-bottom">
-          <span class="hl-icon">🎨</span>
-          <h4>La Peinture</h4>
-          <p>Paysages de mémoire</p>
-          <div class="img-container" style="margin-top: 10px; height: 80px;">
-            <div class="img-placeholder">📷 Landscape painting</div>
-          </div>
-        </div>
+            if (data.type === 'polaroids') {
+                return (
+                    <div className="h-full w-full flex flex-col items-center justify-center relative z-10">
+                        <div className={`relative mb-8 transform -rotate-2 ${animationClass}`} style={{ '--final-rotation': '-2deg' }}>
+                            <Pin />
+                            <NameTag name={data.personName} />
+                            <div className="bg-white px-8 py-3 shadow-layered rounded-sm border-2 border-slate-100 crumpled-texture relative z-0">
+                                <h2 className="text-5xl font-marker text-slate-800">{data.title}</h2>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-12">
+                            {data.items.map((item, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`relative w-72 transform ${animationClass}`}
+                                    style={{ animationDelay: `${(idx+1)*0.2}s`, '--final-rotation': idx % 2 === 0 ? '3deg' : '-3deg' }}
+                                >
+                                    <Pin color={idx === 0 ? "#00b894" : "#e17055"} />
+                                    <div className="bg-white p-4 pb-16 shadow-layered transition-all hover:scale-110 hover:z-20 crumpled-texture relative z-0">
+                                        <div className="w-full h-60 bg-slate-100 mb-4 overflow-hidden relative">
+                                            <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 border-[1px] border-black/10"></div>
+                                        </div>
+                                        <h3 className="text-2xl font-hand font-bold text-center text-slate-800">{item.title}</h3>
+                                        <p className="text-center font-hand text-slate-500">{item.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
 
-        <div class="hobby-highlight-item paper-layer depth-3 delay-5 paper-elem" data-anim-in="anim-unfold-right">
-          <span class="hl-icon">🏀</span>
-          <h4>Le Basket</h4>
-          <p>Chaque jour, sans exception</p>
-          <div class="img-container" style="margin-top: 10px; height: 80px;">
-            <div class="img-placeholder">📷 Basketball</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+            if (data.type === 'paper-note') {
+                return (
+                    <div className="h-full w-full flex items-center justify-center p-4 relative z-10">
+                        <div className={`relative max-w-4xl w-full transform rotate-1 ${animationClass}`} style={{ '--final-rotation': '1deg' }}>
+                            <Pin color="#6c5ce7" />
+                            <NameTag name={data.personName} />
+                            <div className="absolute -top-4 left-20 w-32 h-12 bg-white/40 transform -rotate-3 backdrop-blur-sm shadow-sm border-l border-r border-white/60 pointer-events-none z-50"></div>
+                            <div className="absolute -bottom-4 right-20 w-32 h-12 bg-white/40 transform rotate-2 backdrop-blur-sm shadow-sm border-l border-r border-white/60 pointer-events-none z-50"></div>
+                            <div className={`p-10 md:p-14 ${data.bg} clip-torn-2 shadow-layered crumpled-texture relative z-0`}>
+                                <div className="flex justify-between items-start mb-6 border-b-2 border-dashed border-slate-400 pb-4">
+                                    <h2 className="text-4xl md:text-5xl font-serif text-slate-900">{data.title}</h2>
+                                    <div className="text-4xl animate-bounce">{data.stickers[0]}</div>
+                                </div>
+                                <div className="pr-4">
+                                    <p className="text-2xl md:text-3xl font-hand leading-loose text-slate-900 text-justify font-bold tracking-wide opacity-90">
+                                        {data.text}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
+            if (data.type === 'mindmap') {
+                return (
+                    <div className={`absolute inset-0 w-full h-full overflow-hidden ${animationClass}`} style={{ '--final-rotation': '0deg', animationDelay: '0.1s' }}>
+                        <div className="absolute top-4 left-4 z-40 relative -rotate-1">
+                            <Pin />
+                            <div className="bg-white p-4 shadow-layered rounded-sm border border-slate-200 crumpled-texture">
+                                <h2 className="text-3xl font-marker text-slate-800">{data.title}</h2>
+                            </div>
+                        </div>
+                        <div className="w-full h-full overflow-auto relative cursor-grab active:cursor-grabbing custom-cursor no-scrollbar">
+                            <div className="relative min-w-[1200px] min-h-[1200px] w-[150%] h-[150%]">
+                                {data.nodes.filter(n => n.parent).map(node => {
+                                    const parent = data.nodes.find(p => p.id === node.parent);
+                                    const startX = parent.x + (parent.w / 1200 * 100 / 2);
+                                    const startY = parent.y; 
+                                    const endX = node.x + (node.w / 1200 * 100 / 2);
+                                    const endY = node.y;
+                                    return <Thread key={`thread-${node.id}`} x1={startX} y1={startY} x2={endX} y2={endY} />;
+                                })}
+                                {data.nodes.map((node) => (
+                                    <div 
+                                        key={node.id}
+                                        className="absolute flex flex-col items-center transition-transform hover:z-[60] hover:scale-105"
+                                        style={{
+                                            left: `${node.x}%`,
+                                            top: `${node.y}%`,
+                                            width: `${node.w}px`,
+                                            transform: `rotate(${node.rotate}deg)`,
+                                            zIndex: 10
+                                        }}
+                                    >
+                                        <Pin color={node.type === 'root' ? '#d63031' : '#0984e3'} />
+                                        <div className="bg-white p-2 shadow-layered crumpled-texture w-full">
+                                            <div className="w-full aspect-video bg-slate-100 mb-2 overflow-hidden rounded-sm relative z-0">
+                                                <img src={node.img} alt={node.text} className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/30 opacity-50"></div>
+                                            </div>
+                                            <span className={`text-center font-hand font-bold text-slate-900 block ${node.type === 'root' ? 'text-2xl' : 'text-xl'}`}>
+                                                {node.text}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            return null;
+        };
 
-  <!-- ╔══════════════════════════════════════════════════════════════╗ -->
-  <!-- ║                  SLIDE 5 — LE BADMINTON                     ║ -->
-  <!-- ╚══════════════════════════════════════════════════════════════╝ -->
-  <div class="slide" data-slide="4">
-    <div class="paper-bg"></div>
+        const LoadingScreen = ({ progress }) => (
+            <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center paper-texture-bg">
+                <div className="relative w-24 h-24 mb-6">
+                    <div className="absolute inset-0 border-4 border-slate-300 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-rose-500 rounded-full border-t-transparent animate-spin"></div>
+                    <Pin color="#d63031" />
+                </div>
+                <h2 className="font-marker text-3xl text-slate-800 animate-pulse">Chargement...</h2>
+                <p className="font-hand text-xl text-slate-600 mt-2">{Math.round(progress)}%</p>
+            </div>
+        );
 
-    <!-- Decorative -->
-    <div class="paper-layer depth-2 delay-7 paper-elem" data-anim-in="anim-unfold-left" style="left: 1%; top: 10%;">
-      <div class="paper-leaf" style="background: linear-gradient(135deg, #8b6914, #c4973b); transform: rotate(-40deg); width: 50px; height: 80px;"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-8 paper-elem" data-anim-in="anim-unfold-right" style="right: 2%; top: 20%;">
-      <div class="paper-feather" style="background: linear-gradient(180deg, #a0522d, #cd853f); transform: rotate(25deg);"></div>
-    </div>
-    <div class="paper-layer depth-1 delay-9 paper-elem" data-anim-in="anim-crumple-in" style="left: 5%; bottom: 8%;">
-      <div class="paper-circle" style="width: 25px; height: 30px; background: linear-gradient(135deg, #f5f0e8, #ebe3d5);"></div>
-    </div>
+        function App() {
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [animState, setAnimState] = useState('idle');
+            const [isFullScreen, setIsFullScreen] = useState(false);
+            const [isLoading, setIsLoading] = useState(true);
+            const [loadProgress, setLoadProgress] = useState(0);
 
-    <div class="badminton-layout">
-      <!-- Text side -->
-      <div class="badminton-text">
-        <div class="paper-layer depth-4 delay-1 paper-elem" data-anim-in="anim-unfold-left" style="margin-bottom: 20px;">
-          <h2 class="title-main" style="font-size: 2.5rem;">
-            🏸 Mon Passe-temps <span class="title-accent">Favori</span>
-          </h2>
-          <p class="subtitle" style="margin-top: 5px;">Le Badminton</p>
-        </div>
+            useEffect(() => {
+                const imageUrls = [];
+                slidesData.forEach(slide => {
+                    if (slide.image) imageUrls.push(slide.image);
+                    if (slide.items) slide.items.forEach(i => imageUrls.push(i.img));
+                    if (slide.nodes) slide.nodes.forEach(n => imageUrls.push(n.img));
+                });
 
-        <div class="content-card paper-layer depth-3 delay-2 paper-elem" data-anim-in="anim-unfold-left"
-             style="max-width: 100%;">
-          <p class="body-text">
-            Le badminton est un sport de raquette rapide qui se pratique en salle ou en extérieur. Deux joueurs (en simple) ou quatre (en double) s'affrontent en frappant un volant par-dessus un filet. Le score est de <strong>21 points</strong>, et les matchs se jouent au meilleur des <strong>trois manches</strong>.
-          </p>
-          <br>
-          <p class="body-text">
-            C'est un loisir populaire, et même un sport professionnel dans le monde entier. Le badminton allie à merveille <em>adresse, rapidité et stratégie</em>. Je pratique le badminton depuis <strong>quatre ans</strong> et j'adore ce sport.
-          </p>
-        </div>
-      </div>
+                if (imageUrls.length === 0) {
+                    setIsLoading(false);
+                    return;
+                }
 
-      <!-- Visual side -->
-      <div class="badminton-visual">
-        <div class="img-container paper-layer depth-4 delay-3 paper-elem" data-anim-in="anim-unfold-right"
-             style="width: 220px; height: 220px;">
-          <div class="img-placeholder">
-            📷 Badminton action<br>
-            <small>(sans fond pour profondeur)</small>
-          </div>
-        </div>
+                let loadedCount = 0;
+                const total = imageUrls.length;
 
-        <div class="stat-card paper-layer depth-3 delay-4 paper-elem" data-anim-in="anim-unfold-bottom">
-          <div class="stat-num">4</div>
-          <div class="stat-label">Années de pratique</div>
-        </div>
+                const checkDone = () => {
+                    loadedCount++;
+                    const p = (loadedCount / total) * 100;
+                    setLoadProgress(p);
+                    if (loadedCount >= total) {
+                        setTimeout(() => setIsLoading(false), 500);
+                    }
+                };
 
-        <div class="stat-card paper-layer depth-3 delay-5 paper-elem" data-anim-in="anim-
+                imageUrls.forEach(url => {
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = checkDone;
+                    img.onerror = checkDone;
+                });
+            }, []);
+
+            const handleNext = () => {
+                if (currentIndex < slidesData.length - 1 && animState === 'idle') {
+                    setAnimState('exiting');
+                    setTimeout(() => {
+                        setCurrentIndex(prev => prev + 1);
+                        setAnimState('entering');
+                        setTimeout(() => setAnimState('idle'), 800);
+                    }, 700);
+                }
+            };
+
+            const handlePrev = () => {
+                if (currentIndex > 0 && animState === 'idle') {
+                    setAnimState('exiting');
+                    setTimeout(() => {
+                        setCurrentIndex(prev => prev - 1);
+                        setAnimState('entering');
+                        setTimeout(() => setAnimState('idle'), 800);
+                    }, 700);
+                }
+            };
+
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (isLoading) return;
+                    if (e.key === 'ArrowRight' || e.key === ' ') handleNext();
+                    if (e.key === 'ArrowLeft') handlePrev();
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [currentIndex, animState, isLoading]);
+
+            const currentSlide = slidesData[currentIndex];
+
+            if (isLoading) return <LoadingScreen progress={loadProgress} />;
+
+            return (
+                <div className={`w-full h-screen overflow-hidden paper-texture-bg relative flex flex-col ${isFullScreen ? 'p-0' : 'p-4'}`}>
+                    <BackgroundManager config={currentSlide.bgConfig} />
+                    <div className={`flex-1 relative w-full h-full mx-auto rounded-xl overflow-hidden backdrop-blur-[1px] shadow-inner perspective-1000 z-10 transition-all duration-500 ${isFullScreen ? 'border-0' : 'border-0 md:border-4 border-slate-800/5'}`}>
+                        <div className="w-full h-full absolute inset-0 flex items-center justify-center">
+                            <div key={currentIndex} className="w-full h-full">
+                                <SlideContent data={currentSlide} isExiting={animState === 'exiting'} />
+                            </div>
+                        </div>
+
+                        {!isFullScreen && (
+                            <div className="absolute top-4 right-4 z-[100] flex gap-2">
+                                <button onClick={() => setIsFullScreen(true)} className="p-2 bg-white rounded-full shadow-lg border border-slate-200 hover:bg-slate-50 transition-transform hover:scale-110">
+                                    <Maximize2 size={18} />
+                                </button>
+                                <button onClick={() => window.location.reload()} className="p-2 bg-white rounded-full shadow-lg border border-slate-200 hover:bg-slate-50 transition-transform hover:scale-110">
+                                    <RotateCcw size={18} />
+                                </button>
+                            </div>
+                        )}
+
+                        {!isFullScreen && (
+                            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-[100] flex items-center gap-6 bg-white/90 px-6 py-2 rounded-full shadow-layered border border-slate-200">
+                                <button onClick={handlePrev} disabled={currentIndex === 0 || animState !== 'idle'} className={`p-3 rounded-full hover:bg-slate-100 transition-colors ${currentIndex === 0 ? 'opacity-30' : ''}`}>
+                                    <ArrowLeft size={24} className="text-slate-800" />
+                                </button>
+                                <div className="font-marker text-xl text-slate-800 w-16 text-center">{currentIndex + 1} / {slidesData.length}</div>
+                                <button onClick={handleNext} disabled={currentIndex === slidesData.length - 1 || animState !== 'idle'} className={`p-3 rounded-full hover:bg-slate-100 transition-colors ${currentIndex === slidesData.length - 1 ? 'opacity-30' : ''}`}>
+                                    <ArrowRight size={24} className="text-slate-800" />
+                                </button>
+                            </div>
+                        )}
+                        
+                        {isFullScreen && currentIndex === 0 && (
+                            <div className="absolute bottom-10 w-full text-center text-slate-500 font-hand text-xl animate-pulse pointer-events-none">
+                                Utilisez les flèches du clavier pour naviguer
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
