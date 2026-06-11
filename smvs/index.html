@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Cup 2026 | Animated Presentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0">
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-strong: rgba(255, 255, 255, 0.14);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+      --gold: #fbbf24;
+      --mint: #34d399;
+      --sky: #38bdf8;
+      --rose: #fb7185;
+      --ink: #08111f;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; cursor: none !important; }
+
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: Inter, system-ui, sans-serif;
+      color: white;
+      background: #07121f;
+      user-select: none;
+    }
+
+    #cursor-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: exclusion;
+    }
+
+    .gradient-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(52, 211, 153, 0.28), transparent 30%),
+        radial-gradient(circle at 82% 22%, rgba(251, 191, 36, 0.24), transparent 28%),
+        radial-gradient(circle at 72% 78%, rgba(56, 189, 248, 0.22), transparent 30%),
+        linear-gradient(135deg, #06111f 0%, #0b1d31 46%, #132415 100%);
+    }
+
+    .stadium-ring {
+      position: fixed;
+      left: 50%;
+      top: 52%;
+      width: min(92vw, 980px);
+      aspect-ratio: 1.85 / 1;
+      border: 2px solid rgba(255,255,255,0.16);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) rotate(-7deg);
+      z-index: -2;
+      box-shadow: inset 0 0 90px rgba(255,255,255,0.08), 0 0 120px rgba(52,211,153,0.12);
+    }
+
+    .stadium-ring::before,
+    .stadium-ring::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.11);
+    }
+
+    .stadium-ring::after {
+      inset: 32%;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.18) 1px, transparent 1px) 0 0 / 11% 100%,
+        linear-gradient(0deg, rgba(255,255,255,0.14) 1px, transparent 1px) 0 0 / 100% 22%,
+        rgba(34, 197, 94, 0.12);
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.55;
+      animation: float 18s infinite ease-in-out alternate;
+      transition: top 1.8s ease, left 1.8s ease;
+    }
+
+    .blob-1 { width: 48vw; height: 48vw; background: #10b981; top: -18%; left: -10%; animation-duration: 24s; }
+    .blob-2 { width: 42vw; height: 42vw; background: #fbbf24; top: 42%; left: 68%; animation-duration: 21s; animation-delay: -4s; }
+    .blob-3 { width: 36vw; height: 36vw; background: #38bdf8; top: 64%; left: 2%; animation-duration: 27s; animation-delay: -8s; }
+    .blob-4 { width: 34vw; height: 34vw; background: #fb7185; top: 8%; left: 58%; animation-duration: 20s; animation-delay: -10s; }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(70px, 42px) scale(1.08); }
+      100% { transform: translate(-44px, 78px) scale(0.92); }
+    }
+
+    main {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .view-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(1.35rem, 4vw, 4rem);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .view-active { opacity: 1; pointer-events: auto; }
+
+    .wrap {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      animation: springIn 0.78s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .glass-panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .headline {
+      margin: 0;
+      font-size: clamp(3.2rem, 8vw, 8.4rem);
+      line-height: 0.9;
+      font-weight: 900;
+      letter-spacing: 0;
+      background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 54%, #fde68a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 22px 60px rgba(0,0,0,0.18);
+    }
+
+    .kicker {
+      margin: 0 0 1rem;
+      font-size: clamp(0.82rem, 1.7vw, 1.15rem);
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      color: #bef264;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0 0 1.4rem;
+      font-size: clamp(2.15rem, 5vw, 5.25rem);
+      line-height: 0.98;
+      font-weight: 900;
+      letter-spacing: 0;
+      background: linear-gradient(135deg, #fff, #dbeafe 54%, #fef3c7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      font-size: clamp(1.12rem, 2.3vw, 1.72rem);
+      line-height: 1.35;
+    }
+
+    .photo-collage {
+      width: min(1040px, 100%);
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr 0.85fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .photo-tile {
+      min-height: 190px;
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .photo-tile.tall { min-height: 290px; grid-row: span 2; }
+
+    .photo-tile img,
+    .fact-image img,
+    .runner-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(1.1) contrast(1.04);
+      transition: transform 0.8s ease;
+    }
+
+    .photo-tile:hover img,
+    .fact-image:hover img,
+    .runner-photo:hover img {
+      transform: scale(1.06);
+    }
+
+    .photo-tile::after,
+    .fact-image::after,
+    .runner-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 30%, rgba(4,10,18,0.72));
+      z-index: 1;
+    }
+
+    .photo-caption {
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 2;
+      font-weight: 900;
+      color: white;
+      text-align: left;
+    }
+
+    .stage-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.75rem 1rem;
+      margin-top: 2rem;
+      color: rgba(255,255,255,0.86);
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      gap: clamp(1rem, 2vw, 1.5rem);
+    }
+
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .fact-card {
+      min-height: 230px;
+      padding: clamp(1.2rem, 2.5vw, 2rem);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.25s ease, transform 0.25s ease;
+    }
+
+    .fact-card::after {
+      content: "";
+      position: absolute;
+      right: -42px;
+      bottom: -42px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: var(--accent, rgba(251,191,36,0.24));
+      filter: blur(4px);
+      opacity: 0.55;
+    }
+
+    .number {
+      display: block;
+      font-size: clamp(3.2rem, 7vw, 6rem);
+      font-weight: 900;
+      line-height: 0.9;
+      color: var(--accent-text, #fbbf24);
+    }
+
+    .label {
+      margin: 1rem 0 0.4rem;
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      font-weight: 900;
+    }
+
+    .small {
+      color: rgba(255,255,255,0.72);
+      font-size: clamp(0.95rem, 1.4vw, 1.08rem);
+      line-height: 1.45;
+    }
+
+    .fact-image {
+      min-height: 230px;
+      overflow: hidden;
+      position: relative;
+      padding: 0;
+    }
+
+    .fact-image .photo-caption {
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+    }
+
+    .run-track {
+      position: relative;
+      height: 72px;
+      margin-top: 2rem;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .runner {
+      position: absolute;
+      top: 50%;
+      left: 2%;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #fff, #fbbf24);
+      color: #111827;
+      box-shadow: 0 0 24px rgba(251,191,36,0.65);
+      animation: runAcross 5.5s infinite cubic-bezier(0.45, 0, 0.1, 1);
+    }
+
+    .runner-layout {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(1rem, 3vw, 2rem);
+      align-items: center;
+    }
+
+    .runner-photo {
+      min-height: 460px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    @keyframes runAcross {
+      0% { left: 2%; transform: translateY(-50%) rotate(-10deg); }
+      52% { left: calc(100% - 68px); transform: translateY(-50%) rotate(12deg); }
+      100% { left: 2%; transform: translateY(-50%) rotate(-10deg); }
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+      margin-top: 2rem;
+    }
+
+    .host {
+      min-height: 300px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .host .big {
+      font-size: clamp(2.4rem, 5vw, 4.8rem);
+      font-weight: 900;
+      line-height: 0.95;
+    }
+
+    .host .cities {
+      color: rgba(255,255,255,0.75);
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .mini-ball {
+      position: absolute;
+      right: -26px;
+      top: -18px;
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      border: 10px solid rgba(255,255,255,0.16);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.24) 0 13%, transparent 14%),
+        conic-gradient(from 25deg, rgba(255,255,255,0.28), transparent, rgba(255,255,255,0.22), transparent, rgba(255,255,255,0.26));
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.8rem;
+      margin-top: 2rem;
+    }
+
+    .time-item {
+      padding: 1.2rem;
+      min-height: 172px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .date { color: var(--gold); font-weight: 900; font-size: 1.1rem; }
+    .round { font-weight: 900; font-size: 1.35rem; }
+
+    .quiz-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+      gap: clamp(1rem, 3vw, 2rem);
+      align-items: center;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+
+    .question-count {
+      color: #bef264;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .question-text {
+      font-size: clamp(2.1rem, 4.5vw, 4.6rem);
+      line-height: 1;
+      font-weight: 900;
+      margin: 0;
+    }
+
+    .answers {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .answer {
+      width: 100%;
+      min-height: 68px;
+      padding: 1rem 1.2rem;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      color: white;
+      font: inherit;
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      font-weight: 800;
+      text-align: left;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .answer.revealed.correct { background: rgba(52, 211, 153, 0.28); border-color: rgba(52, 211, 153, 0.75); }
+    .answer.revealed.wrong { background: rgba(251, 113, 133, 0.22); border-color: rgba(251, 113, 133, 0.65); }
+
+    .quiz-feedback {
+      min-height: 34px;
+      margin-top: 0.9rem;
+      font-weight: 900;
+      color: #fde68a;
+    }
+
+    .quiz-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.2rem;
+      gap: 0.75rem;
+    }
+
+    .pill-button {
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      padding: 0.85rem 1.1rem;
+      font: inherit;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .score-pill {
+      padding: 0.85rem 1.1rem;
+      border-radius: 999px;
+      background: rgba(251,191,36,0.16);
+      color: #fde68a;
+      font-weight: 900;
+      border: 1px solid rgba(251,191,36,0.24);
+    }
+
+    .source-list {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+    }
+
+    .source-list a {
+      color: #bae6fd;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .source-list a:hover { color: #fef3c7; }
+
+    .ui-controls {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      padding: clamp(1rem, 3vw, 2rem);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    body.is-fullscreen .ui-controls {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(22px);
+    }
+
+    .control-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      pointer-events: auto;
+    }
+
+    .icon-btn {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      background: rgba(255,255,255,0.08);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .icon-btn:active, .pill-button:active, .answer:active { transform: scale(0.94); }
+    .nav-buttons { display: flex; gap: 0.8rem; }
+
+    .progress-shell {
+      height: 5px;
+      width: 100%;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #34d399, #fbbf24, #38bdf8);
+      box-shadow: 0 0 18px rgba(251,191,36,0.55);
+      transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-spring-up {
+      opacity: 0;
+      animation: springUp 0.76s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .stagger-1 { animation-delay: 0.08s; }
+    .stagger-2 { animation-delay: 0.18s; }
+    .stagger-3 { animation-delay: 0.28s; }
+    .stagger-4 { animation-delay: 0.38s; }
+    .stagger-5 { animation-delay: 0.48s; }
+    .stagger-6 { animation-delay: 0.58s; }
+
+    .animate-pop-out {
+      animation: popOut 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes springIn {
+      0% { opacity: 0; transform: scale(0.86); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes springUp {
+      0% { opacity: 0; transform: translateY(38px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popOut {
+      0% { opacity: 1; transform: scale(1); filter: blur(0); }
+      40% { transform: scale(1.04); }
+      100% { opacity: 0; transform: scale(0.72); filter: blur(18px); }
+    }
+
+    @media (max-width: 860px) {
+      .view-container { padding-bottom: 6rem; }
+      .grid.three, .grid.two, .quiz-card, .map, .timeline, .photo-collage, .runner-layout { grid-template-columns: 1fr; }
+      .fact-card, .host, .time-item { min-height: auto; }
+      .photo-tile.tall { min-height: 220px; grid-row: auto; }
+      .runner-photo { min-height: 240px; }
+      .headline { font-size: clamp(3rem, 14vw, 5.4rem); }
+      .title { font-size: clamp(2rem, 10vw, 3.8rem); }
+      .quiz-card { align-items: start; }
+      .control-row { align-items: center; }
+      .stage-note span:last-child, .pres-label { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+  <div class="stadium-ring"></div>
+  <canvas id="cursor-canvas"></canvas>
+
+  <main id="stage"></main>
+
+  <div class="ui-controls">
+    <div class="control-row">
+      <button class="pill-button glass-panel" onclick="toggleFullscreen()" data-hover aria-label="Toggle presentation mode">
+        <span class="material-symbols-outlined">aspect_ratio</span>
+        <span class="pres-label">PRES. MODE</span>
+      </button>
+      <div class="nav-buttons">
+        <button class="icon-btn glass-panel" onclick="prevSlide()" data-hover aria-label="Previous slide">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <button class="icon-btn glass-panel" onclick="nextSlide()" data-hover aria-label="Next slide">
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+    <div class="progress-shell"><div id="progress" class="progress-bar"></div></div>
+  </div>
+
+  <script>
+    const views = [
+      {
+        type: "hero",
+        kicker: "The beautiful game gets bigger",
+        title: "World Cup 2026",
+        subtitle: "A fast, fun, animated ride through the biggest football tournament ever planned.",
+        photos: [
+          {
+            src: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=1400&q=85",
+            alt: "Football stadium under lights",
+            caption: "The stadium roar"
+          },
+          {
+            src: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=900&q=85",
+            alt: "Football on a pitch",
+            caption: "One ball"
+          },
+          {
+            src: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=900&q=85",
+            alt: "Fans in a stadium",
+            caption: "Millions watching"
+          }
+        ]
+      },
+      {
+        type: "numbers",
+        kicker: "Mind-blowing scale",
+        title: "The Biggest World Cup Ever",
+        image: {
+          src: "https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&w=1200&q=85",
+          alt: "Football players on the pitch",
+          caption: "48 teams means more flags, more styles, and more surprises."
+        },
+        cards: [
+          { number: "48", label: "Teams", text: "For the first time, 48 national teams play in the final tournament.", color: "#34d399" },
+          { number: "104", label: "Matches", text: "That is 40 more games than the 64-match format used in recent editions.", color: "#fbbf24" },
+          { number: "16", label: "Host Cities", text: "Matches spread across Canada, Mexico, and the United States.", color: "#38bdf8" }
+        ]
+      },
+      {
+        type: "hosts",
+        kicker: "One tournament, three countries",
+        title: "North America Becomes One Giant Stadium",
+        hosts: [
+          { country: "Canada", matches: "13", cities: "Toronto, Vancouver", color: "#fb7185" },
+          { country: "United States", matches: "78", cities: "11 host cities, including New York/New Jersey, Dallas, Los Angeles, Miami", color: "#38bdf8" },
+          { country: "Mexico", matches: "13", cities: "Mexico City, Guadalajara, Monterrey", color: "#34d399" }
+        ]
+      },
+      {
+        type: "runner",
+        kicker: "Tiny legs, huge distance",
+        title: "A Player Can Run About 10-13 km in One Match",
+        subtitle: "That is like running from your home to another neighborhood, then still needing to pass, tackle, think, and sprint. In extra-time matches, busy midfielders can go even farther.",
+        image: {
+          src: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1100&q=85",
+          alt: "Football player running during a match",
+          caption: "Sprint, jog, stop, repeat."
+        }
+      },
+      {
+        type: "numbers",
+        kicker: "The hidden numbers",
+        title: "The Tournament Is a Math Monster",
+        cards: [
+          { number: "1,248", label: "Possible squad players", text: "48 teams times 26 players creates a giant football family.", color: "#fbbf24" },
+          { number: "39", label: "Days", text: "From the opening match on June 11 to the final on July 19, 2026.", color: "#34d399" },
+          { number: "8", label: "Games to win it", text: "The champion may need to play eight matches, because 2026 adds a Round of 32.", color: "#38bdf8" }
+        ]
+      },
+      {
+        type: "timeline",
+        kicker: "How the story unfolds",
+        title: "From First Whistle to Final Night",
+        items: [
+          { date: "Jun 11", round: "Opening", note: "Tournament begins in Mexico City." },
+          { date: "Jun 11-27", round: "Groups", note: "12 groups of 4 teams." },
+          { date: "Jun 28-Jul 3", round: "Round of 32", note: "A new knockout round." },
+          { date: "Jul 14-15", round: "Semi-finals", note: "Only four teams remain." },
+          { date: "Jul 19", round: "Final", note: "MetLife Stadium, New York/New Jersey." }
+        ]
+      },
+      {
+        type: "fun",
+        kicker: "Quick wow facts",
+        title: "Little Ball, Giant Planet",
+        image: {
+          src: "https://images.unsplash.com/photo-1624880357913-a8539238245b?auto=format&fit=crop&w=1100&q=85",
+          alt: "Football near goal net",
+          caption: "The ball is small. The emotion is huge."
+        },
+        facts: [
+          { icon: "public", text: "The World Cup usually pulls in billions of viewers around the world." },
+          { icon: "emoji_events", text: "Brazil have won the men's World Cup a record 5 times." },
+          { icon: "sports_soccer", text: "A football match is 90 minutes, but stoppage time can stretch the drama." },
+          { icon: "groups", text: "A full match starts with 22 players on the pitch: 11 per side." }
+        ]
+      },
+      { type: "quizIntro" },
+      { type: "quiz" },
+      {
+        type: "end",
+        kicker: "Full-time whistle",
+        title: "Ready for Kickoff?",
+        subtitle: "Watch the flags, the fans, the goals, and the surprises. In the World Cup, one second can become history."
+      },
+      {
+        type: "sources",
+        kicker: "Fact check",
+        title: "Sources Used",
+        sources: [
+          ["FIFA World Cup 26 match schedule", "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/match-schedule"],
+          ["FIFA World Cup 26 host cities", "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/host-cities-announced"],
+          ["FIFA Council confirms 48-team, 104-match format", "https://www.fifa.com/en/articles/fifa-council-highlights-record-breaking-revenue-in-football"],
+          ["IFAB Laws of the Game: match duration", "https://www.theifab.com/laws/latest/the-duration-of-the-match/"],
+          ["World Cup records and statistics", "https://www.fifa.com/en/tournaments/mens/worldcup/articles/world-cup-records-statistics"]
+        ]
+      }
+    ];
+
+    const quizQuestions = [
+      {
+        q: "How long is normal time in a football match?",
+        answers: ["60 minutes", "90 minutes", "120 minutes"],
+        correct: 1,
+        note: "Two halves of 45 minutes."
+      },
+      {
+        q: "How many teams are in the 2026 World Cup?",
+        answers: ["32", "40", "48"],
+        correct: 2,
+        note: "2026 is the first 48-team edition."
+      },
+      {
+        q: "Which countries are hosting World Cup 2026?",
+        answers: ["Canada, Mexico, USA", "Brazil, Argentina, Chile", "Spain, Portugal, Morocco"],
+        correct: 0,
+        note: "It is the first World Cup hosted across three countries."
+      },
+      {
+        q: "How many host cities are being used?",
+        answers: ["8", "12", "16"],
+        correct: 2,
+        note: "16 host cities across North America."
+      },
+      {
+        q: "Where is the 2026 final scheduled?",
+        answers: ["MetLife Stadium", "Azteca Stadium", "SoFi Stadium"],
+        correct: 0,
+        note: "MetLife Stadium in New York/New Jersey hosts the final."
+      }
+    ];
+
+    let currentIndex = 0;
+    let quizIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    const stage = document.getElementById("stage");
+    const progressBar = document.getElementById("progress");
+
+    renderSlide(0);
+    updateProgress();
+
+    function wrap(content) {
+      return `<div class="wrap">${content}</div>`;
+    }
+
+    function generateHTML(data) {
+      if (data.type === "hero") {
+        return wrap(`
+          <div style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+            <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+            <h1 class="headline animate-spring-up stagger-2">${data.title}</h1>
+            <p class="subtitle animate-spring-up stagger-3" style="margin-top:1.5rem;">${data.subtitle}</p>
+            <div class="photo-collage animate-spring-up stagger-4">
+              ${data.photos.map((photo, i) => `
+                <div class="photo-tile glass-panel ${i === 0 ? "tall" : ""}" data-hover>
+                  <img src="${photo.src}" alt="${photo.alt}">
+                  <div class="photo-caption">${photo.caption}</div>
+                </div>
+              `).join("")}
+            </div>
+            <div class="stage-note glass-panel animate-spring-up stagger-4" data-hover>
+              <span class="material-symbols-outlined">sports_soccer</span>
+              <span>Use arrows, spacebar, or the buttons</span>
+            </div>
+          </div>
+        `);
+      }
+
+      if (data.type === "numbers") {
+        return wrap(`
+          <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+          <h2 class="title animate-spring-up stagger-2">${data.title}</h2>
+          <div class="grid three">
+            ${data.image ? `
+              <div class="fact-image glass-panel animate-spring-up stagger-3" data-hover>
+                <img src="${data.image.src}" alt="${data.image.alt}">
+                <div class="photo-caption">${data.image.caption}</div>
+              </div>
+            ` : ""}
+            ${data.cards.map((card, i) => `
+              <div class="fact-card glass-panel animate-spring-up stagger-${i + (data.image ? 4 : 3)}" data-hover style="--accent:${card.color}33; --accent-text:${card.color};">
+                <span class="number">${card.number}</span>
+                <div class="label">${card.label}</div>
+                <div class="small">${card.text}</div>
+              </div>
+            `).join("")}
+          </div>
+        `);
+      }
+
+      if (data.type === "hosts") {
+        return wrap(`
+          <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+          <h2 class="title animate-spring-up stagger-2">${data.title}</h2>
+          <div class="map">
+            ${data.hosts.map((host, i) => `
+              <div class="host glass-panel animate-spring-up stagger-${i + 3}" data-hover style="background:linear-gradient(135deg, ${host.color}22, rgba(255,255,255,0.07));">
+                <div class="mini-ball"></div>
+                <div>
+                  <div class="big">${host.country}</div>
+                  <div class="small" style="margin-top:0.8rem;">${host.matches} matches</div>
+                </div>
+                <div class="cities">${host.cities}</div>
+              </div>
+            `).join("")}
+          </div>
+        `);
+      }
+
+      if (data.type === "runner") {
+        return wrap(`
+          <div class="runner-layout">
+            <div>
+              <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+              <h2 class="title animate-spring-up stagger-2">${data.title}</h2>
+              <p class="subtitle animate-spring-up stagger-3">${data.subtitle}</p>
+              <div class="run-track animate-spring-up stagger-4">
+                <div class="runner"><span class="material-symbols-outlined">directions_run</span></div>
+              </div>
+              <div class="grid three" style="margin-top:1.2rem;">
+                <div class="fact-card glass-panel animate-spring-up stagger-4" data-hover style="min-height:150px; --accent:#34d39933; --accent-text:#34d399;">
+                  <span class="number">10 km</span><div class="small">Roughly 25 laps of a 400 m track.</div>
+                </div>
+                <div class="fact-card glass-panel animate-spring-up stagger-5" data-hover style="min-height:150px; --accent:#fbbf2433; --accent-text:#fbbf24;">
+                  <span class="number">90+</span><div class="small">Minutes of sprinting, jogging, walking, and reacting.</div>
+                </div>
+                <div class="fact-card glass-panel animate-spring-up stagger-6" data-hover style="min-height:150px; --accent:#38bdf833; --accent-text:#38bdf8;">
+                  <span class="number">1 ball</span><div class="small">And millions of decisions around it.</div>
+                </div>
+              </div>
+            </div>
+            <div class="runner-photo glass-panel animate-spring-up stagger-4" data-hover>
+              <img src="${data.image.src}" alt="${data.image.alt}">
+              <div class="photo-caption">${data.image.caption}</div>
+            </div>
+          </div>
+        `);
+      }
+
+      if (data.type === "timeline") {
+        return wrap(`
+          <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+          <h2 class="title animate-spring-up stagger-2">${data.title}</h2>
+          <div class="timeline">
+            ${data.items.map((item, i) => `
+              <div class="time-item glass-panel animate-spring-up stagger-${i + 2}" data-hover>
+                <div class="date">${item.date}</div>
+                <div>
+                  <div class="round">${item.round}</div>
+                  <div class="small">${item.note}</div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `);
+      }
+
+      if (data.type === "fun") {
+        return wrap(`
+          <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+          <h2 class="title animate-spring-up stagger-2">${data.title}</h2>
+          <div class="grid two">
+            <div class="fact-image glass-panel animate-spring-up stagger-3" data-hover>
+              <img src="${data.image.src}" alt="${data.image.alt}">
+              <div class="photo-caption">${data.image.caption}</div>
+            </div>
+            ${data.facts.map((fact, i) => `
+              <div class="fact-card glass-panel animate-spring-up stagger-${i + 4}" data-hover style="min-height:170px; display:flex; gap:1rem; align-items:flex-start;">
+                <span class="material-symbols-outlined" style="font-size:3rem; color:${["#34d399", "#fbbf24", "#38bdf8", "#fb7185"][i]};">${fact.icon}</span>
+                <div class="label" style="margin:0; font-size:clamp(1.15rem,2vw,1.7rem);">${fact.text}</div>
+              </div>
+            `).join("")}
+          </div>
+        `);
+      }
+
+      if (data.type === "quizIntro") {
+        return wrap(`
+          <div style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+            <p class="kicker animate-spring-up stagger-1">Audience time</p>
+            <h2 class="headline animate-spring-up stagger-2" style="font-size:clamp(3rem,8vw,7rem);">Mini Quiz</h2>
+            <p class="subtitle animate-spring-up stagger-3" style="margin-top:1.5rem;">Five very easy questions. Shout the answer, then tap an option to reveal it.</p>
+            <button class="pill-button glass-panel animate-spring-up stagger-4" onclick="startQuiz()" data-hover style="margin-top:2rem;">
+              <span class="material-symbols-outlined">play_arrow</span>
+              Start quiz
+            </button>
+          </div>
+        `);
+      }
+
+      if (data.type === "quiz") {
+        return quizHTML();
+      }
+
+      if (data.type === "end") {
+        return wrap(`
+          <div style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+            <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+            <h2 class="headline animate-spring-up stagger-2" style="font-size:clamp(3rem,8vw,7rem);">${data.title}</h2>
+            <p class="subtitle animate-spring-up stagger-3" style="margin-top:1.5rem;">${data.subtitle}</p>
+            <button class="pill-button glass-panel animate-spring-up stagger-4" onclick="switchSlide(0)" data-hover style="margin-top:2rem;">
+              <span class="material-symbols-outlined">replay</span>
+              Replay
+            </button>
+          </div>
+        `);
+      }
+
+      if (data.type === "sources") {
+        return wrap(`
+          <p class="kicker animate-spring-up stagger-1">${data.kicker}</p>
+          <h2 class="title animate-spring-up stagger-2">${data.title}</h2>
+          <p class="subtitle animate-spring-up stagger-3">A few figures are rounded for presentation, especially player running distance.</p>
+          <div class="source-list">
+            ${data.sources.map((source, i) => `
+              <div class="glass-panel animate-spring-up stagger-${i + 2}" data-hover style="padding:1rem 1.2rem;">
+                <a href="${source[1]}" target="_blank" rel="noreferrer">${source[0]}</a>
+              </div>
+            `).join("")}
+          </div>
+        `);
+      }
+    }
+
+    function quizHTML() {
+      const item = quizQuestions[quizIndex];
+      return wrap(`
+        <div class="quiz-card glass-panel">
+          <div>
+            <div class="question-count">Question ${quizIndex + 1} of ${quizQuestions.length}</div>
+            <h2 class="question-text">${item.q}</h2>
+            <div id="quiz-feedback" class="quiz-feedback"></div>
+            <div class="quiz-actions">
+              <div class="score-pill">Score: <span id="score">${score}</span>/${quizQuestions.length}</div>
+              <button class="pill-button" onclick="nextQuizQuestion()" data-hover>
+                <span class="material-symbols-outlined">arrow_forward</span>
+                ${quizIndex === quizQuestions.length - 1 ? "Finish" : "Next"}
+              </button>
+            </div>
+          </div>
+          <div class="answers">
+            ${item.answers.map((answer, i) => `
+              <button class="answer" onclick="chooseAnswer(${i})" data-hover>${answer}</button>
+            `).join("")}
+          </div>
+        </div>
+      `);
+    }
+
+    function renderSlide(index) {
+      const el = document.createElement("section");
+      el.className = "view-container view-active";
+      el.innerHTML = generateHTML(views[index]);
+      stage.appendChild(el);
+    }
+
+    function switchSlide(newIndex) {
+      if (newIndex < 0 || newIndex >= views.length) return;
+      const currentEl = document.querySelector(".view-active");
+      if (currentEl) {
+        currentEl.classList.add("animate-pop-out");
+        currentEl.classList.remove("view-active");
+        setTimeout(() => currentEl.remove(), 450);
+      }
+      updateBackground(newIndex);
+      currentIndex = newIndex;
+      renderSlide(currentIndex);
+      updateProgress();
+    }
+
+    function updateProgress() {
+      progressBar.style.width = `${((currentIndex + 1) / views.length) * 100}%`;
+    }
+
+    function nextSlide() { switchSlide(currentIndex + 1); }
+    function prevSlide() { switchSlide(currentIndex - 1); }
+
+    function updateBackground(index) {
+      document.querySelectorAll(".blob").forEach((blob, bIndex) => {
+        const seed = (index + 3) * (bIndex + 7) * 19;
+        blob.style.top = `${(seed % 105) - 16}%`;
+        blob.style.left = `${((seed * 23) % 112) - 18}%`;
+      });
+    }
+
+    function startQuiz() {
+      quizIndex = 0;
+      score = 0;
+      answered = false;
+      switchSlide(8);
+    }
+
+    function chooseAnswer(choice) {
+      if (answered) return;
+      answered = true;
+      const item = quizQuestions[quizIndex];
+      const buttons = document.querySelectorAll(".answer");
+      buttons.forEach((button, i) => {
+        button.classList.add("revealed");
+        button.classList.add(i === item.correct ? "correct" : "wrong");
+      });
+      if (choice === item.correct) {
+        score += 1;
+        document.getElementById("score").textContent = score;
+        document.getElementById("quiz-feedback").textContent = `Correct. ${item.note}`;
+      } else {
+        document.getElementById("quiz-feedback").textContent = `Nice try. ${item.note}`;
+      }
+    }
+
+    function nextQuizQuestion() {
+      if (!answered) {
+        document.getElementById("quiz-feedback").textContent = "Pick an answer first.";
+        return;
+      }
+      if (quizIndex < quizQuestions.length - 1) {
+        quizIndex += 1;
+        answered = false;
+        const currentEl = document.querySelector(".view-active .wrap");
+        if (currentEl) {
+          currentEl.outerHTML = quizHTML();
+        }
+      } else {
+        switchSlide(9);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener("fullscreenchange", () => {
+      document.body.classList.toggle("is-fullscreen", !!document.fullscreenElement);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === " ") nextSlide();
+      if (event.key === "ArrowLeft") prevSlide();
+      if (event.key.toLowerCase() === "f") toggleFullscreen();
+    });
+
+    const canvas = document.getElementById("cursor-canvas");
+    const ctx = canvas.getContext("2d");
+    let width, height;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    let mouse = { x: width / 2, y: height / 2 };
+    let cursor = { x: width / 2, y: height / 2, w: 20, h: 20, r: 10 };
+    let velocity = { x: 0, y: 0 };
+    let target = { x: width / 2, y: height / 2, w: 20, h: 20, r: 10 };
+    let hoverEl = null;
+    let hoverTimeout = null;
+
+    window.addEventListener("mousemove", (event) => {
+      mouse.x = event.clientX;
+      mouse.y = event.clientY;
+      const el = event.target.closest("[data-hover]");
+      if (el) {
+        if (hoverTimeout) {
+          clearTimeout(hoverTimeout);
+          hoverTimeout = null;
+        }
+        hoverEl = el;
+        const rect = el.getBoundingClientRect();
+        const style = window.getComputedStyle(el);
+        const radius = parseFloat(style.borderRadius) || 0;
+        target.x = rect.left + rect.width / 2;
+        target.y = rect.top + rect.height / 2;
+        target.w = rect.width + 12;
+        target.h = rect.height + 12;
+        target.r = radius + 6;
+      } else if (!hoverTimeout && hoverEl) {
+        hoverTimeout = setTimeout(() => {
+          hoverEl = null;
+          hoverTimeout = null;
+          target.w = 20;
+          target.h = 20;
+          target.r = 10;
+        }, 60);
+      } else if (!hoverEl) {
+        target.x = mouse.x;
+        target.y = mouse.y;
+        target.w = 20;
+        target.h = 20;
+        target.r = 10;
+      }
+    });
+
+    function roundedRectPath(x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function loop() {
+      const stiff = 0.2;
+      const damp = 0.55;
+      let tx = target.x;
+      let ty = target.y;
+
+      if (!hoverEl && !hoverTimeout) {
+        tx = mouse.x;
+        ty = mouse.y;
+        if (canvas.style.mixBlendMode !== "exclusion") canvas.style.mixBlendMode = "exclusion";
+      } else if (canvas.style.mixBlendMode !== "normal") {
+        canvas.style.mixBlendMode = "normal";
+      }
+
+      velocity.x = (velocity.x + (tx - cursor.x) * stiff) * damp;
+      velocity.y = (velocity.y + (ty - cursor.y) * stiff) * damp;
+      cursor.x += velocity.x;
+      cursor.y += velocity.y;
+      cursor.w += (target.w - cursor.w) * 0.25;
+      cursor.h += (target.h - cursor.h) * 0.25;
+      cursor.r += (target.r - cursor.r) * 0.25;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      ctx.translate(cursor.x, cursor.y);
+
+      if (!hoverEl && !hoverTimeout) {
+        const speed = Math.hypot(velocity.x, velocity.y);
+        const angle = Math.atan2(velocity.y, velocity.x);
+        const stretch = Math.min(Math.pow(speed * 0.04, 1.2), 0.4);
+        ctx.rotate(angle);
+        ctx.scale(1 + stretch, 1 - stretch);
+        ctx.rotate(-angle);
+      }
+
+      roundedRectPath(-cursor.w / 2, -cursor.h / 2, cursor.w, cursor.h, cursor.r);
+
+      if (hoverEl || hoverTimeout) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#fbbf24";
+        ctx.shadowColor = "#fbbf24";
+        ctx.shadowBlur = 15;
+        ctx.stroke();
+        ctx.fillStyle = "rgba(251, 191, 36, 0.05)";
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "white";
+        ctx.shadowBlur = 0;
+        ctx.fill();
+      }
+
+      ctx.restore();
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
