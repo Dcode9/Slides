@@ -766,34 +766,70 @@
 
     const quizQuestions = [
       {
-        q: "How long is normal time in a football match?",
-        answers: ["60 minutes", "90 minutes", "120 minutes"],
+        q: "Who is widely regarded as the King of Football and won 3 FIFA World Cups with Brazil?",
+        answers: ["Diego Maradona", "Pelé", "Zico", "Garrincha"],
         correct: 1,
-        note: "Two halves of 45 minutes."
+        note: "Pelé won the World Cup with Brazil in 1958, 1962, and 1970."
       },
       {
-        q: "How many teams are in the 2026 World Cup?",
-        answers: ["32", "40", "48"],
+        q: "In which year did Diego Maradona score the legendary Hand of God goal?",
+        answers: ["1982", "1986", "1990", "1994"],
+        correct: 1,
+        note: "The Hand of God goal came against England at the 1986 World Cup."
+      },
+      {
+        q: "Which legendary player is known as Der Kaiser, meaning The Emperor?",
+        answers: ["Gerd Müller", "Franz Beckenbauer", "Lothar Matthäus", "Jürgen Klinsmann"],
+        correct: 1,
+        note: "Franz Beckenbauer earned the nickname for his elegant leadership from defense."
+      },
+      {
+        q: "How many Ballon d'Or awards had Lionel Messi won as of 2023?",
+        answers: ["6", "7", "8", "9"],
         correct: 2,
-        note: "2026 is the first 48-team edition."
+        note: "Messi collected his eighth Ballon d'Or in 2023."
       },
       {
-        q: "Which countries are hosting World Cup 2026?",
-        answers: ["Canada, Mexico, USA", "Brazil, Argentina, Chile", "Spain, Portugal, Morocco"],
-        correct: 0,
-        note: "It is the first World Cup hosted across three countries."
+        q: "Who holds the record for the most goals scored in a single FIFA World Cup tournament?",
+        answers: ["Pelé", "Just Fontaine", "Gerd Müller", "Ronaldo Nazário"],
+        correct: 1,
+        note: "Just Fontaine scored 13 goals for France at the 1958 World Cup."
       },
       {
-        q: "How many host cities are being used?",
-        answers: ["8", "12", "16"],
+        q: "Which clubs did Johan Cruyff famously play for and later manage?",
+        answers: ["Real Madrid", "Bayern Munich", "Ajax & Barcelona", "AC Milan"],
         correct: 2,
-        note: "16 host cities across North America."
+        note: "Cruyff shaped modern football through Ajax, Barcelona, and Total Football ideas."
       },
       {
-        q: "Where is the 2026 final scheduled?",
-        answers: ["MetLife Stadium", "Azteca Stadium", "SoFi Stadium"],
+        q: "Which legends won the FIFA World Cup as both a player and a coach?",
+        answers: ["Franz Beckenbauer", "Mário Zagallo", "Both A and B", "Didier Deschamps"],
+        correct: 2,
+        note: "Zagallo and Beckenbauer both lifted the trophy as players and managers."
+      },
+      {
+        q: "Who is the all-time top scorer of the UEFA Champions League?",
+        answers: ["Lionel Messi", "Robert Lewandowski", "Cristiano Ronaldo", "Karim Benzema"],
+        correct: 2,
+        note: "Cristiano Ronaldo leads the Champions League scoring charts."
+      },
+      {
+        q: "Which country won the very first FIFA World Cup in 1930?",
+        answers: ["Brazil", "Argentina", "Uruguay", "Italy"],
+        correct: 2,
+        note: "Uruguay hosted and won the first World Cup in 1930."
+      },
+      {
+        q: "Who scored the Goal of the Century against England in 1986?",
+        answers: ["Diego Maradona", "Jorge Valdano", "Gabriel Batistuta", "Mario Kempes"],
         correct: 0,
-        note: "MetLife Stadium in New York/New Jersey hosts the final."
+        note: "Maradona dribbled through England to score one of football's most famous goals."
+      },
+      {
+        q: "Which player scored the winning goal in the 2014 FIFA World Cup Final for Germany?",
+        answers: ["Thomas Müller", "Mario Götze", "Miroslav Klose", "André Schürrle"],
+        correct: 1,
+        note: "Mario Götze scored in extra time to win the 2014 final."
       }
     ];
 
@@ -948,7 +984,7 @@
           <div style="text-align:center; display:flex; flex-direction:column; align-items:center;">
             <p class="kicker animate-spring-up stagger-1">Audience time</p>
             <h2 class="headline animate-spring-up stagger-2" style="font-size:clamp(3rem,8vw,7rem);">Mini Quiz</h2>
-            <p class="subtitle animate-spring-up stagger-3" style="margin-top:1.5rem;">Five very easy questions. Shout the answer, then tap an option to reveal it.</p>
+            <p class="subtitle animate-spring-up stagger-3" style="margin-top:1.5rem;">Eleven football history and legends questions. Shout the answer, then tap an option to reveal it.</p>
             <button class="pill-button glass-panel animate-spring-up stagger-4" onclick="startQuiz()" data-hover style="margin-top:2rem;">
               <span class="material-symbols-outlined">play_arrow</span>
               Start quiz
