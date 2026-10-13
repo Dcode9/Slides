@@ -1,0 +1,2696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glimpses of India — A Paper-Cut Diorama | Goa &amp; Sikkim</title>
+<meta name="description" content="Glimpses of India: sixteen hand-cut paper dioramas exploring A Baker from Goa and the Himalayan heritage of Sikkim.">
+<meta name="theme-color" content="#f3e8d2">
+<style>
+:root{
+  --cream:#f3e8d2;--sage:#9bb89b;--moss:#5f7f5b;--teal:#274e52;--ochre:#d9a45b;--orange:#c8642d;--ink:#3b2b1d;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",P052,"URW Palladio L",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --shade:rgba(58,38,18,.34);--edge:rgba(255,250,236,.5);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:#1f3a3c;color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+body.night{--shade:rgba(6,6,32,.62);--edge:rgba(176,186,255,.2)}
+
+/* ---------- the box ---------- */
+.stage{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:default}
+.sky{position:absolute;inset:0;background:radial-gradient(120% 75% at 30% 22%,#fbf3e1 0%,#f3e8d2 42%,#ecd9b4 100%)}
+.sky-night{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;background:radial-gradient(95% 70% at 30% 20%,#3a3f8a 0%,#252a69 36%,#161a45 72%,#10132f 100%)}
+body.night .sky-night{opacity:1}
+.sky-grain{position:absolute;inset:0;width:100%;height:100%;opacity:.9;transition:opacity 1.4s ease}
+.pins{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 1.2s ease .5s}
+body.night .pins{opacity:1}
+.pins circle{fill:#fff4d6;transform-box:fill-box;transform-origin:center}
+.pins .tw{animation:twinkle 3.2s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.3);opacity:.35}}
+
+.layer{position:absolute;left:0;top:0;will-change:transform;pointer-events:none}
+.layer>svg{display:block;overflow:visible}
+.layer>svg.buf{position:absolute;top:0}
+.cut{filter:drop-shadow(0 -1px 0 var(--edge)) drop-shadow(0 calc(var(--sh,4) * 1px) calc(var(--sh,4) * 1.5px) var(--shade));transition:filter 1.2s ease var(--d,0s)}
+.place .sheet{animation:placeIn .9s cubic-bezier(.2,.8,.25,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes placeIn{from{transform:translateY(7%);opacity:0}to{transform:none;opacity:1}}
+
+.layer path,.layer circle,.layer ellipse{transition:fill 1.25s cubic-bezier(.55,.05,.3,1) var(--d,0s),opacity 1.25s ease var(--d,0s)}
+.grain{fill:url(#grainPat);pointer-events:none;transition:opacity 1.2s ease}
+body.night .grain{opacity:.5}
+body.night .sky-grain{opacity:.35}
+.layer text{font-family:var(--serif);font-style:italic;fill:#5b4632;transition:fill 1.2s ease}
+body.night .layer text{fill:#2a2644}
+
+/* ---------- day / night paper stock ---------- */
+.c-far{fill:#dfdec3} body.night .c-far{fill:#4a508f}
+.c-hill{fill:#bdcfb2} body.night .c-hill{fill:#3e4487}
+.c-roof{fill:#a8bd9c} body.night .c-roof{fill:#353b7b}
+.c-win{fill:#7d927a} body.night .c-win{fill:#ffd57c}
+.winglow{opacity:0} body.night .winglow{opacity:1}
+.lampglow{opacity:.55} body.night .lampglow{opacity:1}
+.c-ridge{fill:#9bb89b} body.night .c-ridge{fill:#343a7c}
+.c-meadow{fill:#7e9c74} body.night .c-meadow{fill:#2b3071}
+.c-river{fill:#b7d2c8} body.night .c-river{fill:#5763ae}
+.c-ripple{fill:#f1f2e3} body.night .c-ripple{fill:#b9c1f2}
+.glint{fill:#fff3c9;opacity:0} body.night .glint{opacity:.95;animation:glint 2.6s ease-in-out infinite}
+@keyframes glint{0%,100%{opacity:.95}50%{opacity:.12}}
+.c-moss{fill:#5f7f5b} body.night .c-moss{fill:#24295f}
+.c-teal{fill:#274e52} body.night .c-teal{fill:#1a1d4e}
+.c-ground{fill:#d9a45b} body.night .c-ground{fill:#352b63}
+.c-burrow{fill:#4a3019} body.night .c-burrow{fill:#110e2a}
+.c-stem{fill:#f0e3c6} body.night .c-stem{fill:#8d86b9}
+.c-cap{fill:#c8642d} body.night .c-cap{fill:#7b3e6b}
+.c-dot{fill:#f8efdc} body.night .c-dot{fill:#aef6e4}
+.c-fern{fill:#5f7f5b} body.night .c-fern{fill:#262d62}
+.c-fall1{fill:#c9713a} body.night .c-fall1{fill:#5a3766}
+.c-fall2{fill:#b98f4c} body.night .c-fall2{fill:#443d78}
+.c-tuft{fill:#8a9a55} body.night .c-tuft{fill:#2c2a5c}
+.c-pebble{fill:#e9dcc0} body.night .c-pebble{fill:#5a5690}
+.c-fg{fill:#1f4245} body.night .c-fg{fill:#121439}
+.c-fg2{fill:#3d6a50} body.night .c-fg2{fill:#1b1d4a}
+.c-bell{fill:#c8642d} body.night .c-bell{fill:#8a4a86}
+.c-bell2{fill:#efc27d} body.night .c-bell2{fill:#d7a3d8}
+.c-mat{fill:#efe3c9} body.night .c-mat{fill:#8f8bb6}
+.c-frame{fill:#1c3739} body.night .c-frame{fill:#0b0c27}
+.c-fox{fill:#c8642d} body.night .c-fox{fill:#a14f36}
+.c-foxc{fill:#f6ecd6} body.night .c-foxc{fill:#d2cbe4}
+.c-foxd{fill:#3a2b24} body.night .c-foxd{fill:#17152f}
+.glowdots{filter:url(#softGlow)}
+.puff{fill:#e0b673;opacity:0} body.night .puff{fill:#9d96cc}
+/* landmark pigments */
+.c-sea{fill:#9cc3bb} body.night .c-sea{fill:#4a5aa6}
+.c-sea2{fill:#76aaa6} body.night .c-sea2{fill:#3a4890}
+.c-foam{fill:#f6f1e2} body.night .c-foam{fill:#c3c8f4}
+.c-sand{fill:#ead3a2} body.night .c-sand{fill:#5d5592}
+.c-snow{fill:#fbf8f0} body.night .c-snow{fill:#cfd3f3}
+.c-ice{fill:#d6e0dc} body.night .c-ice{fill:#9aa2dc}
+.c-rock{fill:#8e9c98} body.night .c-rock{fill:#3e4583}
+.c-rock2{fill:#a9b5ae} body.night .c-rock2{fill:#4d5595}
+.c-terra{fill:#c4603a} body.night .c-terra{fill:#6e3552}
+.c-terra2{fill:#d98454} body.night .c-terra2{fill:#85426a}
+.c-lime{fill:#f4ead3} body.night .c-lime{fill:#a59fcd}
+.c-lime2{fill:#e2d0ab} body.night .c-lime2{fill:#857fb3}
+.c-later{fill:#b2633c} body.night .c-later{fill:#5c3453}
+.c-later2{fill:#8f4c2e} body.night .c-later2{fill:#462745}
+.c-wood{fill:#7f5232} body.night .c-wood{fill:#3a2a52}
+.c-wood2{fill:#a3714a} body.night .c-wood2{fill:#52406f}
+.c-gold{fill:#e2ad4c} body.night .c-gold{fill:#b8964e}
+.c-gold2{fill:#c58a2e} body.night .c-gold2{fill:#8a6c3a}
+.c-brass{fill:#c79a48} body.night .c-brass{fill:#937a4c}
+.c-crimson{fill:#a3302f} body.night .c-crimson{fill:#5e2340}
+.c-maroon{fill:#6f2430} body.night .c-maroon{fill:#3c1832}
+.c-saffron{fill:#e08b33} body.night .c-saffron{fill:#8e5446}
+.c-cobalt{fill:#2f5f9f} body.night .c-cobalt{fill:#2a3c86}
+.c-tile{fill:#f5eedf} body.night .c-tile{fill:#b3b0da}
+.c-sil{fill:#3b2b1d} body.night .c-sil{fill:#15132e}
+.c-string{fill:rgba(74,54,34,.55)} body.night .c-string{fill:rgba(220,220,255,.35)}
+.c-flame{fill:url(#fireGrad)}
+.c-ember{fill:#ffd98a} body.night .c-ember{fill:#ffe9a8}
+.c-steam{fill:#fbf7ec;opacity:.92} body.night .c-steam{fill:#c2c6ec}
+.c-fB{fill:#3d6ea6} body.night .c-fB{fill:#2f4a8f}
+.c-fW{fill:#f7f2e4} body.night .c-fW{fill:#b9b7dc}
+.c-fR{fill:#b83a30} body.night .c-fR{fill:#7a2c45}
+.c-fG{fill:#4e8b57} body.night .c-fG{fill:#2f5a5e}
+.c-fY{fill:#e7ba40} body.night .c-fY{fill:#a88a45}
+.c-mane{fill:#6fb2a6} body.night .c-mane{fill:#4a6aa6}
+.c-parch{fill:#efe0bd} body.night .c-parch{fill:#8f89bb}
+.c-parch2{fill:#e2cd9f} body.night .c-parch2{fill:#7a74a6}
+.c-grid{fill:#c7a676} body.night .c-grid{fill:#5f5a92}
+.c-saree{fill:#b8432f} body.night .c-saree{fill:#6a2c4a}
+.c-saree2{fill:#4f7f5a} body.night .c-saree2{fill:#2f4a5e}
+.c-rhodo{fill:#c63f3a} body.night .c-rhodo{fill:#7a3058}
+.c-hib{fill:#d0482f} body.night .c-hib{fill:#7d3056}
+.c-lotus{fill:#e7a3a0} body.night .c-lotus{fill:#a26c9e}
+.c-lotus2{fill:#f6d3c9} body.night .c-lotus2{fill:#cba3cf}
+.c-pad{fill:#5f8a5b} body.night .c-pad{fill:#283068}
+.c-r1{fill:#c8642d} body.night .c-r1{fill:#7a3e5c}
+.c-r2{fill:#e08b33} body.night .c-r2{fill:#8a5a5a}
+.c-r3{fill:#e9c46a} body.night .c-r3{fill:#9a8a5a}
+.c-r4{fill:#9bb89b} body.night .c-r4{fill:#4a6a8a}
+.c-r5{fill:#5f9a98} body.night .c-r5{fill:#3f5a92}
+.c-r6{fill:#4a6fa5} body.night .c-r6{fill:#3a4a96}
+.c-r7{fill:#7b5aa6} body.night .c-r7{fill:#5a3f8a}
+.c-sun{fill:#d9a45b} body.night .c-sun{fill:#b07a5e}
+.c-sun2{fill:#e6b772} body.night .c-sun2{fill:#c4906a}
+.c-sunray{fill:#c8642d} body.night .c-sunray{fill:#7e4660}
+
+/* ---------- hanging sky (sun, moon, clouds, stars) ---------- */
+.hang{position:absolute;top:0;transition:transform 1.6s cubic-bezier(.5,-.28,.25,1.22);transition-delay:var(--hd,0s)}
+.hang .swing{position:relative;transform-origin:50% 0;animation:swing var(--sd,5s) ease-in-out infinite alternate;animation-delay:var(--sdl,0s)}
+.hang .string{position:absolute;left:50%;top:0;width:1px;margin-left:-.5px;height:var(--len);background:linear-gradient(rgba(74,54,34,.25),rgba(74,54,34,.6))}
+body.night .hang .string{background:linear-gradient(rgba(220,220,255,.08),rgba(220,220,255,.36))}
+.hang .obj{position:absolute;left:50%;top:var(--len);transform:translate(-50%,-6%);filter:drop-shadow(0 5px 6px var(--shade))}
+.hang .obj svg{display:block;overflow:visible}
+.hang.day{transform:none}
+body.night .hang.day,body.no-sun .hang.sunH{transform:translateY(calc(-1px * var(--up)))}
+.hang.nite{transform:translateY(calc(-1px * var(--up)))}
+body.night .hang.nite{transform:none}
+@keyframes swing{from{transform:rotate(-1.6deg)}to{transform:rotate(1.6deg)}}
+.halo{position:absolute;left:50%;top:50%;width:260%;height:260%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.34) 0%,rgba(255,236,190,.12) 34%,rgba(255,236,190,0) 66%);pointer-events:none}
+
+/* ---------- leaves / fireflies ---------- */
+.leaf{position:absolute;left:0;top:0;will-change:transform;filter:drop-shadow(1px 4px 3px var(--shade))}
+.leaf svg{display:block}
+.lf-a{fill:#d9a45b} body.night .lf-a{fill:#6c5a8f}
+.lf-b{fill:#c8642d} body.night .lf-b{fill:#7a4577}
+.lf-c{fill:#9bb89b} body.night .lf-c{fill:#4a569a}
+.lf-v{fill:none;stroke:rgba(255,246,226,.55);stroke-width:.7} body.night .lf-v{stroke:rgba(210,210,255,.3)}
+.leaf path{transition:fill 1.2s ease .6s}
+#flies{pointer-events:none}
+.vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 16vmin rgba(60,36,14,.22);transition:box-shadow 1.4s ease}
+body.night .vignette{box-shadow:inset 0 0 22vmin rgba(2,2,20,.55)}
+.fox-btn{position:absolute;left:0;top:0;width:10px;height:10px;padding:0;margin:0;border:0;border-radius:40%;background:transparent;cursor:pointer;pointer-events:auto;touch-action:manipulation}
+.fox-btn:focus-visible{outline:2px dashed #fff6df;outline-offset:4px;box-shadow:0 0 0 6px rgba(39,78,82,.45)}
+
+/* ==========================================================================
+   TOP-LEFT ROTARY PLATE DIAL — flat, in-plane (Z-axis) rotation only
+   ========================================================================== */
+#wheel{position:fixed;top:0;left:clamp(14px,4.2vw,72px);width:250px;height:420px;z-index:35;pointer-events:none;transform-origin:0 0;transform:scale(var(--ws,1))}
+.wheel-string{position:absolute;left:124.5px;top:0;width:1px;height:52px;background:linear-gradient(rgba(74,54,34,.2),rgba(74,54,34,.75))}
+body.night .wheel-string{background:linear-gradient(rgba(230,230,255,.1),rgba(230,230,255,.45))}
+.dial{position:absolute;left:125px;top:62px;width:0;height:0;will-change:transform}
+.dial-plate{position:absolute;left:-345px;top:-345px;width:690px;height:690px;overflow:visible;filter:drop-shadow(0 4px 5px var(--shade))}
+.dp-ring{fill:#f1e5cb;transition:fill 1.2s ease} body.night .dp-ring{fill:#bdb6dc}
+.dp-ring2{fill:none;stroke:rgba(122,78,40,.38);stroke-width:1;stroke-dasharray:3 4} body.night .dp-ring2{stroke:rgba(70,60,130,.45)}
+.dp-tick{stroke:rgba(122,78,40,.55);stroke-width:1} body.night .dp-tick{stroke:rgba(60,50,120,.6)}
+.dp-tick.big{stroke:#c8642d;stroke-width:2} body.night .dp-tick.big{stroke:#7b5aa6}
+.dp-spoke{stroke:rgba(122,78,40,.22);stroke-width:1;stroke-dasharray:2 6} body.night .dp-spoke{stroke:rgba(230,230,255,.18)}
+.dp-num{font:italic 13px var(--serif);fill:#7a4e2a;text-anchor:middle;dominant-baseline:middle;letter-spacing:.04em} body.night .dp-num{fill:#3a3366}
+.dp-hub{fill:#d9a45b} body.night .dp-hub{fill:#9a7d48}
+.wcard{position:absolute;left:-125px;top:-22px;width:250px;height:300px;transform-origin:125px 22px;filter:drop-shadow(0 8px 10px var(--shade));transition:opacity .45s ease,visibility 0s linear 0s}
+.wcard .paper{position:absolute;inset:0;background:#f8efdb;clip-path:polygon(24% 0,76% 0,100% 15%,100% 100%,0 100%,0 15%);pointer-events:auto;cursor:pointer;transition:background-color 1.2s ease}
+body.night .wcard .paper{background:#e7e1ef}
+.wcard .paper::after{content:"";position:absolute;inset:7px;border:1px dashed rgba(122,78,40,.35);clip-path:polygon(23% 0,77% 0,100% 14%,100% 100%,0 100%,0 14%);pointer-events:none}
+body.night .wcard .paper::after{border-color:rgba(100,80,160,.32)}
+.wcard .grain-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.wcard .hole{position:absolute;left:50%;top:14px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:#1f3a3c;box-shadow:0 0 0 3.5px var(--ochre),0 0 0 4.5px rgba(90,56,24,.35)}
+body.night .wcard .hole{background:#141841}
+.wcard.is-active{z-index:30}
+.wcard.is-next,.wcard.is-prev{z-index:10}
+.wcard.is-next .paper,.wcard.is-prev .paper{background:#eee1c4}
+body.night .wcard.is-next .paper,body.night .wcard.is-prev .paper{background:#d3cce4}
+.wcard.is-far{z-index:1;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s}
+.wcard .face{position:absolute;inset:0;padding:46px 20px 16px;text-align:center;opacity:0;transition:opacity .35s ease;display:flex;flex-direction:column;align-items:center}
+.wcard.is-active .face{opacity:1;transition-delay:.12s}
+.wcard .stub{position:absolute;left:18px;right:18px;bottom:14px;opacity:0;transition:opacity .35s ease;line-height:1.1}
+.wcard.is-next .stub{opacity:1;text-align:right}
+.wcard.is-prev .stub{opacity:1;text-align:left}
+.stub .st-num{display:block;font-size:26px;font-style:italic;color:var(--orange)}
+.stub .st-k{display:block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#9a5526}
+body.night .stub .st-num{color:#8d4a86} body.night .stub .st-k{color:#7b5aa6}
+.face .kicker{margin:0 0 8px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#9a5526;font-variant-numeric:oldstyle-nums}
+body.night .face .kicker{color:#7b5aa6}
+.face h1{margin:0;font-weight:400;font-size:29px;line-height:.98;letter-spacing:-.01em;color:var(--ink)}
+.face h1 em{display:block;font-style:italic;color:var(--orange);font-size:1.12em;letter-spacing:0}
+body.night .face h1{color:#2a2644} body.night .face h1 em{color:#8d4a86}
+.face .sub{margin:10px auto 0;max-width:22ch;font-size:12.5px;line-height:1.4;font-style:italic;color:#5b4632}
+body.night .face .sub{color:#4a4468}
+.face .count{margin-top:auto;font-size:10px;letter-spacing:.24em;color:var(--orange);font-family:var(--sans);font-weight:700}
+body.night .face .count{color:#7b5aa6}
+.rule{display:block;width:44px;height:6px;margin:10px auto 0;background:radial-gradient(circle,var(--moss) 1.4px,transparent 1.8px) 0 50%/9px 6px repeat-x}
+.pivot-pin{position:absolute;left:115px;top:52px;width:20px;height:20px;border-radius:50%;z-index:40;background:radial-gradient(circle at 35% 35%,#f4d48e,#c8902f 60%,#8a5a1c);box-shadow:0 2px 4px rgba(40,24,8,.45),inset 0 -1px 2px rgba(60,30,0,.4)}
+.pivot-pin::after{content:"";position:absolute;left:7px;top:7px;width:6px;height:6px;border-radius:50%;background:#6b4313;box-shadow:inset 0 1px 1px rgba(0,0,0,.5)}
+.dial-index{position:absolute;left:117px;top:408px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:13px solid #c8902f;filter:drop-shadow(0 2px 2px var(--shade))}
+body.night .dial-index{border-bottom-color:#9a7d48}
+
+/* ---------- controls ---------- */
+.controls{position:fixed;right:clamp(16px,3vw,44px);bottom:clamp(16px,3vw,40px);z-index:30;display:flex;gap:10px;align-items:center}
+.chip{appearance:none;display:inline-flex;align-items:center;gap:10px;padding:9px 15px 9px 12px;border:0;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;background:#f8efdb;
+  clip-path:polygon(2% 6%,30% 0,62% 4%,99% 1%,100% 52%,98% 96%,64% 100%,34% 97%,1% 100%,0 48%);
+  filter:drop-shadow(0 4px 5px var(--shade));transition:transform .25s cubic-bezier(.3,1.6,.5,1),background-color 1.2s ease,color 1.2s ease}
+.chip:hover{transform:translateY(-2px) rotate(-1deg)}
+.chip:active{transform:translateY(1px) scale(.98)}
+.chip:focus-visible{outline:none;background:#fff7e4;box-shadow:inset 0 0 0 2px var(--orange)}
+body.night .chip{background:#e7e1ef;color:#2a2644}
+.track{position:relative;width:48px;height:24px;border-radius:12px;background:#d9c7a1;box-shadow:inset 0 2px 3px rgba(80,50,20,.3);transition:background-color .9s ease}
+body.night .track{background:#3a3f86}
+.knob{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;transition:transform .7s cubic-bezier(.5,-.3,.3,1.35)}
+body.night .knob{transform:translateX(24px)}
+.knob svg{position:absolute;inset:0;width:20px;height:20px;transition:opacity .5s ease,transform .7s ease}
+.knob .k-moon{opacity:0;transform:rotate(-90deg)}
+body.night .knob .k-sun{opacity:0;transform:rotate(90deg)}
+body.night .knob .k-moon{opacity:1;transform:none}
+.chip-label{min-width:3.2em;text-align:left;font-style:italic}
+.chip svg.scissors{width:18px;height:18px}
+.hint{position:fixed;left:clamp(16px,3vw,44px);bottom:clamp(16px,3vw,40px);z-index:25;margin:0;padding:8px 14px;max-width:min(40vw,420px);font-size:13px;font-style:italic;line-height:1.35;color:#f8efdb;background:rgba(28,55,57,.78);
+  clip-path:polygon(0 8%,40% 0,100% 6%,99% 94%,55% 100%,1% 96%);transition:opacity .8s ease,background-color 1.2s ease}
+body.night .hint{background:rgba(12,13,40,.8);color:#e7e1ef}
+.hint b{font-weight:600;font-style:normal;color:#f2c47f}
+.hint.gone{opacity:0}
+
+/* ==========================================================================
+   DESCRIPTION FOLIOS — outgoing lifts into the sky, incoming drops from above
+   ========================================================================== */
+#deck-stage{position:fixed;inset:0;pointer-events:none;z-index:20}
+.folio-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 clamp(28px,5.5vw,84px) clamp(70px,9vh,96px) 0;pointer-events:none;
+  transform:translate3d(0,-115vh,0) rotate(-2.5deg);opacity:0;visibility:hidden;z-index:1;
+  transition:transform .8s cubic-bezier(.6,-.12,.75,.3),opacity .3s ease .55s,visibility 0s linear .85s}
+.folio-slide.active{transform:none;opacity:1;visibility:visible;z-index:3;
+  transition:transform 1.05s cubic-bezier(.18,1.16,.32,1) .26s,opacity .25s ease .26s,visibility 0s}
+.folio-slide.leaving{transform:translate3d(0,-115vh,0) rotate(3deg);opacity:1;visibility:visible;z-index:2;
+  transition:transform .78s cubic-bezier(.55,-.2,.8,.35),opacity .2s ease .62s,visibility 0s}
+.folio-slide.active .folio-placard{pointer-events:auto}
+.folio-placard{position:relative;width:min(660px,56vw);max-height:76vh;padding:34px 32px 28px;background:#f8efdb;color:var(--ink);
+  clip-path:polygon(0% 4%,3% 0%,97% 1%,100% 5%,99% 96%,96% 100%,3% 99%,0% 95%);
+  filter:drop-shadow(0 -1px 0 var(--edge)) drop-shadow(0 14px 24px var(--shade));
+  overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--ochre) transparent;transition:background-color 1.2s ease,color 1.2s ease;pointer-events:none}
+body.night .folio-placard{background:#e7e1ef;color:#2a2644}
+.folio-placard::after{content:"";position:absolute;inset:8px;border:1px dashed rgba(122,78,40,.32);clip-path:polygon(0% 4%,3% 0%,97% 1%,100% 5%,99% 96%,96% 100%,3% 99%,0% 95%);pointer-events:none}
+body.night .folio-placard::after{border-color:rgba(100,80,160,.3)}
+.placard-grain-rect{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pl-title{margin:0 0 14px;font-size:clamp(1.45rem,2.4vw,2.1rem);font-weight:400;line-height:1.06;color:var(--ink);letter-spacing:-.01em}
+.pl-title em{font-style:italic;color:var(--orange)}
+body.night .pl-title{color:#2a2644} body.night .pl-title em{color:#8d4a86}
+.pl-body{font-size:clamp(.84rem,1.05vw,.96rem);line-height:1.68;color:#5b4632;font-style:italic;margin:0 0 14px}
+body.night .pl-body{color:#4a4468}
+.pl-meta{font-size:.76rem;color:#8a7050;line-height:1.55;margin:8px 0 0}
+body.night .pl-meta{color:#6b6090}
+.paper-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.paper-card{background:rgba(243,232,210,.75);border:1px dashed rgba(122,78,40,.28);padding:12px 14px;transition:transform .2s ease,background-color 1.2s ease}
+body.night .paper-card{background:rgba(220,214,235,.6);border-color:rgba(100,80,160,.3)}
+.paper-card:hover{transform:translateY(-2px)}
+.paper-card p{margin:3px 0 0}
+.pc-title{font-size:.86rem;font-weight:700;color:var(--ink);margin-bottom:3px}
+body.night .pc-title{color:#2a2644}
+.pc-desc{font-size:.76rem;color:#5b4632;line-height:1.5}
+body.night .pc-desc{color:#4a4468}
+.paper-badge{display:inline-block;padding:3px 10px;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-family:var(--sans);margin-bottom:8px;border-radius:2px}
+.badge-goa{background:rgba(200,100,45,.14);border:1px solid rgba(200,100,45,.35);color:var(--orange)}
+.badge-sikkim{background:rgba(155,28,49,.14);border:1px solid rgba(155,28,49,.35);color:#9B1C31}
+.tl-paper{border-left:2px solid var(--orange);padding-left:12px;margin-bottom:10px;font-size:.82rem}
+.tl-paper.sikkim{border-left-color:#9B1C31}
+.tl-paper strong{display:block;margin-bottom:2px}
+.paper-tabs{display:flex;gap:6px;border-bottom:1px solid rgba(122,78,40,.2);padding-bottom:8px;margin-bottom:12px;flex-wrap:wrap}
+.p-tab-btn{background:transparent;border:1px solid transparent;padding:5px 12px;font:inherit;font-size:.76rem;font-weight:700;color:#8a7050;cursor:pointer;transition:all .2s ease}
+.p-tab-btn.active{background:rgba(217,164,91,.2);color:var(--orange);border-color:rgba(217,164,91,.4)}
+body.night .p-tab-btn{color:#6b6090}
+body.night .p-tab-btn.active{background:rgba(123,90,166,.2);color:#7b5aa6;border-color:rgba(123,90,166,.4)}
+.p-tab-pane{display:none;gap:10px}
+.p-tab-pane.active{display:grid;grid-template-columns:1fr 1fr}
+.quiz-paper-box{background:rgba(243,232,210,.7);border:1px dashed rgba(122,78,40,.3);padding:16px;margin-top:8px}
+body.night .quiz-paper-box{background:rgba(220,214,235,.55);border-color:rgba(100,80,160,.3)}
+.qp-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.qp-choice{background:#f8efdb;border:1px solid rgba(122,78,40,.2);padding:9px 12px;font:inherit;font-size:.8rem;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;transition:all .18s ease}
+body.night .qp-choice{background:#ddd8eb;border-color:rgba(100,80,160,.2);color:#2a2644}
+.qp-choice:hover:not(:disabled){background:rgba(217,164,91,.18);border-color:var(--ochre);transform:translateY(-1px)}
+.qp-choice.correct{background:rgba(16,185,129,.18)!important;border-color:#10B981!important;color:#065F46!important}
+.qp-choice.wrong{background:rgba(239,68,68,.18)!important;border-color:#EF4444!important;color:#991B1B!important}
+.qp-feedback{display:none;margin-top:10px;font-size:.8rem;padding:8px 12px}
+
+/* bottom dock */
+#dock{position:fixed;bottom:clamp(16px,3vw,40px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:6px 14px;background:#f8efdb;border:1px solid var(--ochre);border-radius:9999px;box-shadow:0 6px 18px var(--shade);z-index:30;transition:background-color 1.2s ease,border-color 1.2s ease}
+body.night #dock{background:#e7e1ef;border-color:#7b5aa6}
+.dk-btn{background:transparent;border:1px solid rgba(122,78,40,.25);color:var(--ink);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.78rem;transition:all .15s ease}
+body.night .dk-btn{border-color:rgba(100,80,160,.25);color:#2a2644}
+.dk-btn:hover{background:rgba(217,164,91,.2);color:var(--orange)}
+.dk-btn:active{transform:scale(.92)}
+.dk-btn.on{background:var(--ochre);color:#fff;border-color:var(--ochre)}
+.dk-sep{width:1px;height:16px;background:rgba(122,78,40,.2)}
+body.night .dk-sep{background:rgba(100,80,160,.2)}
+.dk-count{font-family:var(--sans);font-size:.78rem;font-weight:800;color:var(--ink);padding:0 4px;min-width:54px;text-align:center}
+body.night .dk-count{color:#2a2644}
+.dk-count span{color:var(--orange)}
+body.night .dk-count span{color:#7b5aa6}
+
+/* modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(59,43,29,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:40}
+.modal-overlay.open{display:flex}
+body.night .modal-overlay{background:rgba(16,19,47,.55)}
+.modal-paper{width:min(680px,92vw);background:#f8efdb;border:1px dashed rgba(122,78,40,.3);padding:26px;box-shadow:0 20px 45px var(--shade);max-height:85vh;overflow-y:auto;transition:background-color 1.2s ease}
+body.night .modal-paper{background:#e7e1ef;border-color:rgba(100,80,160,.3)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(122,78,40,.2);padding-bottom:10px;margin-bottom:14px}
+.modal-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin:0}
+body.night .modal-title{color:#2a2644}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:14px}
+.ov-tile{background:var(--cream);border:1px dashed rgba(122,78,40,.22);padding:12px;cursor:pointer;transition:all .2s ease}
+body.night .ov-tile{background:#ddd8eb;border-color:rgba(100,80,160,.22)}
+.ov-tile:hover,.ov-tile.active{border-color:var(--ochre);transform:translateY(-2px)}
+.ov-num{font-size:.68rem;font-weight:700;color:var(--orange);font-family:var(--sans)}
+body.night .ov-num{color:#7b5aa6}
+.ov-name{font-size:.84rem;font-weight:700;color:var(--ink);margin-top:2px}
+body.night .ov-name{color:#2a2644}
+
+@media print{
+  @page{size:16in 9in landscape;margin:0}
+  .controls,.hint,#dock,.modal-overlay,.stage,#wheel{display:none!important}
+  html,body{overflow:visible;height:auto}
+  #deck-stage{position:static!important;display:block!important}
+  .folio-slide{position:relative!important;inset:auto!important;opacity:1!important;visibility:visible!important;page-break-after:always!important;break-after:page!important;min-height:100vh!important;background:#f8efdb!important;padding:40px!important;justify-content:center!important;transform:none!important}
+  .folio-placard{width:90%!important;max-height:none!important;filter:none!important}
+  .p-tab-pane{display:grid!important;grid-template-columns:1fr 1fr!important;margin-bottom:10px!important}
+  .paper-tabs{display:none!important}
+}
+@media(max-width:840px){
+  .folio-slide{padding:120px 12px 90px;justify-content:center}
+  .folio-placard{width:94vw;max-height:66vh;padding:26px 20px}
+  .paper-grid,.qp-options{grid-template-columns:1fr}
+  .p-tab-pane.active{grid-template-columns:1fr}
+  .controls{top:12px;right:12px;bottom:auto}
+  .hint{display:none}
+  #dock{bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .place .sheet{animation:none}
+  .hang .swing,.pins .tw{animation:none}
+  .folio-slide,.folio-slide.active,.folio-slide.leaving{transition-duration:.2s;transition-delay:0s}
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+</style>
+</head>
+<body>
+
+<!-- ====== NINE SHEETS OF PAPER — each sheet holds three scene buffers for the dolly ====== -->
+<main class="stage" id="stage" aria-label="Glimpses of India: a paper-cut diorama of Goa and Sikkim">
+  <div class="sky" id="sky">
+    <div class="sky-night"></div>
+    <svg class="sky-grain" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+    <svg class="pins" id="pins" aria-hidden="true" focusable="false"></svg>
+  </div>
+  <div class="layer" id="hang" data-depth="0.4" aria-hidden="true"></div>
+  <div class="layer cut place sheetL" id="L1" data-depth="1" style="--i:0;--sh:3" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="layer cut place sheetL" id="L2" data-depth="2" style="--i:1;--sh:3" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="layer cut place sheetL" id="L3" data-depth="3" style="--i:2;--sh:4" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="layer cut place sheetL" id="L4" data-depth="4" style="--i:3;--sh:4" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="layer cut place sheetL" id="L5" data-depth="5" style="--i:4;--sh:5" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="layer cut place sheetL" id="L6" data-depth="6" style="--i:5;--sh:6" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="layer cut place sheetL" id="L7" data-depth="7" style="--i:6;--sh:6"><svg focusable="false"></svg><button type="button" class="fox-btn" id="foxBtn" aria-label="The guardian fox. Press to make it hop"></button></div>
+  <canvas class="layer" id="flies" data-depth="7.4" aria-hidden="true"></canvas>
+  <div class="layer" id="leaves" data-depth="7.7" aria-hidden="true"></div>
+  <div class="layer cut place sheetL" id="L8" data-depth="8" style="--i:7;--sh:7" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="layer cut" id="L9" data-depth="2.2" style="--i:8;--sh:9" aria-hidden="true"><svg focusable="false"></svg></div>
+  <div class="vignette" aria-hidden="true"></div>
+</main>
+
+<!-- ====== TOP-LEFT ROTARY PLATE DIAL (2D, in-plane rotation) ====== -->
+<header id="wheel" aria-label="Plate dial: sixteen slides mounted on a rotating wheel">
+  <span class="wheel-string" aria-hidden="true"></span>
+  <div class="dial" id="dial">
+    <svg class="dial-plate" id="dialPlate" viewBox="-345 -345 690 690" aria-hidden="true" focusable="false"></svg>
+    <div id="cards"></div>
+  </div>
+  <span class="dial-index" aria-hidden="true"></span>
+  <span class="pivot-pin" aria-hidden="true"></span>
+</header>
+
+
+<!-- ====== DESCRIPTION FOLIO PLACARDS (vertical shuffling) ====== -->
+<div id="deck-stage">
+
+  <section class="folio-slide active" data-slide="1" data-title="Title Slide">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-goa">CBSE ART-INTEGRATED LEARNING · MAT 2026</div>
+      <h2 class="pl-title">Glimpses of <em>India</em></h2>
+      <p class="pl-body">
+        A comparative paper-cut exploration between our Unit 5 sub-unit, <strong>A Baker from Goa</strong> by Lucio Rodrigues, and India's mandatory paired Himalayan treasure, <strong>Sikkim</strong>. From the aroma of coastal wood-fired ovens to sacred monastic mask rituals high in the alpine clouds.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card">
+          <div class="pc-title">Sub-Unit Selected: Goa</div>
+          <div class="pc-desc">The Portuguese baking legacy, Konkani agrarian rhythm, and the baker's morning musical bamboo staff.</div>
+        </div>
+        <div class="paper-card">
+          <div class="pc-title">Paired State: Sikkim</div>
+          <div class="pc-desc">Kanchenjunga guardianship, sacred Cham masked dances, and high-altitude Buddhist culture.</div>
+        </div>
+      </div>
+      <p class="pl-meta">
+        Collaborative Presentation by: <strong>Group 4 (Class X - A)</strong> · Department of English<br>
+        Session 2026 – 2027 · Indira National School
+      </p>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: BAKER FROM GOA -->
+  <section class="folio-slide" data-slide="2" data-title="A Baker from Goa">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-goa">Unit 5 · Sub-Unit Study</div>
+      <h2 class="pl-title">A Baker from <em>Goa</em></h2>
+      <p class="pl-body">
+        In Chapter 5 of <em>First Flight</em>, author Lucio Rodrigues nostalgically recounts the childhood companion of every Goan village: the <strong>pader</strong> (village baker). He arrived with the musical <em>jhang-jhang</em> of his specially carved bamboo staff, delivering warm crusty loaves, bangles of bread for children, and rich festive sweet bread called <em>bol</em>.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card">
+          <div class="pc-title">The Pader's Attire</div>
+          <div class="pc-desc">The traditional <em>kabai</em> (a peculiar one-piece frock) and knee-length trousers that made bakers unmistakable figures.</div>
+        </div>
+        <div class="paper-card">
+          <div class="pc-title">Indispensable Feasts</div>
+          <div class="pc-desc">Marriage engagements were incomplete without <em>bolinhas</em>, and Christmas required cakes and fresh loaves baked in clay ovens.</div>
+        </div>
+      </div>
+      <p class="pl-meta">Literary Theme: Living cultural micro-history preserved through colonial memory and communal friendship.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: TEAM MATRIX -->
+  <section class="folio-slide" data-slide="3" data-title="Team Matrix">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Collaborative Guild</div>
+      <h2 class="pl-title">Team Formation &amp; <em>Roles</em></h2>
+      <p class="pl-body">
+        Our group of six students appointed distinct artistic and research responsibilities to satisfy every facet of the CBSE 10-Mark rubric.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card"><div class="pc-title">Aarav Patil (Roll 10101)</div><div class="pc-desc">Group Leader · Historical Dance Evolution &amp; Exponent Research</div></div>
+        <div class="paper-card"><div class="pc-title">Ananya Deshmukh (Roll 10102)</div><div class="pc-desc">Culinary Arts (Mandatory) · Goan Pao &amp; Sikkimese Momos</div></div>
+        <div class="paper-card"><div class="pc-title">Rohan Kulkarni (Roll 10103)</div><div class="pc-desc">Visual Arts · Thangka Sacred Geometry &amp; Goan Azulejos Tiles</div></div>
+        <div class="paper-card"><div class="pc-title">Ishita Joshi (Roll 10104)</div><div class="pc-desc">Performing Arts · Ghumot &amp; Damphu Percussion Acoustic Dialogue</div></div>
+        <div class="paper-card"><div class="pc-title">Kabir Sharma (Roll 10105)</div><div class="pc-desc">Architecture &amp; Brochure · Baroque Basilica vs Timber Gompas</div></div>
+        <div class="paper-card"><div class="pc-title">Tanvi Shinde (Roll 10106)</div><div class="pc-desc">Quiz Master · Cultural Comprehension Assessment &amp; Survey</div></div>
+      </div>
+      <p class="pl-meta">Rubric Integration: Equal task distribution ensures each member qualifies for 3-Mark individual assessment.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: FOLK DANCES OF GOA -->
+  <section class="folio-slide" data-slide="4" data-title="Folk Dances of Goa">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-goa">Goan Folk Heritage</div>
+      <h2 class="pl-title">Folk Dances of <em>Goa</em></h2>
+      <p class="pl-body">
+        Goan folk traditions capture the lively interplay of native Konkani agrarian rhythms and 450 years of Portuguese courtly styling.
+      </p>
+      <div class="paper-card" style="margin-bottom:10px">
+        <div class="pc-title">Fugdi &amp; Dhalo</div>
+        <div class="pc-desc">Performed exclusively by women during Ganeshotsav and harvest. Dancers form rotating circles, clapping rhythmically and blowing breathy sounds into their hands in an accelerating tempo.</div>
+      </div>
+      <div class="paper-card" style="margin-bottom:10px">
+        <div class="pc-title">Dekhnni &amp; Corridinho</div>
+        <div class="pc-desc">Dekhnni embodies temple dancers crossing the river to a Hindu wedding, accompanied by the clay <em>Ghumot</em>. Corridinho showcases Portuguese ballroom partner footwork in swirling skirts.</div>
+      </div>
+      <p class="pl-meta">Major Exponents: Goa Cultural Academy and traditional Ghumot masters preserving village rhythms.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: INTRODUCTION TO SIKKIM -->
+  <section class="folio-slide" data-slide="5" data-title="Introduction to Sikkim">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Mandatory Paired State</div>
+      <h2 class="pl-title">Introduction to <em>Sikkim</em></h2>
+      <p class="pl-body">
+        Nestled beneath the majestic massif of Mount Kanchenjunga (8,586 m), Sikkim is a sacred Himalayan realm where nature and Vajrayana Buddhism converge. Its people comprise the indigenous Lepcha, the Bhutia, and the vibrant Nepali communities.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card">
+          <div class="pc-title">Sacred Cham Dances</div>
+          <div class="pc-desc">Monks in elaborate silk brocade and carved wooden masks perform slow, meditative turns to invoke blessings and banish malevolence.</div>
+        </div>
+        <div class="paper-card">
+          <div class="pc-title">Singhi Chham &amp; Maruni</div>
+          <div class="pc-desc">The mythical Snow Lion dance honors Kanchenjunga as protector deity, while Maruni brings celebratory Nepali harvest cheer.</div>
+        </div>
+      </div>
+      <p class="pl-meta">Monastic Sanctuaries: Rumtek, Pemayangtse, Enchey, and Tashiding Gompas anchor the spiritual landscape.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: DANCE EVOLUTION -->
+  <section class="folio-slide" data-slide="6" data-title="Dance Evolution">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Comparative Chronology</div>
+      <h2 class="pl-title">Historical <em>Evolution</em></h2>
+      <p class="pl-body">
+        Contrasting the developmental timeline of performative folk rituals across maritime Goa and high-altitude Sikkim.
+      </p>
+      <div class="tl-paper">
+        <strong style="color:var(--orange)">16th – 18th Century Goa (Colonial Confluence):</strong>
+        <span>Portuguese arrival in 1510 merged European chordophones (mandolins, violins) with the native terracotta Ghumot pot drum, generating Mando ballroom serenades alongside agrarian Fugdi twirls.</span>
+      </div>
+      <div class="tl-paper sikkim">
+        <strong style="color:#9B1C31">8th – 17th Century Sikkim (Tantric Consecration):</strong>
+        <span>Guru Padmasambhava (Guru Rinpoche) introduced sacred Cham masked dances in the 8th century to consecrate the land; formal monastic choreographies were later codified under Chogyal Phuntsog Namgyal in 1642.</span>
+      </div>
+      <p class="pl-meta">Research Distinction: Researched by Aarav Patil as qualifying Individual Art Form under project rules.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: PROMOTIONAL POSTER -->
+  <section class="folio-slide" data-slide="7" data-title="Promotional Poster">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Mandatory Group Poster · 2 Marks</div>
+      <h2 class="pl-title">Sikkim Dance <em>Festival</em></h2>
+      <p class="pl-body">
+        Our collaborative promotional poster invites travellers to witness the living sacred dances of Sikkim — <strong>Cham, Maruni, and Singhi Chham</strong>. Designed using layered digital graphics and octagonal paper framing to embody Rumtek Monastery's timeless mystique.
+      </p>
+      <div class="paper-card" style="margin-bottom:12px">
+        <div class="pc-title">Artistic Elements &amp; Visual Language</div>
+        <div class="pc-desc">
+          • Sacred saffron and crimson monastery robes layered against snow-clad mountain horizons.<br>
+          • Carved wooden Cham mask motifs representing Mahakala and compassionate deities.<br>
+          • Woven concentric octagonal geometry symbolizing the Buddhist Wheel of Dharma (*Dharmachakra*).
+        </div>
+      </div>
+      <p class="pl-meta">Group Collaboration: Designed collectively using digital tools · Assessed for 2 Marks under CBSE Criteria.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: CULINARY SKILLS -->
+  <section class="folio-slide" data-slide="8" data-title="Culinary Skills">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-goa">Mandatory Art Form · 3 Marks</div>
+      <h2 class="pl-title">Culinary Lore &amp; <em>Bread</em></h2>
+      <p class="pl-body">
+        Curated by <strong>Ananya Deshmukh (Roll 10102)</strong>. A deep dive into the comparative food science between the wood-fired ovens of coastal Goa and the steaming vessels of alpine Sikkim.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card">
+          <div class="pc-title">Goan Yeast Heritage</div>
+          <div class="pc-desc">Portuguese monks taught Goan bakers to ferment flour using local coconut toddy, yielding crusty <em>Pao</em>, hollow pocket <em>Poi</em>, and sweet <em>Bolinhas</em>.</div>
+        </div>
+        <div class="paper-card">
+          <div class="pc-title">Sikkimese Fermentation</div>
+          <div class="pc-desc">To survive sub-zero winters, Sikkim developed gut-healthy lactic fermentation: <em>Gundruk</em> (sun-dried greens), steaming <em>Momos</em>, and warming <em>Thukpa</em> noodle broth.</div>
+        </div>
+      </div>
+      <p class="pl-meta">Artistic Contribution: Demonstrating live breadmaking physics and Himalayan vegetable fermentation methods.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: VISUAL ARTS -->
+  <section class="folio-slide" data-slide="9" data-title="Visual Arts">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Individual Art Form Showcase</div>
+      <h2 class="pl-title">Thangka &amp; <em>Azulejos</em></h2>
+      <p class="pl-body">
+        Presented by <strong>Rohan Kulkarni (Roll 10103)</strong>. Comparing Goa's glazed blue ceramic <em>Azulejos</em> tile art with Sikkim's sacred scroll paintings (<em>Thangkas</em>) and sacred Mandala geometry.
+      </p>
+      <div class="paper-card" style="margin-bottom:10px">
+        <div class="pc-title">Sikkimese Thangka Sacred Geometry</div>
+        <div class="pc-desc">Drawn on stretched cotton scrolls according to strict iconometric ratios laid down in Buddhist scripture. Pigments are ground from real lapis lazuli, cinnabar, malachite, and 24K gold dust.</div>
+      </div>
+      <div class="paper-card" style="margin-bottom:10px">
+        <div class="pc-title">Goan Azulejos Ceramic Tilework</div>
+        <div class="pc-desc">Hand-painted cobalt blue and white glazed tin tiles decorating church portals and historic villas, depicting coastal fishermen, caravels, and village baker journeys.</div>
+      </div>
+      <p class="pl-meta">Medium: Natural gouache, mineral pigments, and mathematical grid studies.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: PERFORMING ARTS & MUSIC -->
+  <section class="folio-slide" data-slide="10" data-title="Performing Arts">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-goa">Individual Art Form Showcase</div>
+      <h2 class="pl-title">Ghumot &amp; <em>Damphu</em></h2>
+      <p class="pl-body">
+        Demonstrated by <strong>Ishita Joshi (Roll 10104)</strong>. An acoustic dialogue between traditional percussion instruments: Goa's earthen <em>Ghumot</em> and Sikkim's bamboo <em>Damphu</em>.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card" onclick="window.playInstrument('ghumot')" style="cursor:pointer" title="Click to hear Ghumot beat">
+          <div class="pc-title">Goan Ghumot 🪘</div>
+          <div class="pc-desc">A hollow earthen pot with both ends open, played with cupped hands to produce rich bass resonance. <em>(Click to listen!)</em></div>
+        </div>
+        <div class="paper-card" onclick="window.playInstrument('damphu')" style="cursor:pointer" title="Click to hear Damphu beat">
+          <div class="pc-title">Sikkim Damphu 🥁</div>
+          <div class="pc-desc">A round wooden frame drum fitted with 32 bamboo pegs symbolizing the 32 physical attributes of Buddha. <em>(Click to listen!)</em></div>
+        </div>
+      </div>
+      <p class="pl-meta">Interactive Audio Simulator powered by Web Audio API synthesizers.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: CULTURAL QUIZ ARENA -->
+  <section class="folio-slide" data-slide="11" data-title="Cultural Quiz">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Research &amp; Peer Assessment</div>
+      <h2 class="pl-title" style="font-size:clamp(1.3rem,2.2vw,1.75rem)">Cultural Quiz <em>Arena</em></h2>
+      <p style="font-size:.82rem;color:#8a7050;margin-bottom:8px">Curated by <strong>Tanvi Shinde (Roll 10106)</strong>. Challenge your knowledge of Goa and Sikkim.</p>
+      <div class="quiz-paper-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:.72rem;font-weight:700;color:var(--orange)" id="quiz-tracker">Question 1 of 5</span>
+          <span style="font-size:.76rem;font-weight:800;color:var(--ink)" id="quiz-score">Score: 0 / 5</span>
+        </div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--ink);line-height:1.4" id="quiz-prompt">What was the traditional name for the village baker in Goa?</div>
+        <div class="qp-options" id="quiz-opts"></div>
+        <div class="qp-feedback" id="quiz-feedback"></div>
+        <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:10px">
+          <button class="dk-btn" id="quiz-restart" style="width:auto;border-radius:6px;padding:0 12px;font-size:.72rem">Restart</button>
+          <button class="dk-btn" id="quiz-next" style="width:auto;border-radius:6px;padding:0 14px;font-size:.72rem;display:none;background:var(--ochre);color:#fff;border-color:var(--ochre)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12: HERITAGE ARCHITECTURE -->
+  <section class="folio-slide" data-slide="12" data-title="Heritage Architecture">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Individual Art Form Showcase</div>
+      <h2 class="pl-title">Heritage <em>Architecture</em></h2>
+      <p class="pl-body">
+        Researched by <strong>Kabir Sharma (Roll 10105)</strong>. A travel monograph contrasting Old Goa's Baroque stone cathedrals with Sikkim's earthquake-resilient timber Gompas.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card">
+          <div class="pc-title">Basilica of Bom Jesus (Goa)</div>
+          <div class="pc-desc">Completed in 1605 from exposed reddish-brown laterite stone, featuring Corinthian pilasters and Baroque gilded altars holding St. Francis Xavier's relics.</div>
+        </div>
+        <div class="paper-card">
+          <div class="pc-title">Rumtek &amp; Pemayangtse (Sikkim)</div>
+          <div class="pc-desc">Multilevel timber structures with interlocking joinery to withstand Himalayan tremors, crowned by golden pagoda finials and wide courtyard dance arenas.</div>
+        </div>
+      </div>
+      <p class="pl-meta">Structural Synthesis: Both styles prioritize communal courtyards for sacred festivals and music.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 13: COMPARATIVE MATRIX -->
+  <section class="folio-slide" data-slide="13" data-title="Comparative Matrix">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-goa">Mandatory Comparative Study · Page 1 &amp; 3</div>
+      <h2 class="pl-title" style="font-size:clamp(1.3rem,2.2vw,1.75rem)">Comparative <em>Matrix</em></h2>
+      <p class="pl-body" style="margin-bottom:10px">Synthesizing cultural, performative, gastronomic, and geographic distinctions between Goa and Sikkim.</p>
+      <div class="paper-tabs">
+        <button class="p-tab-btn active" data-tab="dance">1. Dance &amp; Music</button>
+        <button class="p-tab-btn" data-tab="food">2. Food Lore</button>
+        <button class="p-tab-btn" data-tab="attire">3. Attire &amp; Craft</button>
+        <button class="p-tab-btn" data-tab="geo">4. Geography</button>
+      </div>
+      <div class="p-tab-pane active" id="pane-dance">
+        <div class="paper-card"><strong style="color:var(--orange);font-size:.82rem">Goa (Fugdi &amp; Dekhnni):</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Fast-paced social circle dance with hand clapping, accompanied by clay Ghumot pots and Western violin harmonies.</p></div>
+        <div class="paper-card"><strong style="color:#9B1C31;font-size:.82rem">Sikkim (Cham &amp; Maruni):</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Meditative Buddhist mask dance honoring Padmasambhava, accompanied by long copper dungchen horns and 32-peg Damphu drums.</p></div>
+      </div>
+      <div class="p-tab-pane" id="pane-food">
+        <div class="paper-card"><strong style="color:var(--orange);font-size:.82rem">Goa:</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Stone-baked <em>Pao, Poi, Bolinhas</em>, coconut fish curry, and spiced toddy-fermented delicacies.</p></div>
+        <div class="paper-card"><strong style="color:#9B1C31;font-size:.82rem">Sikkim:</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Steamed <em>Momos</em>, warming <em>Thukpa</em> broth, fermented <em>Gundruk</em> greens, and festive sweet <em>Sel Roti</em>.</p></div>
+      </div>
+      <div class="p-tab-pane" id="pane-attire">
+        <div class="paper-card"><strong style="color:var(--orange);font-size:.82rem">Goa:</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Red-checkered cotton Kunbi saree knotted at shoulder; baker's historical single-piece <em>kabai</em> frock.</p></div>
+        <div class="paper-card"><strong style="color:#9B1C31;font-size:.82rem">Sikkim:</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Silk <em>Bakhu</em> wrap-around robe with <em>Honju</em> blouse, striped woven <em>Pangden</em> aprons, and turquoise Dzi beads.</p></div>
+      </div>
+      <div class="p-tab-pane" id="pane-geo">
+        <div class="paper-card"><strong style="color:var(--orange);font-size:.82rem">Goa:</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Arabian Sea coastline, Mandovi river estuaries, tropical palm groves, warm humid maritime weather.</p></div>
+        <div class="paper-card"><strong style="color:#9B1C31;font-size:.82rem">Sikkim:</strong><p style="font-size:.76rem;margin-top:3px;color:#5b4632">Eastern Himalayas, Teesta river canyon, alpine meadows, Mount Kanchenjunga (8,586 m), sub-zero snowfields.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 14: LEARNING OUTCOMES -->
+  <section class="folio-slide" data-slide="14" data-title="Learning Outcomes">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Mandatory Reflection · Page 2</div>
+      <h2 class="pl-title">Learning <em>Outcomes</em></h2>
+      <p class="pl-body">
+        Reflections from each member demonstrating how Art-Integrated Learning connected English literature to living heritage.
+      </p>
+      <div class="paper-grid">
+        <div class="paper-card"><strong style="color:var(--ink);font-size:.82rem">Aarav Patil:</strong><p style="font-size:.74rem;color:#5b4632">"Discovered how literature immortalizes micro-histories like the village baker."</p></div>
+        <div class="paper-card"><strong style="color:var(--ink);font-size:.82rem">Ananya Deshmukh:</strong><p style="font-size:.74rem;color:#5b4632">"Learned the biology of yeast fermentation in Goa versus wild bacteria in Sikkim."</p></div>
+        <div class="paper-card"><strong style="color:var(--ink);font-size:.82rem">Rohan Kulkarni:</strong><p style="font-size:.74rem;color:#5b4632">"Experienced the spiritual discipline of sacred geometry in Thangka scroll art."</p></div>
+        <div class="paper-card"><strong style="color:var(--ink);font-size:.82rem">Collective Takeaway:</strong><p style="font-size:.74rem;color:#5b4632">"Physical distance evaporates when we appreciate the music, food, and dances of our fellow states."</p></div>
+      </div>
+      <p class="pl-meta">Educational Philosophy: Realizing the mandate of Ek Bharat Shreshtha Bharat through creative inquiry.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 15: EVALUATION RUBRICS -->
+  <section class="folio-slide" data-slide="15" data-title="Evaluation Rubrics">
+    <div class="folio-placard">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-goa">Assessment Rubric &amp; ALS Speaking Test</div>
+      <h2 class="pl-title">Evaluation <em>Rubrics</em></h2>
+      <p class="pl-body" style="margin-bottom:10px">Rigorous adherence to the 10-Mark CBSE project rubric and 1-minute oral speaking guidelines.</p>
+      <div class="paper-card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;color:var(--ink);border-bottom:1px dashed rgba(122,78,40,.2);padding-bottom:4px;margin-bottom:5px"><span>Criterion</span><span>Marks</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.76rem;color:#5b4632;margin-bottom:2px"><span>Content &amp; Literature Accuracy</span><strong>2 Marks</strong></div>
+        <div style="display:flex;justify-content:space-between;font-size:.76rem;color:#5b4632;margin-bottom:2px"><span>Group Promotional Poster (Sikkim Dance)</span><strong>2 Marks</strong></div>
+        <div style="display:flex;justify-content:space-between;font-size:.76rem;color:#5b4632;margin-bottom:2px"><span>Individual Art Form (Culinary, Visual, Music)</span><strong>3 Marks</strong></div>
+        <div style="display:flex;justify-content:space-between;font-size:.76rem;color:#5b4632;margin-bottom:2px"><span>Research, Creativity &amp; Peer Assessment</span><strong>3 Marks</strong></div>
+      </div>
+      <p class="pl-meta">ALS Speaking Readiness: Press <strong>P</strong> on any slide to open Presenter Notes with the built-in 60s speech timer!</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 16: CONCLUSION -->
+  <section class="folio-slide" data-slide="16" data-title="Conclusion &amp; Gratitude">
+    <div class="folio-placard" style="text-align:center">
+      <svg class="placard-grain-rect" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <div class="paper-badge badge-sikkim">Dhanyavaad · Dev Borem Korum</div>
+      <h2 class="pl-title" style="font-size:clamp(1.5rem,2.8vw,2.3rem)">Explore the <em>Unexplored!</em></h2>
+      <p class="pl-body" style="max-width:44ch;margin:0 auto 16px;text-align:center">
+        "In the golden bread of Goa's historic ovens and the sacred reverberation of Sikkim's mountain bells lies the living spirit of Ek Bharat Shreshtha Bharat."
+      </p>
+      <p class="pl-meta" style="margin-bottom:16px">
+        Submitted to: <strong>Department of English</strong><br>
+        Indira National School, Pune · Session 2026 – 2027
+      </p>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="chip" id="btn-restart" style="font-size:13px">↺ <span class="chip-label">Restart Deck</span></button>
+        <button class="chip" id="btn-ov-end" style="font-size:13px">☷ <span class="chip-label">Directory</span></button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ====== DIORAMA CONTROLS ====== -->
+<nav class="controls" aria-label="Diorama controls">
+  <button type="button" class="chip" id="recut" aria-label="Recut the diorama with a new seed">
+    <svg class="scissors" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6" cy="18" r="3"/><circle cx="6" cy="6" r="3"/></g><path d="M8.3 16.2 20 5M8.3 7.8 20 19M13 12h.01"/></svg>
+    <span class="chip-label">Recut</span>
+  </button>
+  <button type="button" class="chip" id="toggle" aria-pressed="false" aria-label="Night">
+    <span class="track" aria-hidden="true"><span class="knob">
+      <svg class="k-sun" viewBox="-11 -11 22 22" focusable="false"><g fill="#c8642d"><circle r="5.6"/><path d="M0-10 1.6-6.8h-3.2zM0 10l1.6-3.2h-3.2zM-10 0l3.2 1.6v-3.2zM10 0 6.8 1.6v-3.2zM-7 -7l3.4 1.2-2.2 2.2zM7 7 3.6 5.8l2.2-2.2zM7 -7 5.8-3.6 3.6-5.8zM-7 7l1.2-3.4 2.2 2.2z"/></g></svg>
+      <svg class="k-moon" viewBox="-11 -11 22 22" focusable="false"><path fill="#f4ead2" d="M3.2-8.6A9 9 0 1 0 8.8 4 7.2 7.2 0 0 1 3.2-8.6z"/></svg>
+    </span></span>
+    <span class="chip-label" id="toggleLabel">Day</span>
+  </button>
+</nav>
+<p class="hint" id="hint"><span id="hintText">Move to look around · <b>← → to dolly to next section</b> · watch the 2D wheel rotate</span></p>
+
+<!-- ====== BOTTOM FLOATING DOCK ====== -->
+<footer id="dock">
+  <button class="dk-btn" id="dk-prev" title="Previous Slide (← / Backspace)">◀</button>
+  <div class="dk-count"><span id="dk-cur">01</span> / 16</div>
+  <button class="dk-btn" id="dk-next" title="Next Slide (→ / Space)">▶</button>
+  <div class="dk-sep"></div>
+  <button class="dk-btn" id="dk-auto" title="Toggle Autoplay (A)">⏱</button>
+  <button class="dk-btn" id="dk-overview" title="Slide Overview Grid (O / G)">☷</button>
+  <button class="dk-btn" id="dk-notes" title="Presenter Notes & ALS Timer (P / N)">✎</button>
+  <button class="dk-btn" id="dk-print" title="Print / Export PDF (Ctrl+P)">⎙</button>
+  <button class="dk-btn" id="dk-fs" title="Toggle Fullscreen (F)">⛶</button>
+</footer>
+
+<!-- ====== PRESENTER NOTES MODAL ====== -->
+<div class="modal-overlay" id="notesModal">
+  <div class="modal-paper">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:var(--orange);text-transform:uppercase" id="notes-speaker">Speaker: Aarav Patil</div>
+        <h3 class="modal-title" id="notes-title">Slide 1</h3>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-family:var(--sans);font-size:.95rem;font-weight:800;color:var(--orange);background:var(--cream);padding:3px 10px;border-radius:9999px;border:1px solid var(--ochre)">⏱ <span id="timer-digits">01:00</span></div>
+        <button class="dk-btn" id="timer-play" style="width:28px;height:28px">▶</button>
+        <button class="dk-btn" id="notes-close" style="width:28px;height:28px">✕</button>
+      </div>
+    </div>
+    <div style="max-height:42vh;overflow-y:auto;font-size:.92rem;line-height:1.7;color:#5b4632" id="notes-body"></div>
+  </div>
+</div>
+
+<!-- ====== SLIDE DIRECTORY OVERVIEW MODAL ====== -->
+<div class="modal-overlay" id="overviewModal">
+  <div class="modal-paper" style="width:min(860px,94vw)">
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">Slide Index Directory</h2>
+        <p style="color:#8a7050;font-size:.76rem">Click any card to dolly directly to that slide</p>
+      </div>
+      <button class="dk-btn" id="ov-close" style="width:28px;height:28px">✕</button>
+    </div>
+    <div class="ov-grid" id="ov-grid"></div>
+  </div>
+</div>
+
+
+<!-- ====== SVG DEFS ====== -->
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="grainPat" patternUnits="userSpaceOnUse" width="160" height="160"><image id="grainImg" width="160" height="160"/></pattern>
+    <radialGradient id="winGlowGrad"><stop offset="0" stop-color="#ffd98a" stop-opacity=".75"/><stop offset=".45" stop-color="#ffc766" stop-opacity=".22"/><stop offset="1" stop-color="#ffc766" stop-opacity="0"/></radialGradient>
+    <radialGradient id="fireGrad" cx=".5" cy=".75" r=".7"><stop offset="0" stop-color="#fff2a8"/><stop offset=".45" stop-color="#ff9a2b"/><stop offset="1" stop-color="#c83818"/></radialGradient>
+    <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+</svg>
+<p class="sr-only" aria-live="polite" id="live"></p>
+
+<!-- ====================================================================
+     PRESENTATION ENGINE
+     ==================================================================== -->
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const stage=$('stage'),body=document.body;
+const reduceMQ=matchMedia('(prefers-reduced-motion: reduce)');
+let reduce=reduceMQ.matches;
+
+/* ---------- seeded randomness: every cut is repeatable ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let seed=1847,R=mulberry32(seed);
+const rr=(a,b)=>a+(b-a)*R();
+const q=n=>Math.round(n*10)/10;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const sstep=t=>t<=0?0:t>=1?1:t*t*(3-2*t);
+const PI=Math.PI,TAU=PI*2;
+
+/* ---------- world metrics ---------- */
+let W=0,H=0,M=0,U=0,S=0,portrait=false,VIS=.6,K=8,D=1;
+const SHEETS=['L1','L2','L3','L4','L5','L6','L7','L8'];
+// dolly speed per sheet (multiples of one section width D): far sheets glide, near sheets sweep
+const SPEED={L1:1,L2:1.12,L3:1.26,L4:1.42,L5:1.6,L6:1.82,L7:2.08,L8:2.4};
+// seam heights: every scene relaxes to these lines off-screen so neighbouring scenes join cleanly
+const BASE={L1:.45,L2:.52,L3:.59,L4:.66,L5:.72,L6:.8,L7:.83,L8:.955};
+const TONE={L1:'c-far',L2:'c-hill',L3:'c-ridge',L4:'c-meadow',L5:'c-moss',L6:'c-teal',L7:'c-ground',L8:'c-fg'};
+const E={};
+const X=t=>W*VIS*t, Y=t=>H*t;
+function metrics(){
+  W=Math.max(320,innerWidth);H=Math.max(420,innerHeight);
+  portrait=H>W*1.08;
+  U=Math.sqrt(W*H)/100;S=Math.min(W,H)*.042;M=Math.ceil(S*1.35+14);
+  const narrow=W<=840,pw=Math.min(660,W*.56)+clamp(W*.055,28,84);
+  VIS=narrow?1:clamp((W-pw)/W,.36,.66);
+  K=Math.min(W*VIS,H*1.08)/100;
+  D=W*1.2;
+  SHEETS.forEach(l=>E[l]=Math.max(0,(D*SPEED[l]-W)/2)+M+8);
+  const wh=$('wheel');
+  if(wh){const ws=clamp(Math.min(W/1200,H/760),0.72,1.15);wh.style.setProperty('--ws',ws.toFixed(3));}
+}
+
+/* ---------- paper geometry (scissor-cut edges) ---------- */
+function area(p){let a=0;for(let i=0;i<p.length;i++){const u=p[i],v=p[(i+1)%p.length];a+=u[0]*v[1]-v[0]*u[1];}return a;}
+function orient(p){return area(p)<0?p.slice().reverse():p;}
+function trace(p,j,step){
+  let s='';const n=p.length;
+  for(let i=0;i<n;i++){
+    const a=p[i],b=p[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,k=Math.max(1,Math.round(L/step)),nx=-dy/L,ny=dx/L;
+    for(let t=0;t<k;t++){let x=a[0]+dx*t/k,y=a[1]+dy*t/k;if(t>0){const o=(R()-.5)*2*j;x+=nx*o;y+=ny*o;}s+=(s?'L':'M')+q(x)+' '+q(y);}
+  }
+  return s+'Z';
+}
+const cut=(p,j=.7,step=7)=>trace(orient(p),j,step);
+const hole=(p,j=.7,step=7)=>trace(orient(p).slice().reverse(),j,step);
+function poly(p){p=orient(p);let s='M'+q(p[0][0])+' '+q(p[0][1]);for(let i=1;i<p.length;i++)s+='L'+q(p[i][0])+' '+q(p[i][1]);return s+'Z';}
+function circ(cx,cy,r,n){const p=[];n=n||Math.max(8,Math.round(r*1.4));for(let i=0;i<n;i++){const a=i/n*TAU;p.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}return p;}
+function ell(cx,cy,rx,ry,n=24){const p=[];for(let i=0;i<n;i++){const a=i/n*TAU;p.push([cx+Math.cos(a)*rx,cy+Math.sin(a)*ry]);}return p;}
+function arcPts(cx,cy,rx,ry,a0,a1,n){const p=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;p.push([cx+Math.cos(a)*rx,cy+Math.sin(a)*ry]);}return p;}
+function band(cx,cy,r1,r2,a0,a1,n=28){return arcPts(cx,cy,r2,r2,a0,a1,n).concat(arcPts(cx,cy,r1,r1,a1,a0,n));}
+const rect=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+function seg(x0,y0,x1,y1,w){const dx=x1-x0,dy=y1-y0,l=Math.hypot(dx,dy)||1,nx=-dy/l*w/2,ny=dx/l*w/2;return poly([[x0+nx,y0+ny],[x1+nx,y1+ny],[x1-nx,y1-ny],[x0-nx,y0-ny]]);}
+function archPts(x,y,w,h){const r=w/2,p=[[x-r,y]];for(let i=0;i<=12;i++){const a=PI+i/12*PI;p.push([x+Math.cos(a)*r,y-h+r+Math.sin(a)*r]);}p.push([x+r,y]);return p;}
+function star(cx,cy,r1,r2,n,rot=-PI/2){const p=[];for(let i=0;i<n*2;i++){const a=rot+i*PI/n,r=i%2?r2:r1;p.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}return p;}
+function wave(base,amps,lens){const ph=amps.map(()=>R()*TAU);return x=>{let y=base;for(let i=0;i<amps.length;i++)y+=amps[i]*Math.sin(x/lens[i]*TAU+ph[i]);return y;};}
+function blade(bx,by,h,lean,wb){const L=[],Rt=[];for(let i=0;i<=6;i++){const t=i/6,x=bx+lean*t*t,y=by-h*t,hw=wb*.5*(1-t)*(1-t*.15);L.push([x-hw,y]);if(i<6)Rt.push([x+hw,y]);}return poly(L.concat(Rt.reverse()));}
+// figure transform: normalized art (feet on y=0, 100 units tall) -> scene
+const tf=(pts,ox,oy,s,fl,sh=0)=>pts.map(([x,y])=>[ox+(x+sh*y)*s*(fl?-1:1),oy+y*s]);
+const C=(pts,ox,oy,s,fl,sh,j)=>cut(tf(pts,ox,oy,s,fl,sh),j==null?.22:j,Math.max(3,s*5));
+const Cc=([x,y,r],ox,oy,s,fl,sh=0,n=14)=>cut(circ(ox+(x+sh*y)*s*(fl?-1:1),oy+y*s,r*s,n),.15,3);
+
+/* ---------- terrain that relaxes to the seam line off-screen ---------- */
+function T(l,fn){const b=H*BASE[l],span=Math.max(8,E[l]-M-6);return x=>{const d=Math.max(0,-x-M,x-W-M);if(d<=0)return fn(x);return b+(fn(x)-b)*(1-sstep(d/span));};}
+function land(l,fn,step=9,j=.9){const e=E[l],p=[];for(let x=-e;x<=W+e+step;x+=step)p.push([x,fn(x)+(R()-.5)*2*j]);p.push([W+e+step,H+M+6],[-e,H+M+6]);return poly(p);}
+function part(fn,x0,x1,step=9,j=.9,bot){const p=[];bot=bot==null?H+M+6:bot;for(let x=x0;x<=x1;x+=step)p.push([x,fn(x)+(R()-.5)*2*j]);p.push([x1,bot],[x0,bot]);return poly(p);}
+function bankFn(xa,xb,yEdge,wob){return x=>{const s=clamp((x-xa)/(xb-xa),0,1);return yEdge+wob(x)+Math.pow(s,3)*(H+M-yEdge)*1.02;};}
+function bankPath(fn,x0,x1){const p=[],st=x1>x0?9:-9;for(let x=x0;st>0?x<=x1:x>=x1;x+=st)p.push([x,Math.min(H+M,fn(x))+(R()-.5)*1.6]);p.push([x1,H+M+6],[x0,H+M+6]);return poly(p);}
+
+/* ---------- the scene collector ---------- */
+function Scene(){const o={};SHEETS.forEach(l=>o[l]=[]);
+  o.add=(l,cls,d,extra='')=>{if(d)o[l].push(`<path class="${cls}" d="${d}"${extra}/>`);};
+  o.grain=(l,d)=>{if(d)o[l].push(`<path class="grain" d="${d}"/>`);};
+  o.raw=(l,s)=>{o[l].push(s);};
+  return o;}
+const glowS=(x,y,r,always)=>`<circle class="${always?'lampglow':'winglow'}" cx="${q(x)}" cy="${q(y)}" r="${q(r)}" fill="url(#winGlowGrad)"/>`;
+const swingOpen=(x,y,deg,dur)=>`<g><animateTransform attributeName="transform" type="rotate" values="${-deg} ${q(x)} ${q(y)};${deg} ${q(x)} ${q(y)};${-deg} ${q(x)} ${q(y)}" dur="${dur}s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>`;
+
+/* ==========================================================================
+   PAPERCRAFT LIBRARY — vegetation
+   ========================================================================== */
+function pine(cx,by,h,w){
+  const n=h>420?9:h>160?7:h>70?5:h>32?4:3;
+  const trunkH=h*.09,crown=h-trunkH,tip=by-h,st=crown/(n+.45);
+  const j=Math.max(.45,h/520),step=Math.max(5,h/70),lean=(R()-.5)*w*.12;
+  let d='';
+  for(let i=0;i<n;i++){
+    const top=tip+i*st,bot=tip+(i+1.45)*st,k=(i+1)/n,base=w*.5*(.26+.74*Math.pow(k,.9));
+    const hr=base*(1+(R()-.5)*.16),hl=base*(1+(R()-.5)*.16),droop=st*.14,cx0=cx+lean*(1-k);
+    d+=cut([[cx0,top],[cx+hr,bot+(R()-.5)*droop],[cx+hr*.5,bot-st*.28],[cx,bot-st*.18],[cx-hl*.5,bot-st*.28],[cx-hl,bot+(R()-.5)*droop]],j,step);
+  }
+  const tw=Math.max(1.4,w*.055);
+  d+=cut([[cx-tw,by+4],[cx-tw*.75,by-trunkH-st*.6],[cx+tw*.75,by-trunkH-st*.6],[cx+tw,by+4]],.3,8);
+  return d;
+}
+function frond(x0,y0,a,len){
+  const dx=Math.cos(a),dy=Math.sin(a),droop=len*(.18+.42*Math.abs(dx));
+  const ex=x0+dx*len,ey=y0+dy*len+droop,cx=x0+dx*len*.55,cy=y0+dy*len*.55-len*.1;
+  const B=t=>[(1-t)*(1-t)*x0+2*(1-t)*t*cx+t*t*ex,(1-t)*(1-t)*y0+2*(1-t)*t*cy+t*t*ey];
+  const up=[],dn=[],N=16;
+  for(let i=0;i<=N;i++){
+    const t=i/N,[x,y]=B(t),[x2,y2]=B(Math.min(1,t+.02)),[x1,y1]=B(Math.max(0,t-.02));
+    let tx=x2-x1,ty=y2-y1;const l=Math.hypot(tx,ty)||1;tx/=l;ty/=l;const nx=-ty,ny=tx;
+    const w=len*.13*Math.pow(Math.sin(PI*Math.min(1,t*1.05+.02)),.75)+.5,th=i%2?.3:1,fw=i%2?0:w*.45;
+    up.push([x+nx*w*th+tx*fw,y+ny*w*th+ty*fw]);dn.push([x-nx*w*th*1.15+tx*fw,y-ny*w*th*1.15+ty*fw]);
+  }
+  return poly(up.concat(dn.reverse()));
+}
+function palm(cx,by,h,lean=0){
+  const tx=cx+lean,ty=by-h,c1x=cx+lean*.12,c1y=by-h*.5;
+  const P=t=>[(1-t)*(1-t)*cx+2*(1-t)*t*c1x+t*t*tx,(1-t)*(1-t)*by+2*(1-t)*t*c1y+t*t*ty];
+  const Lp=[],Rp=[],n=20,w0=Math.max(1.4,h*.03);
+  for(let i=0;i<=n;i++){const t=i/n,[x,y]=P(t),w=w0*(1.3-t*.6)*(i%2?.84:1);Lp.push([x-w,y]);Rp.push([x+w,y]);}
+  const trunk=poly(Lp.concat(Rp.reverse()).concat([[cx-w0*2,by+3],[cx+w0*2,by+3]].reverse()));
+  let fr='';
+  for(let i=0;i<9;i++){const side=i%2?1:-1,k=i>>1;fr+=frond(tx,ty,-PI/2+side*(.22+k*.42+rr(-.08,.08)),h*rr(.34,.47));}
+  let nuts='';for(let k=0;k<3;k++)nuts+=cut(circ(tx+(k-1)*h*.035,ty+h*.04+(k%2)*h*.016,h*.026,8),.15,3);
+  const svg=`<path class="c-wood" d="${trunk}"/><path class="c-moss" d="${fr}"/><path class="c-orange" d="${nuts}"/>`;
+  return {trunk,fr,nuts,top:[tx,ty],toString:()=>svg};
+}
+function palmD(cx,by,h,lean){const p=palm(cx,by,h,lean);return p.trunk+p.fr+p.nuts;}
+function roundTree(cx,by,h){
+  const tw=h*.05;let d=cut([[cx-tw,by+3],[cx-tw*.55,by-h*.55],[cx+tw*.55,by-h*.55],[cx+tw,by+3]],.3,6);
+  const r=h*.27;for(const [ox,oy,s] of [[0,-.6,1],[-.6,-.5,.74],[.6,-.52,.78],[-.28,-.84,.72],[.32,-.86,.68],[0,-1,.52]])d+=cut(circ(cx+ox*r*1.2,by+oy*h,r*s,18),.6,5);
+  return d;
+}
+function cloud(cx,cy,s){let d='';for(const [x,y,r] of [[-30,4,17],[-9,-9,24],[16,-5,20],[35,6,13]])d+=cut(circ(cx+x*s,cy+y*s,r*s,22),.5,5);d+=cut(rect(cx-46*s,cy+6*s,94*s,14*s),.5,6);return d;}
+function fern(bx,by,len,dir=1){
+  if(dir==null||isNaN(dir))dir=1;
+  let d='';const tipX=bx+dir*len*.62,tipY=by-len*.86,cx=bx+dir*len*.02,cy=by-len*.78;
+  const P=t=>[(1-t)*(1-t)*bx+2*(1-t)*t*cx+t*t*tipX,(1-t)*(1-t)*by+2*(1-t)*t*cy+t*t*tipY];
+  const sp=[],sp2=[];for(let i=0;i<=10;i++){const t=i/10,[x,y]=P(t),w=1.8*(1-t)+.4;sp.push([x-w,y]);sp2.push([x+w,y]);}
+  d+=poly(sp.concat(sp2.reverse()));
+  for(let t=.1;t<.97;t+=.075){const [x,y]=P(t),[x2,y2]=P(Math.min(1,t+.01)),ta=Math.atan2(y2-y,x2-x),L=len*.26*(1-t*.78);
+    for(const side of [-1,1]){const a=ta+side*1.05,ex=x+Math.cos(a)*L,ey=y+Math.sin(a)*L,mx=x+Math.cos(a)*L*.5,my=y+Math.sin(a)*L*.5,wd=L*.2;
+      d+=cut([[x,y],[mx+Math.cos(a+PI/2)*wd,my+Math.sin(a+PI/2)*wd],[ex,ey],[mx-Math.cos(a+PI/2)*wd,my-Math.sin(a+PI/2)*wd]],.25,4);}}
+  return d;
+}
+function mushroom(cx,by,s){
+  const tilt=(R()-.5)*s*.3,capY=by-s*.86,rx=s*(.46+R()*.16),ry=s*(.34+R()*.12);
+  const stem=cut([[cx-s*.17,by+2],[cx-s*.11+tilt*.6,capY+s*.05],[cx+s*.11+tilt*.6,capY+s*.05],[cx+s*.19,by+2]],.35,4);
+  const cp=[];for(let i=0;i<=14;i++){const a=PI+i/14*PI;cp.push([cx+tilt+Math.cos(a)*rx,capY+Math.sin(a)*ry]);}
+  cp.push([cx+tilt+rx*.7,capY+ry*.2],[cx+tilt,capY+ry*.28],[cx+tilt-rx*.7,capY+ry*.2]);
+  let dots='';const nd=2+Math.floor(R()*3);
+  for(let i=0;i<nd;i++){const a=PI*(1.15+R()*.7),r2=R()*.55+.25;dots+=cut(circ(cx+tilt+Math.cos(a)*rx*r2,capY+Math.sin(a)*ry*r2*.9,s*(.05+R()*.05),7),.2,3);}
+  return {stem,cap:cut(cp,.4,4),dots};
+}
+// petals radiating from a centre
+function bloom(cx,cy,r,n,wf=.5,rot=0){let d='';for(let i=0;i<n;i++){const a=rot+i/n*TAU,ca=Math.cos(a),sa=Math.sin(a),w=r*wf;
+  d+=cut([[cx+ca*r*.15,cy+sa*r*.15],[cx+ca*r*.6-sa*w*.55,cy+sa*r*.6+ca*w*.55],[cx+ca*r,cy+sa*r],[cx+ca*r*.6+sa*w*.55,cy+sa*r*.6-ca*w*.55]],.2,3);}return d;}
+function stalk(bx,by,h,lean){const P=t=>[bx+lean*t*t,by-h*t];const L=[],Rt=[];for(let i=0;i<=8;i++){const t=i/8,[x,y]=P(t),w=2*(1-t)+.7;L.push([x-w,y]);Rt.push([x+w,y]);}
+  let d=poly(L.concat(Rt.reverse()));for(const sd of [-1,1]){const ll=h*.26;d+=cut([[bx,by],[bx+sd*ll*.35,by-ll*.5],[bx+sd*ll*.9,by-ll*.62],[bx+sd*ll*.55,by-ll*.18]],.5,6);}
+  return {d,P};}
+function foxglove(bx,by,h,lean,side){
+  const s0=stalk(bx,by,h,lean),P=s0.P;let bells='',inner='';
+  for(let t=.36;t<.97;t+=.048){const [x,y]=P(t),s=h*.075*(1-(t-.36)*1.05),sd=side*((Math.round(t*100)%3===0)?-1:1);
+    if(t>.86){bells+=cut(circ(x+sd*s*.35,y+s*.2,s*.42,7),.2,3);continue;}
+    bells+=cut([[x,y-s*.15],[x+sd*s*.55,y+s*.05],[x+sd*s*1.05,y+s*1.05],[x+sd*s*.78,y+s*1.28],[x+sd*s*.38,y+s*1.14],[x+sd*s*.12,y+s*.5]],.25,3);
+    inner+=cut(circ(x+sd*s*.66,y+s*1.02,s*.13,6),.1,3);}
+  return {stalk:s0.d,petal:bells,centre:inner,pc:'c-bell',cc:'c-bell2'};
+}
+function flowerStalk(kind,bx,by,h,lean,side){
+  if(kind==='foxglove')return foxglove(bx,by,h,lean,side);
+  const s0=stalk(bx,by,h,lean),P=s0.P;let petal='',centre='',d=s0.d;
+  const heads=kind==='rhodo'?[[1,.11]]:kind==='marigold'?[[1,.075],[.72,.06]]:kind==='lotus'?[[1,.1]]:[[1,.09],[.7,.075],[.5,.06]];
+  for(const [t,rf] of heads){const [x,y]=P(t),r=h*rf;
+    if(t<1){const [x0,y0]=P(t-.02);d+=seg(x0,y0,x+side*r*.9,y-r*.4,2);}
+    const hx=t<1?x+side*r*.9:x,hy=t<1?y-r*.4:y;
+    if(kind==='hibiscus'){petal+=bloom(hx,hy,r,5,1.05,rr(0,1));centre+=seg(hx,hy,hx+side*r*.9,hy-r*.9,r*.12)+cut(circ(hx+side*r*.9,hy-r*.9,r*.14,7),.1,3);}
+    else if(kind==='marigold'){petal+=cut(star(hx,hy,r,r*.78,14),.3,3)+cut(star(hx,hy,r*.72,r*.56,12,.2),.2,3);centre+=cut(circ(hx,hy,r*.3,9),.15,3);}
+    else if(kind==='rhodo'){for(let k=0;k<6;k++){const a=k/6*TAU,fx=hx+Math.cos(a)*r*.62,fy=hy+Math.sin(a)*r*.5;petal+=bloom(fx,fy,r*.42,5,1,a);centre+=cut(circ(fx,fy,r*.08,6),.1,3);}
+      for(const sd of [-1,1])d+=cut([[hx,hy+r*.4],[hx+sd*r*1.2,hy+r*.9],[hx+sd*r*1.6,hy+r*.7],[hx+sd*r*.9,hy+r*.3]],.3,4);}
+    else if(kind==='lotus'){petal+=cut([[hx,hy-r*1.3],[hx+r*.55,hy-r*.3],[hx,hy+r*.2],[hx-r*.55,hy-r*.3]],.2,3);centre+=cut([[hx,hy-r*.9],[hx+r*.25,hy-r*.2],[hx,hy+r*.1],[hx-r*.25,hy-r*.2]],.15,3);}
+    else{petal+=bloom(hx,hy,r,8,.55);centre+=cut(circ(hx,hy,r*.25,8),.1,3);}
+  }
+  const pc={hibiscus:'c-hib',marigold:'c-saffron',rhodo:'c-rhodo',lotus:'c-lotus'}[kind]||'c-bell2';
+  const cc={hibiscus:'c-gold',marigold:'c-gold2',rhodo:'c-gold',lotus:'c-lotus2'}[kind]||'c-gold2';
+  return {stalk:d,petal,centre,pc,cc};
+}
+
+/* ---------- mountains: jagged massif with lit facets and snowcaps ---------- */
+function massif(o,l,peaks,floor,cls={}){
+  if(typeof cls==='string') cls={rock:cls,lite:cls,snow:'c-snow',ice:'c-snow'};
+  const rockC=cls.rock||'c-rock',liteC=cls.lite||'c-rock2',snowC=cls.snow||'c-snow',iceC=cls.ice||'c-ice';
+  peaks=peaks.map(p=>{
+    if(Array.isArray(p)) return {x:p[0],y:p[1],s:p[2]||0.65,snow:p[3]||(floor-p[1])*0.38};
+    return {x:p.x,y:p.y,s:p.s||0.65,snow:p.snow||(floor-p.y)*0.38};
+  });
+  const nz=wave(0,[H*.007,H*.003],[W*.06,W*.021]);
+  const tent=(p,x)=>p.y+Math.abs(x-p.x)*p.s;
+  const raw=x=>{let y=floor;for(const p of peaks){const v=tent(p,x);if(v<y)y=v;}return y+nz(x)*(y<floor-2?1:.5);};
+  const fn=T(l,raw);
+  const rock=land(l,fn,7,1.3);
+  let lite='',snow='',ice='';
+  for(const p of peaks){
+    const hg=floor-p.y;if(hg<12)continue;
+    const tipY=fn(p.x),cr=[],n=7;
+    for(let i=0;i<=n;i++){const t=i/n;cr.push([p.x+hg*.12*t+(i>0&&i<n?rr(-1,1)*hg*.025:0),tipY+(floor+4-tipY)*t]);}
+    let xl=p.x;while(xl>p.x-hg/p.s-8&&Math.abs(fn(xl)-tent(p,xl))<hg*.03+4)xl-=6;
+    const edge=[];for(let x=xl;x<p.x;x+=6)edge.push([x,fn(x)]);
+    lite+=cut(cr.concat([[xl,floor+4]],edge),.4,7);
+    const sh=p.snow||hg*.34,sl=p.y+sh,xa=p.x-sh/p.s,xb=p.x+sh/p.s;
+    const top=[],bot=[];for(let x=xa;x<=xb;x+=5)top.push([x,fn(x)]);
+    let k=0;for(let x=xb;x>=xa;x-=Math.max(4,sh*.09)){const zig=k++%2?sh*rr(.05,.18):-sh*rr(0,.08);bot.push([x,Math.max(fn(x)+1,sl+zig)]);}
+    ice+=cut(top.concat(bot),.5,5);
+    const crx=p.x+hg*.12*((sl-tipY)/(floor+4-tipY));
+    const ltop=top.filter(pt=>pt[0]<=p.x),lcr=cr.filter(pt=>pt[1]<=sl),lbot=bot.filter(pt=>pt[0]<crx);
+    if(ltop.length>1&&lbot.length>1)snow+=cut(ltop.concat(lcr,[[crx,sl]],lbot),.4,5);
+  }
+  o.add(l,rockC,rock);o.add(l,liteC,lite);o.add(l,iceC,ice);o.add(l,snowC,snow);o.grain(l,rock);
+  return fn;
+}
+/* ---------- water ---------- */
+function crest(cx,cy,w){const p=[];for(let i=0;i<=8;i++){const t=i/8;p.push([cx-w/2+w*t,cy-Math.sin(t*PI)*w*.16]);}for(let i=8;i>=0;i--){const t=i/8;p.push([cx-w/2+w*t+w*.06,cy-Math.sin(t*PI)*w*.07+w*.035]);}return cut(p,.12,4);}
+function crests(x0,x1,y0,y1,n,w){let d='';for(let i=0;i<n;i++)d+=crest(rr(x0,x1),rr(y0,y1),w*rr(.6,1.25));return d;}
+function river(o,l,top,cxF,yBot,amp,wMax,cls='c-river'){
+  if(Array.isArray(top)){
+    const pts=top;
+    const wBase=typeof cxF==='number'?cxF:18;
+    const Lb=[],Rb=[];
+    for(let i=0;i<pts.length;i++){
+      const p=pts[i];
+      const x=p[0],y=p[1],w=(p[2]||wBase)*(0.6+0.8*(i/(pts.length-1||1)));
+      Lb.push([x-w/2+(R()-.5)*1.4,y]);
+      Rb.push([x+w/2+(R()-.5)*1.4,y]);
+    }
+    const d=poly(Lb.concat(Rb.slice().reverse()));
+    o.add(l,cls,d);
+    let rip='';
+    for(let i=0;i<pts.length-1;i++){
+      const mx=(pts[i][0]+pts[i+1][0])/2, my=(pts[i][1]+pts[i+1][1])/2, len=wBase*0.35, th=1.5;
+      rip+=poly([[mx-len/2,my],[mx,my-th],[mx+len/2,my],[mx,my+th*.6]]);
+    }
+    o.add(l,'c-ripple',rip);
+    return pts;
+  }
+  const N=40,ph=R()*.7-.2,cl=[],Lb=[],Rb=[],y0=top(cxF)+4;
+  for(let i=0;i<=N;i++){const t=i/N,y=y0+(yBot-y0)*Math.pow(t,1.3),x=cxF+amp*Math.sin(t*PI*1.9+ph)*Math.pow(t,.65)+W*.025*Math.sin(t*9+ph),w=W*.006+wMax*Math.pow(t,1.75);
+    cl.push([x,y,w]);Lb.push([x-w/2+(R()-.5)*1.4,y]);Rb.push([x+w/2+(R()-.5)*1.4,y]);}
+  o.add(l,cls,poly(Lb.concat(Rb.slice().reverse())));
+  let rip='',gl='';
+  for(let i=0;i<20;i++){const [x,y,w]=cl[Math.floor(rr(.18,1)*N)],cx=x+(R()-.5)*w*.55,len=w*rr(.12,.32),th=Math.max(1,w*.022);rip+=poly([[cx-len/2,y],[cx,y-th],[cx+len/2,y],[cx,y+th*.6]]);}
+  for(let i=0;i<14;i++){const [x,y,w]=cl[Math.floor(rr(.1,.95)*N)],cx=x+(R()-.5)*w*.35,len=Math.max(3,w*rr(.05,.14)),th=Math.max(.8,w*.012);
+    gl+=`<path class="glint" style="animation-delay:${(R()*3).toFixed(2)}s" d="${poly([[cx-len/2,y],[cx,y-th],[cx+len/2,y],[cx,y+th]])}"/>`;}
+  o.add(l,'c-ripple',rip);o.raw(l,gl);
+  return cl;
+}
+
+/* ==========================================================================
+   PAPERCRAFT LIBRARY — architecture
+   ========================================================================== */
+function eave(cx,y,w,h,curl){return cut([[cx-w/2,y-curl],[cx-w*.44,y-curl*.2],[cx-w*.36,y+h*.06],[cx+w*.36,y+h*.06],[cx+w*.44,y-curl*.2],[cx+w/2,y-curl],
+  [cx+w*.41,y-curl*1.25],[cx+w*.3,y-h*.55],[cx+w*.2,y-h],[cx-w*.2,y-h],[cx-w*.3,y-h*.55],[cx-w*.41,y-curl*1.25]],.3,5);}
+function finial(cx,y,s){return cut(rect(cx-s*.03,y-s*.03,s*.06,s*.035),.15,3)+cut(ell(cx,y-s*.06,s*.034,s*.03,12),.15,3)+cut(ell(cx,y-s*.115,s*.024,s*.022,10),.15,3)+cut([[cx-s*.013,y-s*.13],[cx,y-s*.22],[cx+s*.013,y-s*.13]],.1,3);}
+// Goan cottage: lime-washed walls, Mangalore-tile roof with tile courses, arched windows, optional balcão porch
+function cottage(o,l,cx,by,s,opt={}){
+  const w=s,h=s*.48,rh=s*.34,ov=s*.09,wallC=opt.wall||'c-lime',roofC=opt.roof||'c-terra',roof2C=opt.roof2||'c-terra2',detC=opt.det||'c-lime2';
+  const wall=cut(rect(cx-w/2,by-h,w,h+3),.3,6);
+  const roof=cut([[cx-w/2-ov,by-h+s*.03],[cx-w*.28,by-h-rh],[cx+w*.28,by-h-rh],[cx+w/2+ov,by-h+s*.03]],.35,6);
+  let tiles='';for(let k=1;k<=4;k++){const t=k/5,y=by-h-rh+(rh+s*.03)*t,xl=lerp(cx-w*.28,cx-w/2-ov,t),xr=lerp(cx+w*.28,cx+w/2+ov,t);tiles+=cut([[xl,y],[xr,y],[xr-1,y+s*.018],[xl+1,y+s*.018]],.15,6);}
+  const plinth=cut(rect(cx-w/2-s*.02,by-s*.05,w+s*.04,s*.05+3),.25,6);
+  let win='',frame='',gl='';
+  for(const f of (opt.porch?[-.36,.36]:[-.3,.3])){const x=cx+f*w;frame+=cut(archPts(x,by-h*.26,s*.16,s*.24),.2,4);win+=cut(archPts(x,by-h*.31,s*.11,s*.19),.2,4);gl+=glowS(x,by-h*.5,s*.32);}
+  const door=cut(archPts(cx,by,s*.15,s*.3),.2,4);
+  o.add(l,wallC,wall);o.add(l,detC,plinth);o.add(l,roofC,roof);o.add(l,roof2C,tiles);o.grain(l,wall+roof);
+  o.raw(l,gl);o.add(l,detC,frame);o.add(l,'c-win',win);o.add(l,opt.doorC||'c-wood',door);
+  if(opt.porch){const pw=s*.4,ph=h*.8;let pil='';for(const f of [-1,1])pil+=cut(rect(cx+f*pw/2-s*.025,by-ph,s*.05,ph),.2,5);
+    o.add(l,wallC,pil+cut(rect(cx-pw/2-s*.05,by-s*.1,pw+s*.1,s*.1),.2,5));o.add(l,roofC,cut([[cx-pw/2-s*.06,by-ph],[cx,by-ph-s*.15],[cx+pw/2+s*.06,by-ph]],.25,5));}
+  if(opt.chimney){const x=cx+w*.2;o.add(l,detC,cut(rect(x,by-h-rh*.95,s*.07,rh*.5),.2,4));}
+}
+// small whitewashed Goan chapel: twin towers, scrolled gable, cross
+function chapel(o,l,cx,by,s,c1='c-lime',c2='c-lime2'){
+  let d=cut(rect(cx-s*.3,by-s*.6,s*.6,s*.6+3),.25,5);
+  d+=cut([[cx-s*.3,by-s*.6],[cx-s*.22,by-s*.68],[cx-s*.12,by-s*.7],[cx,by-s*.86],[cx+s*.12,by-s*.7],[cx+s*.22,by-s*.68],[cx+s*.3,by-s*.6]],.25,4);
+  for(const f of [-1,1]){const x=cx+f*s*.36;d+=cut(rect(x-s*.08,by-s*.8,s*.16,s*.8+3),.25,5)+cut(arcPts(x,by-s*.8,s*.08,s*.09,PI,TAU,8),.2,3);}
+  const cross=cut(rect(cx-s*.012,by-s*1.02,s*.024,s*.16),.1,3)+cut(rect(cx-s*.05,by-s*.98,s*.1,s*.022),.1,3);
+  const det=cut(archPts(cx,by,s*.14,s*.28),.15,3)+cut(circ(cx,by-s*.48,s*.06,10),.15,3)+cut(archPts(cx-s*.36,by-s*.5,s*.06,s*.12),.1,3)+cut(archPts(cx+s*.36,by-s*.5,s*.06,s*.12),.1,3);
+  o.add(l,c1,d+cross);o.raw(l,glowS(cx,by-s*.4,s*.5));o.add(l,c2,det);o.grain(l,d);
+}
+// Sikkimese gompa: tapered whitewashed walls, maroon kemar band, tiered golden pagoda roofs, ganjira finial, victory banners
+function gompa(o,l,cx,by,s,opt={}){
+  const wallC=opt.wall||'c-lime',roofC=opt.roof||'c-gold',soffC=opt.soff||'c-crimson',bandC=opt.band||'c-maroon';
+  const w1=s,h1=s*.36;
+  let wall=cut([[cx-w1/2,by+3],[cx-w1*.47,by-h1],[cx+w1*.47,by-h1],[cx+w1/2,by+3]],.3,6);
+  let bandD=cut(rect(cx-w1*.47,by-h1,w1*.94,s*.05),.2,6),win='',frm='',gl='';
+  for(const i of [-2,-1,1,2]){const x=cx+i*w1*.19,y=by-h1*.52;frm+=cut([[x-s*.05,y+s*.075],[x-s*.038,y-s*.06],[x+s*.038,y-s*.06],[x+s*.05,y+s*.075]],.2,4);win+=cut(rect(x-s*.026,y-s*.04,s*.052,s*.09),.12,4);gl+=glowS(x,y,s*.2);}
+  const door=cut(rect(cx-s*.075,by-s*.21,s*.15,s*.21+3),.2,4),lintel=cut(rect(cx-s*.1,by-s*.24,s*.2,s*.035),.15,4);
+  const w2=w1*.58,h2=s*.19,y2=by-h1-s*.11,w3=w2*.52,h3=s*.1,y3=y2-h2-s*.08;
+  wall+=cut(rect(cx-w2/2,y2-h2,w2,h2+s*.02),.25,5)+cut(rect(cx-w3/2,y3-h3,w3,h3+s*.02),.2,4);
+  bandD+=cut(rect(cx-w2/2,y2-h2,w2,s*.04),.15,5);
+  for(const i of [-1,1]){const x=cx+i*w2*.25;win+=cut(rect(x-s*.022,y2-h2*.55,s*.044,s*.07),.1,3);gl+=glowS(x,y2-h2*.4,s*.16);}
+  const soff=cut(rect(cx-w1*.53,by-h1-s*.015,w1*1.06,s*.03),.15,5)+cut(rect(cx-w2*.6,y2-h2-s*.012,w2*1.2,s*.025),.15,5)+cut(rect(cx-w3*.68,y3-h3-s*.01,w3*1.36,s*.02),.12,4);
+  const roofs=eave(cx,by-h1-s*.01,w1*1.2,s*.15,s*.065)+eave(cx,y2-h2-s*.01,w2*1.36,s*.12,s*.05)+eave(cx,y3-h3-s*.01,w3*1.6,s*.1,s*.04);
+  let gold=finial(cx,y3-h3-s*.1,s);
+  for(const f of [-1,1])gold+=cut(rect(cx+f*w1*.5-s*.016,by-h1-s*.1,s*.032,s*.08),.12,3)+cut(ell(cx+f*w1*.5,by-h1-s*.105,s*.022,s*.014,10),.1,3);
+  o.add(l,wallC,wall);o.add(l,bandC,bandD);o.grain(l,wall);o.raw(l,gl);o.add(l,'c-wood',frm);o.add(l,'c-win',win);
+  o.add(l,'c-crimson',door);o.add(l,'c-gold',lintel);o.add(l,soffC,soff);o.add(l,roofC,roofs);o.add(l,'c-gold',gold);o.grain(l,roofs);
+}
+function stupa(o,l,cx,by,s,white='c-lime',gold='c-gold'){
+  let w=cut(rect(cx-s*.5,by-s*.12,s,s*.12+3),.3,6)+cut(rect(cx-s*.4,by-s*.22,s*.8,s*.11),.3,6)+cut(rect(cx-s*.32,by-s*.3,s*.64,s*.09),.3,6);
+  w+=cut(arcPts(cx,by-s*.3,s*.31,s*.27,PI,TAU,18),.3,5);
+  let g=cut(rect(cx-s*.085,by-s*.67,s*.17,s*.1+2),.2,4);
+  for(let k=0;k<9;k++){const ww=s*(.08-.0055*k),y=by-s*.67-k*s*.04;g+=cut(rect(cx-ww,y-s*.034,ww*2,s*.032),.15,4);}
+  const ty=by-s*1.03;g+=cut([[cx-s*.09,ty+s*.02],[cx,ty-s*.04],[cx+s*.09,ty+s*.02]],.15,3)+cut(circ(cx,ty-s*.07,s*.025,10),.1,3);
+  g+=cut(arcPts(cx,ty-s*.12,s*.04,s*.03,0,PI,8).concat(arcPts(cx,ty-s*.13,s*.028,s*.02,PI,0,8)),.1,3);
+  const eyes=cut([[cx-s*.065,by-s*.62],[cx-s*.035,by-s*.635],[cx-s*.01,by-s*.62],[cx-s*.035,by-s*.61]],.05,2)+cut([[cx+s*.065,by-s*.62],[cx+s*.035,by-s*.635],[cx+s*.01,by-s*.62],[cx+s*.035,by-s*.61]],.05,2);
+  o.add(l,white,w);o.grain(l,w);o.add(l,gold,g);o.add(l,'c-sil',eyes);
+}
+// sagging cord of five-colour lungta flags
+function flags(o,l,x0,y0,x1,y1,sag,n,fs){
+  const P=t=>[lerp(x0,x1,t),lerp(y0,y1,t)+Math.sin(PI*t)*sag],top=[],bot=[];
+  for(let i=0;i<=30;i++){const [x,y]=P(i/30);top.push([x,y-.7]);bot.push([x,y+.7]);}
+  const c=['','','','',''];
+  for(let i=0;i<n;i++){const t=(i+.5)/n,[xa,ya]=P(t-.42/n),[xb,yb]=P(t+.42/n),h=fs*rr(.85,1.1),sw=rr(-.15,.3)*fs;c[i%5]+=cut([[xa,ya],[xb,yb],[xb+sw,yb+h*rr(.9,1.05)],[xa+sw,ya+h]],.3,4);}
+  o.add(l,'c-string',poly(top.concat(bot.reverse())));['c-fB','c-fW','c-fR','c-fG','c-fY'].forEach((k,i)=>o.add(l,k,c[i]));
+}
+// darchor: tall pole with long vertical prayer banner
+function darchor(o,l,x,by,h,cls='c-fW'){
+  const pw=Math.max(1.6,h*.012);o.add(l,'c-wood',seg(x,by+3,x,by-h,pw));
+  const p=[];for(let i=0;i<=12;i++){const t=i/12;p.push([x+pw/2,by-h*.95+h*.62*t]);}
+  for(let i=12;i>=0;i--){const t=i/12;p.push([x+pw/2+h*.1+Math.sin(t*PI*3+x)*h*.018,by-h*.95+h*.62*t+h*.03*t]);}
+  o.add(l,cls,cut(p,.3,5));o.add(l,'c-gold',cut([[x-h*.03,by-h],[x,by-h*1.06],[x+h*.03,by-h]],.1,3));
+}
+// akash kandil: Goan star lantern with paper tails
+function kandil(o,l,cx,cy,r,col='c-saffron'){
+  let tails='';for(const k of [-1,0,1]){const p=[],x0=cx+k*r*.28,y0=cy+r*.38;for(let i=0;i<=8;i++){const t=i/8;p.push([x0+Math.sin(t*5+k)*r*.12-r*.05,y0+r*1.7*t]);}for(let i=8;i>=0;i--){const t=i/8;p.push([x0+Math.sin(t*5+k)*r*.12+r*.05,y0+r*1.7*t]);}tails+=cut(p,.2,4);}
+  o.raw(l,glowS(cx,cy,r*2.6));o.add(l,'c-crimson',tails);o.add(l,col,cut(star(cx,cy,r,r*.46,5),.3,4));o.add(l,'c-gold',cut(star(cx,cy,r*.56,r*.26,5),.2,3));
+}
+// Goan temple: lime-washed hall, terracotta roof, octagonal drum, dome, golden kalash
+function templeGoa(o,l,cx,by,s){
+  const lime='c-lime',lime2='c-lime2';
+  const plat=cut(rect(cx-s*.64,by-s*.06,s*1.28,s*.06+3),.25,6)+cut(rect(cx-s*.2,by-s*.03,s*.4,s*.04),.2,4);
+  let wall=cut(rect(cx-s*.56,by-s*.36,s*.62,s*.31),.3,6)+cut(rect(cx+s*.04,by-s*.44,s*.44,s*.39),.3,6)+cut(rect(cx+s*.1,by-s*.64,s*.32,s*.2+2),.25,5);
+  const roof=cut([[cx-s*.62,by-s*.34],[cx-s*.5,by-s*.48],[cx+s*.04,by-s*.48],[cx+s*.08,by-s*.34]],.3,6);
+  const dome=cut(arcPts(cx+s*.26,by-s*.64,s*.18,s*.22,PI,TAU,18),.3,5);
+  let ribs='';for(const f of [-.5,0,.5])ribs+=cut([[cx+s*.26+f*s*.18-s*.008,by-s*.64],[cx+s*.26+f*s*.06-s*.004,by-s*.84],[cx+s*.26+f*s*.06+s*.004,by-s*.84],[cx+s*.26+f*s*.18+s*.008,by-s*.64]],.1,4);
+  const cornice=cut(rect(cx+s*.07,by-s*.66,s*.38,s*.025),.15,4)+cut(rect(cx+s*.02,by-s*.46,s*.48,s*.025),.15,4);
+  const lant=cut(rect(cx+s*.23,by-s*.92,s*.06,s*.06),.15,3);
+  const kal=cut(ell(cx+s*.26,by-s*.95,s*.03,s*.025,12),.1,3)+cut([[cx+s*.25,by-s*.97],[cx+s*.26,by-s*1.04],[cx+s*.27,by-s*.97]],.1,3);
+  let win='',gl='';
+  for(const f of [-.44,-.26,-.08]){win+=cut(archPts(cx+f*s,by-s*.11,s*.08,s*.17),.15,3);gl+=glowS(cx+f*s,by-s*.18,s*.16);}
+  for(const f of [.18,.34]){win+=cut(archPts(cx+f*s,by-s*.5,s*.05,s*.09),.1,3);}
+  const door=cut(archPts(cx+s*.26,by-s*.05,s*.12,s*.24),.15,4);
+  o.add(l,lime2,plat);o.add(l,lime,wall);o.add(l,'c-terra',roof);o.add(l,lime,dome);o.add(l,lime2,ribs+cornice);o.grain(l,wall+dome);
+  o.raw(l,gl);o.add(l,'c-win',win);o.add(l,'c-crimson',door);o.add(l,'c-gold',lant+kal);
+}
+// deepastambha: tiered Goan lamp tower
+function deepa(o,l,cx,by,h){
+  let w='',led='',fl='',gl='';const n=7,th=h*.82/n;
+  for(let k=0;k<n;k++){const ww=h*.085*(1-k*.08),y=by-k*th;w+=cut(rect(cx-ww,y-th,ww*2,th+2),.2,4);led+=cut(rect(cx-ww*1.35,y-th-h*.012,ww*2.7,h*.016),.15,4);
+    for(const f of [-1,0,1]){const x=cx+f*ww*.6,fy=y-th*.5;fl+=cut([[x,fy-h*.022],[x+h*.008,fy],[x,fy+h*.006],[x-h*.008,fy]],.05,2);gl+=glowS(x,fy,h*.05);}}
+  const top=by-n*th;w+=cut(arcPts(cx,top,h*.05,h*.07,PI,TAU,10),.15,3);
+  o.add(l,'c-lime',w);o.add(l,'c-lime2',led);o.raw(l,gl);o.add(l,'c-ember',fl);o.add(l,'c-gold',cut([[cx-h*.012,top-h*.06],[cx,top-h*.14],[cx+h*.012,top-h*.06]],.1,3));o.grain(l,w);
+}
+
+/* ==========================================================================
+   PAPERCRAFT LIBRARY — figures (shadow-puppet silhouettes with coloured cloth)
+   ========================================================================== */
+const BAKER={body:[[-9,-80],[11,-80],[13,-62],[12,-50],[17,-30],[-13,-30],[-9,-50],[-11,-62]],
+  legL:[[-7,-31],[-1,-31],[-6,-2],[-14,0],[-14,-2],[-10,-4]],legR:[[2,-31],[8,-31],[13,-3],[20,-1.5],[20,.5],[9,.5]],
+  arm:[[7,-79],[12,-80],[15,-96],[12,-104],[8,-103],[10,-95]],arm2:[[-9,-78],[-4,-78],[-13,-56],[-19,-53],[-20,-57]],
+  basket:[[-17,-99],[19,-99],[16,-113],[-14,-113]],head:[2,-90,6.5]};
+function baker(o,l,x,by,h,fl){
+  const s=h/118,dk='c-sil';
+  o.add(l,dk,C(BAKER.legL,x,by,s,fl)+C(BAKER.legR,x,by,s,fl)+C(BAKER.arm,x,by,s,fl)+C(BAKER.arm2,x,by,s,fl)+Cc(BAKER.head,x,by,s,fl)+cut(tf([[-6,-84],[7,-84],[7,-79],[-6,-79]],x,by,s,fl),.1,3));
+  o.add(l,'c-lime2',C(BAKER.body,x,by,s,fl));
+  o.add(l,'c-crimson',C([[-12,-36],[16,-36],[17,-31],[-13,-31]],x,by,s,fl));
+  const [sx0,sy0]=tf([[-26,1]],x,by,s,fl)[0],[sx1,sy1]=tf([[-13,-118]],x,by,s,fl)[0];
+  o.add(l,'c-wood2',seg(sx0,sy0,sx1,sy1,Math.max(1.6,s*2.6)));
+  o.add(l,'c-gold',Cc([-13.6,-112,2.6],x,by,s,fl)+Cc([-14.4,-104,2.4],x,by,s,fl));
+  o.add(l,'c-wood2',C(BAKER.basket,x,by,s,fl));
+  let wv='';for(const y of [-103,-108])wv+=C([[-15,y],[17,y],[17,y+1.5],[-15,y+1.5]],x,by,s,fl,0,.05);o.add(l,'c-wood',wv);
+  o.add(l,'c-gold',Cc([-9,-114,4.6],x,by,s,fl)+Cc([0,-116,5.6],x,by,s,fl)+Cc([9,-114,4.6],x,by,s,fl)+C([[-15,-112],[14,-115],[16,-112],[-14,-110]],x,by,s,fl));
+}
+const FUG={skirt:[[-9,-62],[3,-62],[16,-10],[19,0],[-22,0],[-19,-10]],torso:[[-10,-80],[2,-80],[4,-62],[-11,-62]],
+  pallu:[[-9,-79],[-24,-66],[-31,-50],[-21,-55],[-12,-66]],arm1:[[0,-77],[3,-79],[19,-72],[17,-68]],arm2:[[-1,-73],[2,-75],[19,-65],[17,-62]],head:[-3,-88,6.5],bun:[-9.5,-89,3.6]};
+function fugdiPair(o,l,cx,by,h){
+  const s=h/100,sk='c-sil';
+  for(const fl of [false,true]){const x=cx+(fl?16:-16)*s,sh=.13;
+    o.add(l,sk,C(FUG.arm1,x,by,s,fl,sh)+C(FUG.arm2,x,by,s,fl,sh)+Cc(FUG.head,x,by,s,fl,sh)+Cc(FUG.bun,x,by,s,fl,sh));
+    o.add(l,fl?'c-saree2':'c-saree',C(FUG.skirt,x,by,s,fl,sh)+C(FUG.torso,x,by,s,fl,sh));
+    o.add(l,fl?'c-saree':'c-saree2',C(FUG.pallu,x,by,s,fl,sh));
+    o.add(l,'c-gold',C([[-20,-6],[17,-6],[18,-2],[-21,-2]],x,by,s,fl,sh)+Cc([-12.5,-91,1.3],x,by,s,fl,sh));}
+}
+const CLAP={skirt:[[-8,-60],[6,-60],[12,0],[-14,0]],torso:[[-9,-80],[5,-80],[6,-60],[-8,-60]],armL:[[-8,-78],[-4,-79],[-2,-97],[-6,-98]],armR:[[2,-79],[6,-78],[3,-98],[-1,-97]],pallu:[[4,-79],[14,-60],[10,-40],[4,-58]],head:[-1,-88,6.3]};
+function clapper(o,l,x,by,h,c='c-saree'){const s=h/100;o.add(l,'c-sil',C(CLAP.armL,x,by,s)+C(CLAP.armR,x,by,s)+Cc(CLAP.head,x,by,s));o.add(l,c,C(CLAP.skirt,x,by,s)+C(CLAP.torso,x,by,s));o.add(l,c==='c-saree'?'c-saree2':'c-saree',C(CLAP.pallu,x,by,s));o.add(l,'c-gold',C([[-13,-6],[11,-6],[12,-2],[-14,-2]],x,by,s));}
+const MONK={robe:[[-10,-80],[14,-80],[20,-56],[22,-20],[26,0],[-18,0],[-16,-30],[-14,-60]],shawl:[[-10,-80],[6,-80],[18,-50],[4,-44],[-8,-60]],
+  arm:[[6,-74],[13,-77],[26,-80],[27,-74],[13,-68]],head:[6,-88,7],hat:[[-7,-92],[-1,-103],[8,-108],[19,-104],[22,-97],[15,-96],[8,-98],[0,-94]]};
+function monkHorn(o,l,x,by,h,fl){
+  const s=h/100;o.add(l,'c-maroon',C(MONK.robe,x,by,s,fl));o.add(l,'c-crimson',C(MONK.shawl,x,by,s,fl));o.add(l,'c-sil',Cc(MONK.head,x,by,s,fl)+C(MONK.arm,x,by,s,fl));o.add(l,'c-gold',C(MONK.hat,x,by,s,fl));
+  const A=[22,-84],B=[200,-10],dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+  const rad=t=>t<.9?1.7+3.6*t:5+(t-.9)/.1*8,top=[],bot=[];
+  for(const t of [0,.2,.4,.6,.8,.9,.94,.97,1]){const cx=A[0]+dx*t,cy=A[1]+dy*t,r=rad(t);top.push([cx+nx*r,cy+ny*r]);bot.push([cx-nx*r,cy-ny*r]);}
+  o.add(l,'c-brass',cut(tf(top.concat(bot.reverse()),x,by,s,fl),.15,6));
+  let rings='';for(const t of [.33,.62,.88]){const cx=A[0]+dx*t,cy=A[1]+dy*t,r=rad(t)+1.2;rings+=cut(tf([[cx+nx*r-ux*1.5,cy+ny*r-uy*1.5],[cx+nx*r+ux*1.5,cy+ny*r+uy*1.5],[cx-nx*r+ux*1.5,cy-ny*r+uy*1.5],[cx-nx*r-ux*1.5,cy-ny*r-uy*1.5]],x,by,s,fl),.05,3);}
+  o.add(l,'c-gold',rings);o.add(l,'c-wood',C([[176,1],[183,-16],[187,-16],[194,1]],x,by,s,fl));
+}
+function chamDancer(o,l,x,by,h){
+  const s=h/120;
+  o.add(l,'c-saffron',C([[-20,-50],[-44,-30],[-58,-10],[-48,-14],[-30,-34]],x,by,s)+C([[20,-50],[46,-36],[62,-20],[52,-20],[30,-38]],x,by,s));
+  o.add(l,'c-gold',C([[-20,-48],[20,-48],[44,-6],[36,1],[-36,1],[-46,-6]],x,by,s));
+  let ap='';for(const f of [-24,-8,8,24])ap+=C([[f-5,-46],[f+5,-46],[f*1.5+6,-6],[f*1.5-6,-6]],x,by,s);o.add(l,'c-crimson',ap);
+  o.add(l,'c-cobalt',C([[-46,-7],[44,-7],[36,1],[-36,1]],x,by,s)+C([[-15,-80],[15,-80],[20,-48],[-20,-48]],x,by,s));
+  o.add(l,'c-crimson',C([[-14,-78],[-36,-74],[-60,-58],[-55,-50],[-40,-57],[-18,-62]],x,by,s)+C([[14,-78],[34,-87],[56,-100],[61,-93],[40,-76],[18,-63]],x,by,s));
+  o.add(l,'c-sil',Cc([-58,-53,4],x,by,s)+Cc([59,-97,4],x,by,s)+C([[-4,-48],[-12,0],[-6,0],[0,-40],[6,0],[12,0],[4,-48]],x,by,s));
+  o.add(l,'c-gold',cut(tf(star(0,-79,14,11,12),x,by,s),.15,3)+C([[52,-104],[66,-112],[64,-106],[70,-100],[60,-100]],x,by,s));
+  o.add(l,'c-crimson',cut(tf(star(0,-98,23,16,9,PI),x,by,s),.2,3));
+  o.add(l,'c-gold',Cc([0,-97,14.5],x,by,s,false,0,20));
+  let sk='';for(let i=0;i<5;i++){const a=PI*(1.15+i*.175);sk+=Cc([Math.cos(a)*16,-97+Math.sin(a)*16,3.2],x,by,s,false,0,8);}o.add(l,'c-tile',sk);
+  o.add(l,'c-sil',Cc([-5.5,-100,2.2],x,by,s)+Cc([5.5,-100,2.2],x,by,s)+Cc([0,-106,1.8],x,by,s)+C([[-8,-91],[8,-91],[6,-87],[2,-89],[0,-86],[-2,-89],[-6,-87]],x,by,s)+C([[-9,-104],[-3,-103],[-2,-102],[-9,-102]],x,by,s)+C([[9,-104],[3,-103],[2,-102],[9,-102]],x,by,s));
+}
+const LION={body:[[-38,-30],[-26,-40],[0,-42],[22,-40],[34,-34],[36,-22],[28,-17],[-30,-17],[-42,-22]],
+  legs:[[[-34,-20],[-26,-20],[-25,-4],[-36,-4]],[[-22,-20],[-15,-20],[-14,-4],[-23,-4]],[[14,-20],[22,-20],[23,-4],[13,-4]],[[24,-24],[31,-27],[44,-17],[39,-12]]],
+  tail:[[-38,-30],[-50,-44],[-49,-58],[-41,-60],[-44,-50],[-35,-37]]};
+function snowLion(o,l,x,by,len,fl){
+  const s=len/100;let body=C(LION.body,x,by,s,fl)+C(LION.tail,x,by,s,fl);LION.legs.forEach(g=>body+=C(g,x,by,s,fl));
+  let mane=cut(tf(star(40,-46,23,15,16),x,by,s,fl),.25,3)+cut(tf(star(-46,-60,9,6,9),x,by,s,fl),.2,3);
+  for(const [px,py] of [[-30,-4],[-18,-4],[18,-4],[42,-14]])mane+=cut(tf(star(px,py,6,4,7),x,by,s,fl),.15,3);
+  let sp=[];for(let i=0;i<=12;i++){const t=i/12;sp.push([-28+50*t,-41-(i%2?5:0)-Math.sin(t*PI)*1]);}sp.push([22,-38],[-28,-38]);mane+=cut(tf(sp,x,by,s,fl),.15,3);
+  o.add(l,'c-mane',mane);o.add(l,'c-snow',body+Cc([40,-46,12.5],x,by,s,fl,0,18));o.grain(l,body);
+  o.add(l,'c-sil',Cc([44,-49,2.6],x,by,s,fl,0,8)+Cc([36,-50,2,],x,by,s,fl,0,8));o.add(l,'c-crimson',C([[44,-41],[55,-43],[50,-37]],x,by,s,fl));
+  o.add(l,'c-gold',C([[-20,-41],[12,-42],[12,-39],[-20,-38]],x,by,s,fl));
+}
+function pilgrim(o,l,x,by,h,fl){const s=h/100;o.add(l,'c-sil',C([[-6,-78],[6,-78],[9,-30],[-8,-30]],x,by,s,fl)+C([[-6,-31],[0,-31],[-5,0],[-11,0]],x,by,s,fl)+C([[1,-31],[7,-31],[12,0],[6,0]],x,by,s,fl)+Cc([1,-87,6.5],x,by,s,fl)+C([[4,-74],[8,-74],[16,-50],[12,-48]],x,by,s,fl));
+  o.add(l,'c-saffron',C([[-14,-76],[-4,-78],[-3,-48],[-15,-50]],x,by,s,fl));const [a,b]=tf([[17,1]],x,by,s,fl)[0],[c,d]=tf([[11,-90]],x,by,s,fl)[0];o.add(l,'c-wood',seg(a,b,c,d,Math.max(1.2,s*2)));}
+
+/* ==========================================================================
+   PAPERCRAFT LIBRARY — objects
+   ========================================================================== */
+function caravel(o,l,x,wl,len){
+  const s=len/100,w=(p)=>cut(tf(p,x,wl,s),.2,Math.max(3,s*4));
+  const hull=w([[-52,-20],[-50,-33],[-33,-33],[-32,-22],[26,-20],[30,-28],[46,-28],[55,-22],[50,-8],[40,3],[-40,3],[-50,-8]]);
+  const strake=w([[-50,-15],[51,-15],[51,-12.5],[-50,-12.5]])+w([[-48,-7],[49,-7],[48,-5],[-47,-5]]);
+  let ports='';for(let px=-26;px<=22;px+=8)ports+=w([[px,-19],[px+3,-19],[px+3,-16.5],[px,-16.5]]);
+  const masts=w([[-3,-20],[-1,-20],[-1,-122],[-3,-122]])+w([[29,-27],[31,-27],[31,-100],[29,-100]])+w([[-37,-33],[-35,-33],[-35,-90],[-37,-90]])+w([[52,-24],[74,-35],[74.5,-33],[52,-21]]);
+  const yards=w([[-26,-101],[22,-101],[22,-99],[-26,-99]])+w([[-17,-117],[13,-117],[13,-115.5],[-17,-115.5]])+w([[10,-91],[48,-91],[48,-89],[10,-89]]);
+  const sails=w([[-24,-99],[20,-99],[24,-80],[21,-58],[-2,-52],[-25,-58],[-28,-80]])+w([[-15,-115],[11,-115],[14,-108],[12,-102],[-16,-102],[-18,-108]])+w([[12,-89],[46,-89],[49,-74],[46,-56],[29,-52],[12,-56],[9,-74]])+w([[-35,-89],[-56,-40],[-36,-44],[-20,-42]]);
+  const cross=w([[-6,-86],[2,-86],[0,-80],[8,-82],[8,-74],[0,-76],[2,-68],[-6,-68],[-4,-76],[-12,-74],[-12,-82],[-4,-80]]);
+  const pen=w([[-1,-122],[16,-125],[-1,-119]])+w([[31,-100],[44,-102],[31,-97]]);
+  let rig='';const ln=(a,b,c,d)=>{const [p0,p1]=tf([[a,b],[c,d]],x,wl,s);rig+=seg(p0[0],p0[1],p1[0],p1[1],Math.max(.7,s*.5));};
+  ln(74,-35,30,-100);ln(30,-100,-2,-122);ln(-2,-122,-36,-90);ln(-36,-90,-50,-33);ln(-2,-122,-30,-22);ln(-2,-122,26,-20);ln(30,-100,46,-28);
+  o.add(l,'c-string',rig);o.add(l,'c-wood',hull+masts+yards);o.add(l,'c-wood2',strake);o.add(l,'c-sil',ports);o.add(l,'c-tile',sails);o.grain(l,sails+hull);o.add(l,'c-crimson',cross+pen);
+}
+function maniShrine(o,l,cx,by,s){
+  const posts=cut(rect(cx-s*.55,by-s*.95,s*.07,s*.95+3),.2,5)+cut(rect(cx+s*.48,by-s*.95,s*.07,s*.95+3),.2,5);
+  const base=cut(rect(cx-s*.65,by-s*.08,s*1.3,s*.08+3),.25,5);
+  const roof=eave(cx,by-s*.95,s*1.5,s*.26,s*.1),soff=cut(rect(cx-s*.62,by-s*.97,s*1.24,s*.04),.15,5);
+  const body=cut(rect(cx-s*.3,by-s*.72,s*.6,s*.56),.25,5).concat?0:0;
+  const cyl=cut(rect(cx-s*.3,by-s*.72,s*.6,s*.56),.25,5)+cut(ell(cx,by-s*.16,s*.3,s*.06,20),.2,4);
+  const bandsG=cut(rect(cx-s*.31,by-s*.72,s*.62,s*.06),.15,4)+cut(rect(cx-s*.31,by-s*.24,s*.62,s*.06),.15,4)+cut(rect(cx-s*.31,by-s*.47,s*.62,s*.035),.1,4);
+  let syl='';for(let k=0;k<6;k++){const xx=cx-s*.25+k*s*.1;syl+=cut(rect(xx,by-s*.62,s*.05,s*.1),.08,3)+cut(rect(xx,by-s*.4,s*.05,s*.1),.08,3);}
+  const cap=cut(arcPts(cx,by-s*.72,s*.3,s*.1,PI,TAU,14),.2,4)+finial(cx,by-s*.8,s*.8);
+  const axle=cut(rect(cx-s*.015,by-s*.86,s*.03,s*.8),.1,4);
+  o.add(l,'c-wood',posts+base+axle);o.add(l,'c-crimson',cyl+soff);o.add(l,'c-gold',bandsG+cap);o.add(l,'c-saffron',syl);o.add(l,'c-gold',roof);o.grain(l,roof+cyl);
+}
+// Portuguese domed wood-fired oven (forno) with glowing mouth, chimney and smoke
+function forno(o,l,cx,by,r,smoke=true){
+  const plinth=cut(rect(cx-r*1.25,by-r*.28,r*2.5,r*.28+3),.3,6);
+  const dome=cut(arcPts(cx,by-r*.26,r*1.1,r*1.05,PI,TAU,22),.35,6);
+  let brick='';for(const k of [.42,.66,.88])brick+=cut(band(cx,by-r*.26,r*1.1*k,r*1.1*k+r*.045,PI+.08,TAU-.08,20).map(([a,b])=>[a,by-r*.26+(b-(by-r*.26))*.955]),.15,5);
+  let courses='';for(let i=0;i<3;i++)courses+=cut(rect(cx-r*1.25,by-r*.28+i*r*.09,r*2.5,r*.02),.1,6);
+  const mouth=cut(archPts(cx,by-r*.27,r*.68,r*.62),.25,5),inner=cut(archPts(cx,by-r*.27,r*.52,r*.48),.2,4);
+  const flames=cut([[cx-r*.22,by-r*.28],[cx-r*.16,by-r*.5],[cx-r*.08,by-r*.4],[cx,by-r*.66],[cx+r*.08,by-r*.42],[cx+r*.16,by-r*.54],[cx+r*.22,by-r*.28]],.3,3);
+  const chim=cut(rect(cx+r*.42,by-r*1.38,r*.22,r*.5),.2,4)+cut(rect(cx+r*.38,by-r*1.42,r*.3,r*.06),.15,4);
+  o.raw(l,glowS(cx,by-r*.5,r*1.5,true));
+  o.add(l,'c-later',plinth);o.add(l,'c-later2',courses);o.add(l,'c-terra',dome+chim);o.add(l,'c-terra2',brick);o.grain(l,dome+plinth);
+  o.add(l,'c-burrow',mouth);o.add(l,'c-flame',inner);o.add(l,'c-ember',flames);
+  if(smoke){let sm='';for(let i=0;i<4;i++)sm+=cut(circ(cx+r*.53+i*r*.16+Math.sin(i)*r*.1,by-r*1.55-i*r*.32,r*(.12+i*.05),12),.4,4);o.add(l,'c-steam',sm);}
+  let logs='',ends='';for(let i=0;i<5;i++){const lx=cx-r*1.75+(i%3)*r*.26+(i>2?r*.13:0),ly=by-r*.11-(i>2?r*.22:0);logs+=cut(circ(lx,ly,r*.12,10),.15,3);ends+=cut(circ(lx,ly,r*.05,8),.1,3);}
+  o.add(l,'c-wood',logs);o.add(l,'c-wood2',ends);
+}
+function wisp(x,y,h,w,ph){const p=[],qn=[];for(let i=0;i<=14;i++){const t=i/14,cx=x+Math.sin(t*TAU*1.1+ph)*w*(.4+t*.6),cy=y-h*t,ww=w*.32*(1-t*.8)+.8;p.push([cx-ww,cy]);qn.push([cx+ww,cy]);}return cut(p.concat(qn.reverse()),.3,4);}
+// three-tier bamboo momo steamer on a clay stove
+function steamer(o,l,cx,by,s){
+  const stove=cut([[cx-s*.6,by+3],[cx-s*.52,by-s*.42],[cx+s*.52,by-s*.42],[cx+s*.6,by+3]],.3,5),mouth=cut(archPts(cx,by,s*.32,s*.28),.2,4);
+  const pot=cut(arcPts(cx,by-s*.44,s*.58,s*.16,0,PI,14).concat([[cx-s*.58,by-s*.5],[cx+s*.58,by-s*.5]]),.2,4);
+  let tiers='',weave='';for(let k=0;k<3;k++){const y=by-s*.52-k*s*.25;tiers+=cut(rect(cx-s*.5,y-s*.23,s,s*.23),.2,5);for(const f of [.25,.55,.8])weave+=cut(rect(cx-s*.5,y-s*.23*f,s,s*.018),.08,6);}
+  const ly=by-s*.52-3*s*.25,lid=cut(arcPts(cx,ly,s*.52,s*.2,PI,TAU,16),.25,4)+cut(rect(cx-s*.06,ly-s*.25,s*.12,s*.06),.15,3);
+  o.raw(l,glowS(cx,by-s*.15,s*.6,true));o.add(l,'c-terra',stove);o.add(l,'c-burrow',mouth);o.add(l,'c-flame',cut(archPts(cx,by,s*.22,s*.18),.2,3));
+  o.add(l,'c-rock',pot);o.add(l,'c-wood2',tiers+lid);o.add(l,'c-wood',weave);o.grain(l,tiers+lid);
+  let st='';for(let i=0;i<4;i++)st+=wisp(cx-s*.36+i*s*.24,ly-s*.25,s*rr(1.1,1.7),s*.16,i*1.7);
+  st+=cloud(cx,ly-s*1.75,s*.012*1)+cut(circ(cx-s*.2,ly-s*1.6,s*.2,14),.4,4)+cut(circ(cx+s*.25,ly-s*1.72,s*.24,14),.4,4)+cut(circ(cx+s*.02,ly-s*1.9,s*.26,16),.4,4);
+  o.add(l,'c-steam',st);
+}
+function mandala(o,l,cx,cy,r){
+  o.add(l,'c-saffron',cut(star(cx,cy,r,r*.9,24),.3,4));o.add(l,'c-cobalt',cut(circ(cx,cy,r*.86,40),.3,5));
+  o.add(l,'c-crimson',bloom(cx,cy,r*.84,16,.36,PI/16));o.add(l,'c-tile',cut(circ(cx,cy,r*.6,36),.25,5));
+  const g=r*.5,t=r*.1;o.add(l,'c-gold',cut([[cx-g,cy-g],[cx-t,cy-g],[cx-t,cy-g-t],[cx+t,cy-g-t],[cx+t,cy-g],[cx+g,cy-g],[cx+g,cy-t],[cx+g+t,cy-t],[cx+g+t,cy+t],[cx+g,cy+t],[cx+g,cy+g],[cx+t,cy+g],[cx+t,cy+g+t],[cx-t,cy+g+t],[cx-t,cy+g],[cx-g,cy+g],[cx-g,cy+t],[cx-g-t,cy+t],[cx-g-t,cy-t],[cx-g,cy-t]],.2,5));
+  o.add(l,'c-crimson',cut(rect(cx-g*.78,cy-g*.78,g*1.56,g*1.56),.2,5));o.add(l,'c-tile',cut(circ(cx,cy,r*.3,24),.2,4));
+  o.add(l,'c-saffron',bloom(cx,cy,r*.28,8,.6));o.add(l,'c-gold',cut(circ(cx,cy,r*.08,12),.1,3));
+}
+function azulejos(o,l,x0,y0,cols=3,rows=3,ts=null){
+  if(ts==null){
+    const w=typeof cols==='number'?cols:K*6.2;
+    const h=typeof rows==='number'?rows:K*7.2;
+    cols=3;
+    rows=3;
+    ts=Math.min(w,h)/3;
+    x0=x0-(cols*ts)/2;
+    y0=y0-(rows*ts)/2;
+  }
+  let wt='',bl='',bl2='';const g=ts*.04;
+  for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const x=x0+i*ts,y=y0+j*ts,cx=x+ts/2,cy=y+ts/2;wt+=cut(rect(x+g,y+g,ts-2*g,ts-2*g),.15,6);
+    bl+=bloom(cx,cy,ts*.36,4,.62,PI/4);bl2+=cut(circ(cx,cy,ts*.08,8),.08,3);
+    for(const [ax,ay,a0] of [[x+g,y+g,0],[x+ts-g,y+g,PI/2],[x+ts-g,y+ts-g,PI],[x+g,y+ts-g,PI*1.5]])bl+=cut([[ax,ay]].concat(arcPts(ax,ay,ts*.16,ts*.16,a0,a0+PI/2,5)),.08,3);}
+  const fr=cut(rect(x0-ts*.18,y0-ts*.18,cols*ts+ts*.36,rows*ts+ts*.36),.2,6);
+  o.add(l,'c-gold',fr);o.add(l,'c-cobalt',cut(rect(x0-ts*.08,y0-ts*.08,cols*ts+ts*.16,rows*ts+ts*.16),.15,6));o.add(l,'c-tile',wt);o.add(l,'c-cobalt',bl);o.add(l,'c-gold',bl2);o.grain(l,wt);
+}
+function ghumot(o,l,cx,cy,r){
+  const body=cut(ell(cx-r*.15,cy,r,r*.82,32),.3,5),neck=cut(rect(cx-r*1.55,cy-r*.26,r*.6,r*.52),.2,4)+cut(ell(cx-r*1.55,cy,r*.1,r*.32,12),.15,3);
+  const lip=cut(ell(cx+r*.72,cy,r*.2,r*.62,20),.2,4),skin=cut(ell(cx+r*.78,cy,r*.13,r*.56,18),.15,4);
+  let bands='';for(const f of [-.55,-.15,.25])bands+=cut(band(cx-r*.15,cy,r*(1+f*.0)-r*.06,r,PI*.62+f,PI*.66+f,10).map(([a,b])=>[a,b]),.1,3);
+  let deco='';for(let i=0;i<7;i++){const a=PI*(.65+i*.1);deco+=cut(circ(cx-r*.15+Math.cos(a)*r*.6,cy+Math.sin(a)*r*.5,r*.07,8),.1,3);}
+  let lace='';for(let i=0;i<9;i++){const t=(i/8-.5)*1.6;lace+=seg(cx+r*.78,cy+t*r*.34,cx+r*.35,cy+t*r*.62,Math.max(.8,r*.02));}
+  o.add(l,'c-terra',body+neck);o.add(l,'c-terra2',bands+deco);o.add(l,'c-string',lace);o.add(l,'c-later2',lip);o.add(l,'c-parch',skin);o.grain(l,body);
+}
+function damphu(o,l,cx,cy,r){
+  let pegs='';for(let i=0;i<32;i++){const a=i/32*TAU,ca=Math.cos(a),sa=Math.sin(a);pegs+=cut([[cx+ca*r*.98-sa*r*.025,cy+sa*r*.98+ca*r*.025],[cx+ca*r*1.13-sa*r*.02,cy+sa*r*1.13+ca*r*.02],[cx+ca*r*1.13+sa*r*.02,cy+sa*r*1.13-ca*r*.02],[cx+ca*r*.98+sa*r*.025,cy+sa*r*.98-ca*r*.025]],.06,3);}
+  o.add(l,'c-wood2',pegs);o.add(l,'c-wood',cut(circ(cx,cy,r,40),.25,5));o.add(l,'c-parch',cut(circ(cx,cy,r*.86,36),.2,5));
+  o.add(l,'c-crimson',bloom(cx,cy,r*.5,8,.5));o.add(l,'c-gold',cut(circ(cx,cy,r*.14,12),.1,3));o.grain(l,cut(circ(cx,cy,r*.86,20),.1,50));
+  o.add(l,'c-wood',seg(cx-r*.15,cy+r*.95,cx-r*.25,cy+r*1.5,r*.07)+seg(cx+r*.15,cy+r*.95,cx+r*.25,cy+r*1.5,r*.07));
+}
+function note(x,y,s,dbl){let d=cut(ell(x,y,s*.5,s*.36,12).map(([a,b])=>[x+(a-x)*.9-(b-y)*.4,y+(b-y)+(a-x)*.2]),.1,3)+cut(rect(x+s*.38,y-s*2,s*.12,s*2),.08,3);
+  d+=dbl?cut(ell(x+s*1.4,y-s*.2,s*.5,s*.36,12),.1,3)+cut(rect(x+s*1.78,y-s*2.2,s*.12,s*2),.08,3)+cut([[x+s*.38,y-s*2],[x+s*1.9,y-s*2.2],[x+s*1.9,y-s*1.85],[x+s*.38,y-s*1.65]],.08,3):cut([[x+s*.5,y-s*2],[x+s*1.1,y-s*1.4],[x+s*.95,y-s*1.25],[x+s*.5,y-s*1.6]],.08,3);return d;}
+function qmark(cx,cy,s){let d=cut(band(cx,cy-s*.35,s*.22,s*.38,PI*1.05,PI*2.35,16),.08,3);d+=cut(rect(cx-s*.08,cy-s*.12,s*.16,s*.3),.08,3)+cut(circ(cx,cy+s*.42,s*.1,10),.06,3);return d;}
+function libraryTower(o,l,cx,by,h){
+  const w=h*.34;let wall=cut([[cx-w/2,by+3],[cx-w*.42,by-h*.8],[cx+w*.42,by-h*.8],[cx+w/2,by+3]],.3,6);
+  const bandD=cut(rect(cx-w*.43,by-h*.8,w*.86,h*.06),.2,5)+cut(rect(cx-w*.46,by-h*.47,w*.92,h*.03),.15,5);
+  let win='',frm='',gl='';for(let r=0;r<3;r++)for(const f of [-.22,0,.22]){const x=cx+f*w,y=by-h*(.58+r*.07);if(r===2&&f!==0)continue;frm+=cut(rect(x-w*.06,y-h*.025,w*.12,h*.055),.12,3);win+=cut(rect(x-w*.035,y-h*.018,w*.07,h*.04),.08,3);gl+=glowS(x,y,w*.3);}
+  const arch=cut(archPts(cx,by,w*.5,h*.38),.2,5);
+  let shelves='',scrolls='';for(let k=0;k<4;k++){const y=by-h*.06-k*h*.075;shelves+=cut(rect(cx-w*.22,y,w*.44,h*.012),.08,4);for(let i=0;i<5;i++)scrolls+=cut(circ(cx-w*.17+i*w*.085,y-h*.025,h*.02,8),.08,3);}
+  const roof=eave(cx,by-h*.8,w*1.25,h*.12,h*.04),roof2=eave(cx,by-h*.91,w*.7,h*.08,h*.03),drum=cut(rect(cx-w*.22,by-h*.91,w*.44,h*.08),.15,4);
+  o.add(l,'c-lime',wall+drum);o.add(l,'c-maroon',bandD);o.grain(l,wall);o.raw(l,gl);o.add(l,'c-wood',frm);o.add(l,'c-win',win);
+  o.add(l,'c-burrow',arch);o.raw(l,glowS(cx,by-h*.18,w*.5,true));o.add(l,'c-wood2',shelves);o.add(l,'c-parch',scrolls);
+  o.add(l,'c-gold',roof+roof2+finial(cx,by-h*.99,h*.5));
+}
+function qLantern(o,l,x,by,h){
+  const post=cut(rect(x-h*.02,by-h,h*.04,h+3),.2,5)+cut(rect(x-h*.07,by-h*.04,h*.14,h*.04+3),.2,4)+cut([[x,by-h*.97],[x+h*.32,by-h*.97],[x+h*.32,by-h*.94],[x+h*.04,by-h*.88],[x,by-h*.88]],.15,4);
+  const lx=x+h*.28,ly=by-h*.62,lw=h*.13,lh=h*.2;
+  o.add(l,'c-wood',post);o.add(l,'c-string',seg(lx,by-h*.95,lx,ly-lh*.6,1.2));
+  o.raw(l,glowS(lx,ly,lh*2.6,true));
+  o.add(l,'c-brass',cut([[lx-lw*.6,ly-lh*.5],[lx,ly-lh*.85],[lx+lw*.6,ly-lh*.5]],.1,3)+cut(rect(lx-lw*.55,ly+lh*.45,lw*1.1,lh*.1),.1,3));
+  o.add(l,'c-ember',cut(rect(lx-lw*.5,ly-lh*.5,lw,lh*.95),.12,4));o.add(l,'c-brass',cut(rect(lx-lw*.5,ly-lh*.5,lw*.1,lh*.95),.05,3)+cut(rect(lx+lw*.4,ly-lh*.5,lw*.1,lh*.95),.05,3));
+  o.add(l,'c-gold2',qmark(lx,ly,lh*.62));
+}
+function basilica(o,l,cx,by,s){
+  const tiers=[[1,.34],[.9,.26],[.8,.2]];let y=by,body='',corn='',pil='';
+  tiers.forEach(([wf,hf],k)=>{const w=s*wf,h=s*hf;body+=cut(rect(cx-w/2,y-h,w,h+2),.25,6);corn+=cut(rect(cx-w/2-s*.02,y-h-s*.018,w+s*.04,s*.024),.15,5);
+    for(let i=0;i<=4;i++){const x=cx-w/2+w*i/4;pil+=cut(rect(x-s*.016,y-h,s*.032,h),.1,4);}y-=h+s*.018;});
+  const gw=s*.42,gh=s*.24;body+=cut([[cx-gw/2,y],[cx-gw/2,y-gh*.5],[cx-gw*.3,y-gh*.62],[cx-gw*.2,y-gh*.9],[cx,y-gh],[cx+gw*.2,y-gh*.9],[cx+gw*.3,y-gh*.62],[cx+gw/2,y-gh*.5],[cx+gw/2,y]],.25,5);
+  for(const f of [-1,1])body+=cut([[cx+f*gw/2,y],[cx+f*(gw/2+s*.12),y],[cx+f*gw/2,y-gh*.42]],.2,4);
+  const emb=cut(star(cx,y-gh*.5,s*.075,s*.055,16),.12,3),embI=cut(circ(cx,y-gh*.5,s*.045,14),.1,3);
+  const cross=cut(rect(cx-s*.012,y-gh-s*.12,s*.024,s*.13),.08,3)+cut(rect(cx-s*.045,y-gh-s*.09,s*.09,s*.022),.08,3);
+  let dark='',gl='';dark+=cut(archPts(cx,by,s*.15,s*.25),.12,4);for(const f of [-1,1])dark+=cut(archPts(cx+f*s*.27,by,s*.1,s*.18),.1,4);
+  for(const f of [-.27,0,.27]){dark+=cut(archPts(cx+f*s,by-s*.38,s*.08,s*.15),.1,3);gl+=glowS(cx+f*s,by-s*.45,s*.12);}
+  for(const f of [-.24,0,.24]){dark+=cut(circ(cx+f*s,by-s*.71,s*.04,12),.08,3);}
+  const nave=cut([[cx+s*.4,by+2],[cx+s*.4,by-s*.5],[cx+s*1.05,by-s*.45],[cx+s*1.05,by+2]],.25,6),naveR=cut([[cx+s*.38,by-s*.5],[cx+s*.62,by-s*.66],[cx+s*1.08,by-s*.6],[cx+s*1.08,by-s*.44]],.25,6);
+  o.add(l,'c-later2',nave);o.add(l,'c-terra',naveR);o.add(l,'c-later',body);o.grain(l,body+nave);o.add(l,'c-later2',pil);o.add(l,'c-lime2',corn);
+  o.raw(l,gl);o.add(l,'c-sil',dark);o.add(l,'c-gold',emb+cross);o.add(l,'c-lime2',embI);
+}
+function pemayangtse(o,l,cx,by,s){
+  const plinth=cut(rect(cx-s*.62,by-s*.07,s*1.24,s*.07+3),.25,6)+cut(rect(cx-s*.16,by-s*.035,s*.32,s*.04),.15,4);
+  gompa(o,l,cx,by-s*.06,s*.92,{roof:'c-gold',soff:'c-crimson'});
+  o.add(l,'c-lime2',plinth);
+  let beams='';for(let i=-4;i<=4;i++)beams+=cut(rect(cx+i*s*.105-s*.012,by-s*.47,s*.024,s*.03),.05,3);o.add(l,'c-wood',beams);
+}
+function hourglass(o,l,cx,by,h){
+  const w=h*.42;const plate=y=>cut(rect(cx-w*.62,y,w*1.24,h*.07),.2,4)+cut(ell(cx-w*.62,y+h*.035,h*.035,h*.035,10),.1,3)+cut(ell(cx+w*.62,y+h*.035,h*.035,h*.035,10),.1,3);
+  let posts='';for(const f of [-.5,.5]){for(let k=0;k<6;k++)posts+=cut(ell(cx+f*w,by-h*.13-k*h*.14,h*.026,h*.05,10),.1,3);posts+=cut(rect(cx+f*w-h*.012,by-h*.93,h*.024,h*.86),.08,4);}
+  const bulb=[];for(let i=0;i<=20;i++){const t=i/20,y=by-h*.07-t*h*.86,ww=w*.42*Math.pow(Math.abs(Math.cos(t*PI)),.6)+h*.012;bulb.push([cx+ww,y]);}
+  const bl=bulb.map(([x,y])=>[2*cx-x,y]).reverse();
+  const sandBot=cut([[cx-w*.36,by-h*.08],[cx-w*.2,by-h*.2],[cx,by-h*.26],[cx+w*.2,by-h*.2],[cx+w*.36,by-h*.08]],.15,4),sandTop=cut([[cx-w*.24,by-h*.7],[cx+w*.24,by-h*.7],[cx+h*.012,by-h*.51],[cx-h*.012,by-h*.51]],.12,4);
+  o.add(l,'c-ice',cut(bulb.concat(bl),.2,4));o.add(l,'c-gold',sandBot+sandTop+cut(rect(cx-h*.004,by-h*.51,h*.008,h*.43),.02,4));
+  o.add(l,'c-tile',cut([[cx-w*.3,by-h*.82],[cx-w*.25,by-h*.82],[cx-w*.12,by-h*.62],[cx-w*.16,by-h*.62]],.05,3));
+  o.add(l,'c-wood2',posts);o.add(l,'c-wood',plate(by-h*.07)+plate(by-h*1));
+}
+function scales(o,l,cx,by,h,tilt=.06){
+  const base=cut(rect(cx-h*.22,by-h*.05,h*.44,h*.05+3),.2,5)+cut(rect(cx-h*.15,by-h*.1,h*.3,h*.05),.15,4);
+  const pillar=cut([[cx-h*.03,by-h*.1],[cx-h*.018,by-h*.82],[cx+h*.018,by-h*.82],[cx+h*.03,by-h*.1]],.15,5);
+  const bw=h*.55,ty=by-h*.8,ax=Math.cos(tilt)*bw,ay=Math.sin(tilt)*bw;
+  const beam=cut([[cx-ax,ty-ay-h*.012],[cx+ax,ty+ay-h*.012],[cx+ax,ty+ay+h*.012],[cx-ax,ty-ay+h*.012]],.1,5);
+  let str='',pans='';for(const [px,py] of [[cx-ax,ty-ay],[cx+ax,ty+ay]]){const pd=py+h*.36;for(const f of [-1,0,1])str+=seg(px,py,px+f*h*.13,pd,1.1);pans+=cut(arcPts(px,pd,h*.16,h*.07,0,PI,12),.12,4)+cut(circ(px,py,h*.018,8),.08,3);}
+  const top=finial(cx,ty-h*.02,h*.5)+cut(circ(cx,ty,h*.03,10),.1,3);
+  o.add(l,'c-string',str);o.add(l,'c-brass',base+pillar+beam);o.add(l,'c-gold',pans+top);o.grain(l,base+pillar);
+}
+function lectern(o,l,cx,by,h){
+  const top=cut([[cx-h*.36,by-h*.78],[cx+h*.36,by-h*.92],[cx+h*.38,by-h*.86],[cx-h*.34,by-h*.72]],.2,5);
+  const col=cut([[cx-h*.08,by-h*.06],[cx-h*.05,by-h*.76],[cx+h*.05,by-h*.78],[cx+h*.08,by-h*.06]],.2,5),foot=cut(rect(cx-h*.26,by-h*.07,h*.52,h*.07+3),.2,5);
+  const panel=cut([[cx-h*.22,by-h*.7],[cx+h*.22,by-h*.78],[cx+h*.22,by-h*.36],[cx-h*.22,by-h*.32]],.2,5);
+  const book=cut([[cx-h*.3,by-h*.82],[cx,by-h*.9],[cx,by-h*.86],[cx-h*.3,by-h*.78]],.1,4)+cut([[cx,by-h*.9],[cx+h*.3,by-h*.99],[cx+h*.3,by-h*.94],[cx,by-h*.86]],.1,4);
+  o.add(l,'c-wood',col+foot+top);o.add(l,'c-wood2',panel);o.add(l,'c-gold',bloom(cx,by-h*.54,h*.1,8,.5));o.add(l,'c-tile',book);o.grain(l,panel+top);
+}
+function curtain(o,l,x0,x1,top,bot,side,cls='c-crimson'){
+  const w=x1-x0,p=[];const tie=bot*.62+top*.38;
+  if(side<0){p.push([x0,top],[x1,top]);for(let i=0;i<=10;i++){const t=i/10,y=top+(tie-top)*t;p.push([x1-w*.75*Math.sin(t*PI/2)+Math.sin(i*1.7)*w*.04,y]);}for(let i=0;i<=8;i++){const t=i/8;p.push([x0+w*.25+w*.35*t+Math.sin(i*2.1)*w*.04,tie+(bot-tie)*t]);}p.push([x0,bot]);}
+  else{p.push([x1,top],[x0,top]);for(let i=0;i<=10;i++){const t=i/10,y=top+(tie-top)*t;p.push([x0+w*.75*Math.sin(t*PI/2)+Math.sin(i*1.7)*w*.04,y]);}for(let i=0;i<=8;i++){const t=i/8;p.push([x1-w*.25-w*.35*t+Math.sin(i*2.1)*w*.04,tie+(bot-tie)*t]);}p.push([x1,bot]);}
+  const d=cut(p,.5,7);let folds='';for(let k=1;k<4;k++){const fx=side<0?x0+w*k*.07:x1-w*k*.07;folds+=seg(fx,top,fx+side*-w*.02,bot,Math.max(1.5,w*.025));}
+  o.add(l,cls,d);o.add(l,'c-maroon',folds);o.add(l,'c-gold',cut(ell(side<0?x0+w*.3:x1-w*.3,tie,w*.16,w*.05,14),.15,3));o.grain(l,d);
+}
+function rhodoBush(o,l,cx,by,s){let b='';for(const [ox,oy,r] of [[0,-.45,.42],[-.4,-.3,.32],[.42,-.32,.34],[-.18,-.68,.3],[.22,-.66,.3]])b+=cut(circ(cx+ox*s,by+oy*s,r*s,16),.5,5);
+  let f='';for(let i=0;i<9;i++){const a=rr(PI*1.05,PI*1.95),rd=s*rr(.3,.62);f+=bloom(cx+Math.cos(a)*rd,by-s*.42+Math.sin(a)*rd*.85,s*.1,5,1,rr(0,1));}
+  o.add(l,'c-moss',b);o.add(l,'c-rhodo',f);}
+function lotus(o,l,cx,cy,r){
+  let outer='',inner='';for(let i=0;i<7;i++){const a=PI*(1.02+i*.16);outer+=cut([[cx,cy],[cx+Math.cos(a-.2)*r*.7,cy+Math.sin(a-.2)*r*.7],[cx+Math.cos(a)*r*1.05,cy+Math.sin(a)*r*1.05],[cx+Math.cos(a+.2)*r*.7,cy+Math.sin(a+.2)*r*.7]],.2,3);}
+  for(let i=0;i<5;i++){const a=PI*(1.15+i*.175);inner+=cut([[cx,cy],[cx+Math.cos(a-.22)*r*.45,cy+Math.sin(a-.22)*r*.45],[cx+Math.cos(a)*r*.75,cy+Math.sin(a)*r*.75],[cx+Math.cos(a+.22)*r*.45,cy+Math.sin(a+.22)*r*.45]],.15,3);}
+  o.add(l,'c-lotus',outer);o.add(l,'c-lotus2',inner);o.add(l,'c-gold',cut(arcPts(cx,cy-r*.08,r*.18,r*.12,PI,TAU,8),.1,3));
+}
+function lilyPad(cx,cy,r){const p=[[cx,cy]];for(let i=0;i<=20;i++){const a=.35+i/20*(TAU-.7);p.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r*.36]);}return cut(p,.3,4);}
+function hangTag(o,l,x,y,txt,s,cls='c-tile'){
+  o.add(l,'c-string',seg(x,-M-10,x,y-s*.5,1));const w=Math.max(s*2.2,txt.length*s*.34),h=s*.9;
+  o.add(l,cls,cut([[x-w/2,y-h*.2],[x-w*.3,y-h*.55],[x+w*.3,y-h*.55],[x+w/2,y-h*.2],[x+w/2,y+h*.5],[x-w/2,y+h*.5]],.2,4));
+  o.add(l,'c-wood',cut(circ(x,y-h*.32,s*.08,8),.05,3));
+  o.raw(l,`<text x="${q(x)}" y="${q(y+h*.22)}" text-anchor="middle" font-size="${q(s*.42)}">${txt}</text>`);
+}
+
+/* Fox SVG template */
+const FOX=`<g><path class="c-fox-dark" d="M-22-43L-13-55-14-43zM22-43L13-55 14-43z"/><path class="c-fox" d="${cut([[-13,-55],[-22,-43],[-23,-27],[-20,-12],[-14,0],[-6,6],[0,8],[6,6],[14,0],[20,-12],[23,-27],[22,-43],[13,-55],[8,-48],[0,-46],[-8,-48]],.45,5)}"/><path class="c-fox-light" d="${cut([[-5,-42],[0,-46],[5,-42],[6,-34],[4,-18],[0,-8],[-4,-18],[-6,-34]],.3,4)}"/><ellipse class="c-fox-dark" cx="-8" cy="-35" rx="2.6" ry="3.5"/><ellipse class="c-fox-dark" cx="8" cy="-35" rx="2.6" ry="3.5"/><ellipse class="c-fox-nose" cx="0" cy="-24" rx="3" ry="2"/><path class="c-fox-light" d="${cut([[5,-14],[12,-16],[20,-26],[22,-18],[14,0],[6,6],[0,8],[-6,6],[-14,0],[-22,-18],[-20,-26],[-12,-16],[-5,-14]],.3,4)}"/><path class="c-fox" d="${cut([[0,8],[3,10],[14,28],[12,42],[6,48],[0,46],[-6,48],[-12,42],[-14,28],[-3,10]],.5,5)}"/><path class="c-fox-light" d="${cut([[-4,32],[0,44],[4,32],[3,22],[0,14],[-3,22]],.25,4)}"/><g class="fox-feet"><path class="c-fox" d="M-11 42L-13 55-8 55-7 42Z"/><path class="c-fox" d="M7 42L5 55 10 55 11 42Z"/><path class="c-fox-dark" d="M-13 53l-1 3h7l-1-3zM5 53l-1 3h7l-1-3z"/></g></g>`;
+const foxBtn=$('foxBtn');
+const fox={x:0,y:0,s:1,sx:1,sy:1,hop:null,dir:1,fx:.28};
+let groundAt=x=>H*.8;
+
+/* layer element accessors */
+const svgOf=id=>$(id).querySelector('svg')||$(id);
+const layerEls=[...document.querySelectorAll('.layer')];
+
+function sizeLayers(){
+  SHEETS.forEach(l=>{
+    const el=$(l),w=D*SPEED[l],e=E[l];
+    el.style.width=q(w)+'px';
+    el.style.height=q(H+2*M)+'px';
+    el.style.marginTop=q(-M)+'px';
+    el.style.marginLeft=q(-e)+'px';
+    const svg=svgOf(l);
+    svg.setAttribute('viewBox',`${q(-e)} ${q(-M)} ${q(w)} ${q(H+2*M)}`);
+    svg.setAttribute('width',q(w));
+    svg.setAttribute('height',q(H+2*M));
+  });
+  const f9=$("L9"),sw=D*2.2,eh=(sw-W)/2+M;
+  f9.style.width=q(sw)+'px';f9.style.height=q(H+2*M)+'px';
+  f9.style.marginTop=q(-M)+'px';f9.style.marginLeft=q(-eh)+'px';
+  const s9=svgOf('L9');s9.setAttribute('viewBox',`0 0 ${q(W)} ${q(H)}`);s9.setAttribute('width',q(sw));s9.setAttribute('height',q(H+2*M));
+}
+
+function ridge(fn,bot,step=9,j=.7){
+  const p=[];for(let x=-M-8;x<=W+M+8;x+=step)p.push([x,fn(x)+(R()-.5)*2*j]);
+  p.push([W+M+10,bot],[-M-10,bot]);return poly(p);
+}
+
+function buildSlideDiorama(slideNum){
+  R=mulberry32(seed+slideNum*137);
+  metrics();
+  sizeLayers();
+
+  const P=(land,port)=>portrait?port:land;
+
+  // Base ground (L7) function
+  const g7w=wave(H*P(.785,.8),[H*.011,H*.006],[W*.95,W*.3]);
+  groundAt=g7w;
+  const baseGroundD=ridge(g7w,H+M,8,.7);
+
+  // Frame (Sheet 9 / deckle border)
+  const e=Math.max(10,Math.min(W,H)*.024),rad=e*3;
+  const outer=[[-M-4,-M-4],[W+M+4,-M-4],[W+M+4,H+M+4],[-M-4,H+M+4]];
+  const rrect=(ins,wob)=>{
+    const p=[],x0=ins,y0=ins,x1=W-ins,y1=H-ins,r=rad;
+    const sg=(ax,ay,bx,by)=>{const L=Math.hypot(bx-ax,by-ay),k=Math.max(1,Math.round(L/11));for(let t=0;t<k;t++){const u=t/k;p.push([ax+(bx-ax)*u+(R()-.5)*wob,ay+(by-ay)*u+(R()-.5)*wob]);}};
+    const arc=(cx,cy,a0)=>{for(let i=0;i<6;i++){const a=a0+i/6*Math.PI/2;p.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}};
+    sg(x0+r,y0,x1-r,y0);arc(x1-r,y0+r,-Math.PI/2);sg(x1,y0+r,x1,y1-r);arc(x1-r,y1-r,0);sg(x1-r,y1,x0+r,y1);arc(x0+r,y1-r,Math.PI/2);sg(x0,y1-r,x0,y0+r);arc(x0+r,y0+r,Math.PI);
+    return p;
+  };
+  const mat=cut(outer,0,4000)+hole(rrect(e,2.4),.5,6);
+  const frame=cut(outer,0,4000)+hole(rrect(e*.55,1.2),.3,8);
+  svgOf('L9').innerHTML=`<path class="c-mat" d="${mat}"/><path class="c-frame" d="${frame}"/><path class="grain" d="${frame}"/>`;
+
+  // Scene object for collecting layer data
+  const o=Scene();
+
+  // Each slide builds its unique scene into `o`
+  switch(slideNum){
+
+    /* ====================== SLIDE 1: PANORAMIC CONVERGENCE ====================== */
+    case 1: {
+      const skyL=T('L1',wave(Y(.36),[H*.04,H*.02],[W*.85,W*.35]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.46),[H*.025,H*.012],[W*.7,W*.28]));
+      o.add('L2',TONE.L2,land('L2',h2));o.grain('L2',land('L2',h2));
+      for(let x=X(.05);x<X(.45);x+=K*3.6) o.raw('L2',palm(x,h2(x)-R()*K*1.5,K*rr(3.6,5.2)));
+      for(let x=X(.48);x<X(.95);x+=K*3) o.add('L2','c-pine',pine(x,h2(x),K*rr(4,6.5),K*rr(1.8,2.8)));
+
+      const h3=T('L3',wave(Y(.55),[H*.018],[W*.6]));
+      o.add('L3',TONE.L3,land('L3',h3));o.grain('L3',land('L3',h3));
+
+      const h4=T('L4',wave(Y(.62),[H*.014],[W*.55]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+      river(o,'L4',[[X(.15),Y(.62)],[X(.35),Y(.58)],[X(.55),Y(.64)],[X(.8),Y(.6)]],K*3.5);
+
+      const h5=T('L5',wave(Y(.72),[H*.01],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      for(let i=0;i<5;i++) o.add('L5','c-moss',fern(X(rr(.2,.85)),h5(X(rr(.2,.85))),K*rr(1.5,3)));
+
+      const h6=T('L6',wave(Y(.8),[H*.008],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+      o.raw('L6',palm(X(.06),h6(X(.06)),K*9));
+      o.raw('L6',palm(X(.88),h6(X(.88)),K*7));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+
+      o.add('L8',TONE.L8,blade(X(.12),Y(.96),K*5,K*.8,K*1.1)+blade(X(.82),Y(.94),K*4.5,K*-.6,K*1));
+      break;
+    }
+
+    /* ====================== SLIDE 2: GOAN BAKERY ====================== */
+    case 2: {
+      const skyL=T('L1',wave(Y(.38),[H*.02],[W*.6]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.46),[H*.015],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));o.grain('L2',land('L2',h2));
+      cottage(o,'L2',X(.48),h2(X(.48)),K*8);
+
+      const h3=T('L3',wave(Y(.54),[H*.012],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      forno(o,'L3',X(.36),h3(X(.36)),K*7.5);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.008],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      baker(o,'L5',X(.62),h5(X(.62)),K*5.8,false);
+
+      const h6=T('L6',wave(Y(.8),[H*.006],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+      o.raw('L6',palm(X(.22),h6(X(.22)),K*9.5));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+
+      o.add('L8',TONE.L8,blade(X(.1),Y(.96),K*5.5,K*.9,K*1.2));
+      break;
+    }
+
+    /* ====================== SLIDE 3: ARTISANS' GUILD ====================== */
+    case 3: {
+      const skyL=T('L1',wave(Y(.38),[H*.012],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.44),[H*.01],[W*.45]));
+      o.add('L2',TONE.L2,land('L2',h2));o.grain('L2',land('L2',h2));
+      libraryTower(o,'L2',X(.38),h2(X(.38)),K*8.5);
+
+      const h3=T('L3',wave(Y(.52),[H*.01],[W*.4]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      o.add('L3','c-gold',cut([[X(.52),Y(.24)],[X(.44),Y(.52)],[X(.46),Y(.52)],[X(.52),Y(.28)],[X(.58),Y(.52)],[X(.6),Y(.52)]],.3,6));
+      o.add('L3','c-gold',cut(circ(X(.52),Y(.24),K*.7,10),.1,3));
+      o.add('L3','c-brass',seg(X(.68),Y(.2),X(.68),Y(.3),K*.15)+cut([[X(.66),Y(.3)],[X(.62),Y(.5)],[X(.64),Y(.5)]],.2,5)+cut([[X(.7),Y(.3)],[X(.74),Y(.5)],[X(.72),Y(.5)]],.2,5));
+
+      const h4=T('L4',wave(Y(.62),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+      o.add('L4','c-wood',cut([[X(.28),Y(.62)],[X(.78),Y(.62)],[X(.74),Y(.74)],[X(.28),Y(.74)]],.3,8));
+      o.grain('L4',cut([[X(.28),Y(.62)],[X(.78),Y(.62)],[X(.74),Y(.74)],[X(.28),Y(.74)]],.3,8));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.35]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 4: GOAN FOLK DANCES ====================== */
+    case 4: {
+      const skyL=T('L1',wave(Y(.38),[H*.02],[W*.6]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.45),[H*.015],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      kandil(o,'L2',X(.34),Y(.15),K*3.5);
+      kandil(o,'L2',X(.52),Y(.11),K*4.2);
+      kandil(o,'L2',X(.7),Y(.16),K*3.2);
+
+      const h3=T('L3',wave(Y(.52),[H*.012],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      templeGoa(o,'L3',X(.45),h3(X(.45)),K*6.5);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));
+      fugdiPair(o,'L4',X(.64),h4(X(.64)),K*5.2);
+
+      const h5=T('L5',wave(Y(.72),[H*.008],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      ghumot(o,'L5',X(.35),h5(X(.35)),K*3.8);
+
+      const h6=T('L6',wave(Y(.8),[H*.006],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+      o.raw('L6',palm(X(.2),h6(X(.2)),K*9));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 5: SIKKIM (KANCHENJUNGA) ====================== */
+    case 5: {
+      massif(o,'L1',[
+        [X(-.05),Y(.42)],[X(.12),Y(.16)],[X(.22),Y(.28)],
+        [X(.38),Y(.1)],[X(.52),Y(.24)],[X(.65),Y(.16)],
+        [X(.78),Y(.28)],[X(.9),Y(.2)],[X(1.1),Y(.36)]
+      ],Y(.42),'c-snow');
+
+      const h2=T('L2',wave(Y(.46),[H*.015],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      gompa(o,'L2',X(.52),h2(X(.52)),K*8.5);
+
+      const h3=T('L3',wave(Y(.55),[H*.012],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      flags(o,'L3',X(.24),Y(.24),X(.82),Y(.38),8);
+
+      const h4=T('L4',wave(Y(.62),[H*.012],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.008],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      o.add('L5','c-pine',pine(X(.32),h5(X(.32)),K*7,K*3));
+      o.add('L5','c-pine',pine(X(.74),h5(X(.74)),K*6,K*2.6));
+
+      const h6=T('L6',wave(Y(.8),[H*.006],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+      o.add('L6','c-pine',pine(X(.22),h6(X(.22)),K*9.5,K*3.8));
+      o.add('L6','c-pine',pine(X(.85),h6(X(.85)),K*8,K*3.2));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 6: DANCE EVOLUTION ====================== */
+    case 6: {
+      const skyL=T('L1',wave(Y(.36),[H*.02],[W*.6]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.48),[H*.015],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      caravel(o,'L2',X(.36),h2(X(.36))+K*1,K*7.5);
+
+      const h3=T('L3',wave(Y(.55),[H*.012],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      maniShrine(o,'L3',X(.64),h3(X(.64)),K*6.5);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 7: PROMOTIONAL POSTER ====================== */
+    case 7: {
+      massif(o,'L1',[
+        [X(-.05),Y(.38)],[X(.18),Y(.2)],[X(.36),Y(.28)],
+        [X(.54),Y(.14)],[X(.72),Y(.26)],[X(.88),Y(.18)],[X(1.08),Y(.34)]
+      ],Y(.38),'c-snow');
+
+      const h2=T('L2',wave(Y(.44),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      o.add('L2','c-crimson',cut([[X(.24),Y(.34)],[X(.8),Y(.34)],[X(.8),Y(.68)],[X(.24),Y(.68)]],.3,8));
+      o.grain('L2',cut([[X(.24),Y(.34)],[X(.8),Y(.34)],[X(.8),Y(.68)]],.3,8));
+
+      const h3=T('L3',wave(Y(.54),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      monkHorn(o,'L3',X(.34),h3(X(.34))-K*2,K*5.2,false);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));
+      chamDancer(o,'L4',X(.52),h4(X(.52)),K*5.8);
+
+      const h5=T('L5',wave(Y(.72),[H*.008],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      snowLion(o,'L5',X(.7),h5(X(.7)),K*4.4,false);
+
+      const h6=T('L6',wave(Y(.8),[H*.006],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 8: CULINARY SKILLS ====================== */
+    case 8: {
+      const skyL=T('L1',wave(Y(.38),[H*.015],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.46),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      forno(o,'L2',X(.34),h2(X(.34)),K*7.5);
+      steamer(o,'L2',X(.66),h2(X(.66)),K*6.5);
+
+      const h3=T('L3',wave(Y(.55),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      for(let i=0;i<4;i++) o.add('L3','c-gold',cut(circ(X(.44+i*.05),Y(.54),K*.8,10),.2,4));
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 9: VISUAL ARTS ====================== */
+    case 9: {
+      const skyL=T('L1',wave(Y(.36),[H*.018],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.46),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      mandala(o,'L2',X(.38),Y(.42),K*5.2);
+
+      const h3=T('L3',wave(Y(.55),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      azulejos(o,'L3',X(.66),Y(.42),K*6.2,K*7.2);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 10: GHUMOT & DAMPHU ====================== */
+    case 10: {
+      const skyL=T('L1',wave(Y(.36),[H*.015],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));
+      for(let i=0;i<6;i++) note(o,'L1',X(.28+i*.1),Y(.18+Math.sin(i)*0.06),K*rr(1.2,2.2));
+
+      const h2=T('L2',wave(Y(.46),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      ghumot(o,'L2',X(.38),h2(X(.38)),K*6.5);
+
+      const h3=T('L3',wave(Y(.55),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      damphu(o,'L3',X(.64),h3(X(.64)),K*6.5);
+
+      const h4=T('L4',wave(Y(.66),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 11: CULTURAL QUIZ ====================== */
+    case 11: {
+      const skyL=T('L1',wave(Y(.34),[H*.02],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.44),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      libraryTower(o,'L2',X(.36),h2(X(.36)),K*9);
+
+      const h3=T('L3',wave(Y(.54),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      stupa(o,'L3',X(.56),h3(X(.56)),K*5.2);
+      qLantern(o,'L3',X(.72),Y(.3),K*3.2);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 12: HERITAGE ARCHITECTURE ====================== */
+    case 12: {
+      const skyL=T('L1',wave(Y(.34),[H*.018],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.44),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      basilica(o,'L2',X(.36),h2(X(.36)),K*8);
+
+      const h3=T('L3',wave(Y(.54),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      pemayangtse(o,'L3',X(.66),h3(X(.66)),K*7.2);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 13: COMPARATIVE MATRIX ====================== */
+    case 13: {
+      const skyL=T('L1',wave(Y(.36),[H*.025],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.44),[H*.015],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      cottage(o,'L2',X(.34),h2(X(.34)),K*5.2);
+      o.raw('L2',palm(X(.44),h2(X(.44)),K*5.2));
+      gompa(o,'L2',X(.64),h2(X(.64)),K*5.2);
+      o.add('L2','c-pine',pine(X(.75),h2(X(.75)),K*4.5,K*2.2));
+
+      const h3=T('L3',wave(Y(.55),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      o.add('L3','c-gold',seg(X(.53),Y(.2),X(.53),Y(.7),K*.22));
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 14: LEARNING OUTCOMES ====================== */
+    case 14: {
+      massif(o,'L1',[
+        [X(-.05),Y(.38)],[X(.2),Y(.2)],[X(.42),Y(.3)],
+        [X(.62),Y(.15)],[X(.82),Y(.28)],[X(1.05),Y(.36)]
+      ],Y(.38),'c-snow');
+
+      const h2=T('L2',wave(Y(.46),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      o.add('L2','c-gold',cut([
+        [X(.25),Y(.74)],[X(.36),Y(.62)],[X(.3),Y(.52)],
+        [X(.44),Y(.42)],[X(.38),Y(.34)],[X(.5),Y(.28)],
+        [X(.46),Y(.34)],[X(.36),Y(.52)],[X(.42),Y(.62)],[X(.3),Y(.74)]
+      ],.4,8));
+      o.grain('L2',cut([[X(.25),Y(.74)],[X(.36),Y(.62)],[X(.3),Y(.52)],[X(.44),Y(.42)],[X(.38),Y(.34)],[X(.5),Y(.28)]],.3,8));
+
+      const h3=T('L3',wave(Y(.55),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      stupa(o,'L3',X(.45),h3(X(.45))-K*2,K*3.8);
+      pilgrim(o,'L3',X(.58),h3(X(.58)),K*3.4,false);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 15: EVALUATION RUBRICS ====================== */
+    case 15: {
+      const skyL=T('L1',wave(Y(.34),[H*.018],[W*.5]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+
+      const h2=T('L2',wave(Y(.44),[H*.012],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      scales(o,'L2',X(.42),h2(X(.42)),K*7.5,.06);
+
+      const h3=T('L3',wave(Y(.54),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      hourglass(o,'L3',X(.64),h3(X(.64)),K*5.8);
+      lectern(o,'L3',X(.76),h3(X(.76)),K*4.8);
+
+      const h4=T('L4',wave(Y(.66),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+
+    /* ====================== SLIDE 16: GRAND FINALE ====================== */
+    case 16: {
+      const skyL=T('L1',wave(Y(.36),[H*.03],[W*.45]));
+      o.add('L1',TONE.L1,land('L1',skyL));o.grain('L1',land('L1',skyL));
+      o.raw('L1',`<circle cx="${q(X(.48))}" cy="${q(Y(.26))}" r="${q(K*7.5)}" fill="url(#fireGrad)" opacity=".88"/>`);
+
+      const h2=T('L2',wave(Y(.46),[H*.015],[W*.5]));
+      o.add('L2',TONE.L2,land('L2',h2));
+      const arcR=K*12.5;
+      const colors=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6'];
+      colors.forEach((c,i)=>{
+        const r1=arcR-i*K*.6, r2=r1-K*.5;
+        o.raw('L2',`<path d="${cut(band(X(.5),Y(.5),r1,r2,PI,0,24),.2,5)}" fill="${c}" opacity=".6"/>`);
+      });
+
+      const h3=T('L3',wave(Y(.55),[H*.01],[W*.45]));
+      o.add('L3',TONE.L3,land('L3',h3));
+      baker(o,'L3',X(.42),h3(X(.42)),K*4.8,false);
+      chamDancer(o,'L3',X(.58),h3(X(.58)),K*4.8);
+
+      const h4=T('L4',wave(Y(.64),[H*.01],[W*.5]));
+      o.add('L4',TONE.L4,land('L4',h4));o.grain('L4',land('L4',h4));
+      o.add('L4','c-moss',lilyPad(X(.32),Y(.72),K*2)+lilyPad(X(.48),Y(.7),K*1.8)+lilyPad(X(.62),Y(.73),K*2.2));
+      lotus(o,'L4',X(.36),Y(.7),K*1.8);
+      lotus(o,'L4',X(.54),Y(.68),K*1.6);
+
+      const h5=T('L5',wave(Y(.72),[H*.006],[W*.4]));
+      o.add('L5',TONE.L5,land('L5',h5));
+      rhodoBush(o,'L5',X(.24),h5(X(.24)),K*3.2);
+      rhodoBush(o,'L5',X(.72),h5(X(.72)),K*2.8);
+
+      const h6=T('L6',wave(Y(.8),[H*.005],[W*.35]));
+      o.add('L6',TONE.L6,land('L6',h6));
+
+      o.add('L7',TONE.L7,baseGroundD);o.grain('L7',baseGroundD);
+      o.raw('L7',`<g id="puffs"></g><g id="foxG">${FOX}</g>`);
+      o.add('L8',TONE.L8,'');
+      break;
+    }
+  }
+
+  // Flush scene collector to SVG layers
+  SHEETS.forEach(l=>{
+    const html=o[l].join('');
+    svgOf(l).innerHTML=html;
+  });
+
+  buildHangers();
+  buildPins();
+  placeFox(fox.fx*W);
+  const pf=$('puffs');if(pf){let ph2='';for(let i=0;i<8;i++)ph2+='<path class="puff" d="M0 -2L2 1L-2 1Z"/>';pf.innerHTML=ph2;}
+  sizeFlies();
+}
+
+
+  /* ======================================================================
+     HANGING CELESTIAL OBJECTS (sun, moon, clouds, stars)
+     ====================================================================== */
+  function buildHangers(){
+    const hang=$('hang'), m=Math.min(W,H);
+    const sunD=clamp(m*.16,78,168), sunX=W*(portrait?.74:.7), sunY=H*(portrait?.33:.2);
+    const items=[];
+    let rays=[];for(let i=0;i<44;i++){const a=i/44*Math.PI*2,r=i%2?47:58;rays.push([Math.cos(a)*r,Math.sin(a)*r]);}
+    const sunSvg=`<svg viewBox="-62 -62 124 124" width="${q(sunD)}" height="${q(sunD)}"><path fill="#c8642d" d="${cut(rays,.5,5)}"/><path fill="#d9a45b" d="${cut(circ(0,0,42,40),.5,5)}"/><path fill="#e6b772" d="${cut(circ(-4,-5,29,30),.4,5)}"/><path fill="url(#grainPat)" d="${cut(circ(0,0,42,40),.1,50)}"/></svg>`;
+    items.push({cls:'day',x:sunX,y:sunY,h:sunD,html:sunSvg,delay:.1});
+    const moonD=sunD*.86;
+    const moonSvg=`<span class="halo"></span><svg viewBox="-50 -50 100 100" width="${q(moonD)}" height="${q(moonD)}" style="position:relative"><path fill="#f5ecd6" d="${cut(circ(0,0,44,44),.5,5)}"/><path fill="#e3d4b3" d="${cut(circ(-14,-10,9,14),.4,3)}${cut(circ(12,8,6,10),.3,3)}${cut(circ(-6,18,5,9),.3,3)}${cut(circ(18,-16,4,8),.3,3)}"/><path fill="url(#grainPat)" d="${cut(circ(0,0,44,40),.1,50)}"/></svg>`;
+    items.push({cls:'nite',x:sunX-m*.02,y:sunY-m*.02,h:moonD,html:moonSvg,delay:.55});
+    const cloudShape=(sc)=>{let d='';for(const [cx,cy,r] of [[-30,4,17],[-9,-9,24],[16,-5,20],[35,6,13]])d+=cut(circ(cx*sc,cy*sc,r*sc,22),.5,5);d+=cut([[-46*sc,20*sc],[-46*sc,6*sc],[48*sc,6*sc],[48*sc,20*sc]],.5,6);return d;};
+    const clouds=portrait?[[.8,.12,.8],[.5,.375,.6]]:[[.44,.12,1],[.575,.305,.62]];
+    clouds.forEach(([cx,cy,sc],i)=>{const cw=m*.19*sc;items.push({cls:'day',x:W*cx,y:H*cy,h:cw*.5,html:`<svg viewBox="-52 -36 104 60" width="${q(cw)}" height="${q(cw*.58)}"><path fill="#fbf6ea" d="${cloudShape(1)}"/><path fill="rgba(217,164,91,.16)" d="${cut([[-46,20],[-46,13],[48,13],[48,20]],.4,6)}"/></svg>`,delay:.2+i*.12});});
+    const starPts=(r1,r2)=>{const p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?r2:r1;p.push([Math.cos(a)*r,Math.sin(a)*r]);}return p;};
+    const stars=portrait?[[.14,.4],[.5,.26],[.88,.16],[.4,.38],[.64,.12]]:[[.36,.1],[.5,.26],[.58,.08],[.84,.36],[.93,.12],[.3,.3],[.76,.06]];
+    stars.forEach(([sx,sy],i)=>{const ss=m*rr(.024,.036);items.push({cls:'nite',x:W*sx,y:H*sy,h:ss,html:`<svg viewBox="-12 -12 24 24" width="${q(ss)}" height="${q(ss)}"><path fill="#e8b865" d="${cut(starPts(11,4.6),.2,3)}"/></svg>`,delay:.7+i*.08});});
+    hang.innerHTML=items.map(it=>{
+      const len=it.y+M, up=len+it.h*1.6+40;
+      return `<div class="hang ${it.cls}" style="left:${q(it.x+M)}px;--len:${q(len)}px;--up:${q(up)};--hd:${it.delay}s"><div class="swing" style="--sd:${(4+R()*3).toFixed(2)}s;--sdl:-${(R()*4).toFixed(2)}s"><span class="string"></span><div class="obj">${it.html}</div></div></div>`;
+    }).join('');
+  }
+  function buildPins(){
+    const pins=$('pins');pins.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    let s='';const n=Math.round(W*H/9000);
+    for(let i=0;i<n;i++){const x=R()*W,y=Math.pow(R(),1.4)*H*.5,r=rr(.5,1.5);s+=`<circle${R()<.35?' class="tw"':''} style="animation-delay:-${(R()*3).toFixed(2)}s" cx="${q(x)}" cy="${q(y)}" r="${q(r)}"/>`;}pins.innerHTML=s;
+  }
+
+  /* ======================================================================
+     GUARDIAN FOX INTERACTION
+     ====================================================================== */
+  function foxScale(){return clamp(U*(portrait?.78:.72),5,11.5)/8;}
+  function placeFox(x){
+    fox.x=x;fox.y=groundAt(x);fox.s=foxScale();renderFox(0);
+  }
+  function renderFox(lift){
+    const g=$('foxG');if(!g)return;
+    const sx=fox.sx*fox.s*fox.dir, sy=fox.sy*fox.s;
+    g.setAttribute('transform',`translate(${q(fox.x)} ${q(fox.y-lift)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+    const bw=150*fox.s,bh=80*fox.s;
+    foxBtn.style.width=q(bw)+'px';foxBtn.style.height=q(bh)+'px';
+    foxBtn.style.transform=`translate(${q(fox.x+M-bw/2+fox.dir*(-8*fox.s))}px,${q(fox.y-lift+M-bh)}px)`;
+  }
+  function hop(){
+    if(fox.hop)return;
+    const minX=W*.08,maxX=W*.48;let tx;
+    for(let k=0;k<12;k++){tx=minX+Math.random()*(maxX-minX);if(Math.abs(tx-fox.x)>W*.12)break;}
+    const dist=Math.abs(tx-fox.x);
+    fox.hop={t:0,x0:fox.x,x1:tx,dur:reduce?.35:.55+dist/W*.6,hgt:Math.max(40*fox.s*6/8,dist*.32)};
+    fox.dir=tx>fox.x?1:-1;
+  }
+  const puffs=[];
+  function landPuff(){
+    const els=$('puffs')?$('puffs').children:[];
+    for(let i=0;i<els.length;i++){const a=Math.PI+(i/(els.length-1))*Math.PI;puffs[i]={el:els[i],x:fox.x,y:fox.y-2,vx:Math.cos(a)*rr(40,90)*fox.s,vy:Math.sin(a)*rr(30,70)*fox.s,r:R()*6,t:0};}
+  }
+  function stepFox(dt){
+    if(fox.hop){
+      const h=fox.hop;h.t+=dt/h.dur;const t=Math.min(1,h.t);
+      let lift=0;
+      if(t<.16){const u=t/.16;fox.sy=1-.2*Math.sin(u*Math.PI/2);fox.sx=1+.12*Math.sin(u*Math.PI/2);}
+      else if(t<.86){const u=(t-.16)/.7,e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;fox.x=h.x0+(h.x1-h.x0)*e;fox.y=groundAt(fox.x);lift=Math.sin(u*Math.PI)*h.hgt;fox.sy=1+.14*Math.cos(u*Math.PI);fox.sx=1-.08*Math.cos(u*Math.PI);}
+      else{const u=(t-.86)/.14;if(!h.landed){h.landed=true;fox.x=h.x1;fox.y=groundAt(fox.x);landPuff();}fox.sy=1-.18*Math.sin(u*Math.PI);fox.sx=1+.1*Math.sin(u*Math.PI);}
+      renderFox(lift);
+      if(t>=1){fox.hop=null;fox.sx=fox.sy=1;fox.fx=fox.x/W;renderFox(0);}
+    }
+    for(const p of puffs){if(!p||p.t>=1)continue;p.t+=dt*1.8;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=160*dt;p.r+=dt*8;
+      p.el.setAttribute('transform',`translate(${q(p.x)} ${q(p.y)}) rotate(${q(p.r*40)}) scale(${(fox.s*1.4).toFixed(2)})`);p.el.style.opacity=(1-p.t).toFixed(2);}
+  }
+
+  /* ======================================================================
+     PROCEDURAL WINDBLOWN LEAVES
+     ====================================================================== */
+  const leafShapes=['M0 -9C5 -6 6 1 0 9C-6 1 -5 -6 0 -9Z','M0 -9L2.5 -4L6.5 -5L4.5 0L7 3L2 3.5L0 9L-2 3.5L-7 3L-4.5 0L-6.5 -5L-2.5 -4Z','M0 -9C3 -7 4.5 -3 3.5 0C5 2 4 6 0 9C-4 6 -5 2 -3.5 0C-4.5 -3 -3 -7 0 -9Z'];
+  const leafCls=['lf-a','lf-b','lf-c','lf-a','lf-b'];
+  const leavesEl=$('leaves'),leaves=[];
+  function makeLeaves(){
+    const n=18;let html='';
+    for(let i=0;i<n;i++){html+=`<div class="leaf"><svg viewBox="-10 -10 20 20" width="20" height="20"><path class="${leafCls[i%5]}" d="${leafShapes[i%3]}"/><path class="lf-v" d="M0 -7V8"/></svg></div>`;}
+    leavesEl.innerHTML=html;
+    Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<(W<640?5:8)}));
+    leaves.forEach(l=>{if(l.ambient)spawnLeaf(l,Math.random()*W,Math.random()*H*.9);else l.el.style.opacity='0';});
+  }
+  function spawnLeaf(l,x,y,burst){
+    l.on=true;l.x=x;l.y=y;l.vx=burst?rr(-90,90):rr(8,26);l.vy=burst?rr(-80,-20):rr(18,34);
+    l.rot=Math.random()*360;l.vr=rr(-90,90);l.sz=rr(.8,1.5)*clamp(U/9,.7,1.4);l.el.style.opacity='1';
+  }
+  function stepLeaves(dt,t){
+    for(const l of leaves){
+      if(!l.on)continue;
+      const slow=reduce?.35:1;
+      l.vy+=(30-l.vy)*dt*1.4;l.vx+=(14-l.vx)*dt*.8;
+      l.x+=(l.vx+Math.sin(t*1.3+l.ph)*34)*dt*slow;l.y+=l.vy*dt*slow;l.rot+=l.vr*dt*slow;
+      const flip=Math.sin(t*2.1+l.ph)*62;
+      l.el.style.transform=`translate3d(${q(l.x+M)}px,${q(l.y+M)}px,0) rotate(${q(l.rot)}deg) rotateY(${q(flip)}deg) scale(${l.sz.toFixed(2)})`;
+      if(l.y>H+30||l.x>W+40){if(l.ambient)spawnLeaf(l,rr(-.1,.9)*W,-30);else{l.on=false;l.el.style.opacity='0';}}
+    }
+  }
+  function leafBurst(cx,cy){
+    let n=0;for(const l of leaves){if(!l.on&&!l.ambient){spawnLeaf(l,cx,cy,true);if(++n>=4)break;}}
+  }
+
+  /* ======================================================================
+     FIREFLY PARTICLE CANVAS
+     ====================================================================== */
+  const fc=$('flies'),fx=fc.getContext('2d');
+  let dpr=1,flies=[],nightAmt=0,sprite=null;
+  function sizeFlies(){
+    dpr=Math.min(2,window.devicePixelRatio||1);
+    fc.width=Math.round((W+2*M)*dpr);fc.height=Math.round((H+2*M)*dpr);
+    fc.style.width=(W+2*M)+'px';fc.style.height=(H+2*M)+'px';
+    const n=W<640?20:38;flies=[];
+    for(let i=0;i<n;i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
+    if(!sprite){sprite=document.createElement('canvas');sprite.width=sprite.height=64;const g=sprite.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,250,200,1)');gr.addColorStop(.14,'rgba(246,236,130,.95)');gr.addColorStop(.4,'rgba(214,230,110,.28)');gr.addColorStop(1,'rgba(200,220,100,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);}
+  }
+  let ptr={x:-9999,y:-9999,t:0};
+  function stepFlies(dt,t){
+    fx.setTransform(dpr,0,0,dpr,M*dpr,M*dpr);
+    fx.clearRect(-M,-M,W+2*M,H+2*M);
+    const na=nightAmt;
+    for(const f of flies){
+      f.a+=(Math.sin(t*.7+f.ph)*1.6)*dt;
+      let vx=Math.cos(f.a)*f.sp,vy=Math.sin(f.a)*f.sp*.6;
+      if(na>.5&&performance.now()-ptr.t<2500){const dx=ptr.x-f.x,dy=ptr.y-f.y,d=Math.hypot(dx,dy);if(d<W*.3&&d>20){vx+=dx/d*22;vy+=dy/d*22;}}
+      const sp=reduce?.4:1;f.x+=vx*dt*sp;f.y+=vy*dt*sp;
+      if(f.x<-20)f.x=W+20;if(f.x>W+20)f.x=-20;
+      if(f.y<H*.42)f.a=Math.PI/2;if(f.y>H*.97)f.a=-Math.PI/2;
+      if(na>.02){
+        const b=Math.max(0,Math.sin(t*f.bl*2+f.ph))*.8+.2,s=(10+b*12)*f.z*clamp(U/10,.7,1.3);
+        fx.globalAlpha=na*b;fx.drawImage(sprite,f.x-s,f.y-s,s*2,s*2);
+      }
+      if(na<.98){fx.globalAlpha=(1-na)*.55;fx.fillStyle='#fff8e6';fx.beginPath();fx.arc(f.x,f.y,1.3*f.z,0,6.283);fx.fill();}
+    }
+    fx.globalAlpha=1;
+  }
+
+  /* ======================================================================
+     2ND-DIMENSION ROTARY WHEEL (FLAT 2D PLANE ROTATION)
+     ====================================================================== */
+  const totalSlides=16;
+  let currentSlide=1;
+  const slides=document.querySelectorAll('.folio-slide');
+  let transitioning=false;
+
+  // Multiplane camera dolly coordinates
+  let dollyOffset=0,targetDollyOffset=0,cameraX=0;
+  let px=0,py=0,tx=0,ty=0,lastInput=-1e9,drag=null;
+  const depths=layerEls.map(el=>parseFloat(el.dataset.depth)||0);
+
+  // 2D Wheel pendulum angle & velocity
+  let tagA=0,tagV=0;
+  const ANGLE_STEP=360/totalSlides;
+
+  // Card metadata catalog
+  const tagData=[
+    {k:'Plate I · Paper diorama',t:'Glimpses of',te:'India',s:'Goa & Sikkim — a tale of coast and peaks.'},
+    {k:'Plate II · Unit 5 Selection',t:'A Baker from',te:'Goa',s:'The pader\'s bamboo staff and morning aroma.'},
+    {k:'Plate III · Student Guild',t:'Team',te:'Matrix',s:'Six students, six distinct art forms.'},
+    {k:'Plate IV · Konkan Folk',t:'Folk Dances of',te:'Goa',s:'Fugdi twirls, Dekhnni drums, Corridinho steps.'},
+    {k:'Plate V · Himalayas',t:'Introduction to',te:'Sikkim',s:'Mount Kanchenjunga and sacred monastic Cham.'},
+    {k:'Plate VI · Chronology',t:'Historical',te:'Evolution',s:'From Portuguese ballroom to Tantric Gompas.'},
+    {k:'Plate VII · Group Poster',t:'Sikkim Dance',te:'Festival',s:'Our mandatory promotional artwork.'},
+    {k:'Plate VIII · Kitchen Craft',t:'Culinary',te:'Skills',s:'Stone-baked loaves meet bamboo steamers.'},
+    {k:'Plate IX · Visual Art',t:'Thangka &',te:'Azulejos',s:'Buddhist geometry and glazed ceramic murals.'},
+    {k:'Plate X · Percussion',t:'Ghumot &',te:'Damphu',s:'Clay pot resonance and 32-peg frame drums.'},
+    {k:'Plate XI · Assessment',t:'Cultural',te:'Quiz',s:'Testing classroom comprehension on both states.'},
+    {k:'Plate XII · Architecture',t:'Heritage',te:'Stones',s:'Baroque laterite vs alpine timber joinery.'},
+    {k:'Plate XIII · Synthesis',t:'Comparative',te:'Matrix',s:'Dance, cuisine, attire, and geography.'},
+    {k:'Plate XIV · Reflection',t:'Learning',te:'Outcomes',s:'Art integration turns literature into lived culture.'},
+    {k:'Plate XV · Rubrics',t:'Evaluation',te:'Rubrics',s:'Full 10-Mark CBSE criteria and ALS viva.'},
+    {k:'Plate XVI · Grand Finale',t:'Explore the',te:'Unexplored!',s:'Ek Bharat, Shreshtha Bharat.'}
+  ];
+
+  /* Build the dial plate + all 16 tags */
+  const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI'];
+  function buildWheel(){
+    const dp=$('dialPlate');
+    let s='';
+    s+=`<circle class="dp-ring" cx="0" cy="0" r="330"/>`;
+    s+=`<circle class="dp-ring2" cx="0" cy="0" r="280"/>`;
+    s+=`<circle class="dp-ring2" cx="0" cy="0" r="322"/>`;
+    for(let i=0;i<totalSlides;i++){
+      const a=i*ANGLE_STEP*PI/180;
+      const cos=Math.cos(a), sin=Math.sin(a);
+      s+=`<line class="dp-spoke" x1="0" y1="0" x2="${q(cos*270)}" y2="${q(sin*270)}"/>`;
+      s+=`<line class="dp-tick big" x1="${q(cos*285)}" y1="${q(sin*285)}" x2="${q(cos*320)}" y2="${q(sin*320)}"/>`;
+      const nr=302;
+      s+=`<text class="dp-num" x="${q(cos*nr)}" y="${q(sin*nr)}" transform="rotate(${q(i*ANGLE_STEP+90)} ${q(cos*nr)} ${q(sin*nr)})">${ROMAN[i]}</text>`;
+    }
+    for(let i=0;i<totalSlides*4;i++){
+      if(i%4===0) continue;
+      const a=i*(ANGLE_STEP/4)*PI/180;
+      s+=`<line class="dp-tick" x1="${q(Math.cos(a)*305)}" y1="${q(Math.sin(a)*305)}" x2="${q(Math.cos(a)*320)}" y2="${q(Math.sin(a)*320)}"/>`;
+    }
+    s+=`<circle class="dp-hub" cx="0" cy="0" r="36"/>`;
+    dp.innerHTML=s;
+
+    const cards=$('cards');
+    cards.innerHTML='';
+    tagData.forEach((d,i)=>{
+      const card=document.createElement('div');
+      card.className='wcard';
+      const angle=i*ANGLE_STEP;
+      card.style.transform=`rotate(${angle}deg)`;
+      const num=i+1;
+      const numStr=num<10?'0'+num:num;
+      card.innerHTML=`
+        <div class="paper">
+          <svg class="grain-svg" aria-hidden="true"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+        </div>
+        <div class="hole" aria-hidden="true"></div>
+        <div class="face">
+          <p class="kicker">${d.k}</p>
+          <h1>${d.t} <em>${d.te}</em></h1>
+          <span class="rule" aria-hidden="true"></span>
+          <p class="sub">${d.s}</p>
+          <p class="count">${numStr} / 16</p>
+        </div>
+        <div class="stub">
+          <span class="st-num">${numStr}</span>
+          <span class="st-k">${d.k.split('·')[0].trim()}</span>
+        </div>
+      `;
+      card.addEventListener('click',()=>dollyToSlide(num));
+      cards.appendChild(card);
+    });
+    updateWheel();
+  }
+
+  /* Rotate strictly in 2nd Dimension */
+  function updateWheel(){
+    const targetAngle=-(currentSlide-1)*ANGLE_STEP;
+    $('dial').style.transform=`rotate(${(targetAngle+tagA).toFixed(2)}deg)`;
+
+    const cards=$('cards').querySelectorAll('.wcard');
+    cards.forEach((card,idx)=>{
+      let diff=idx-(currentSlide-1);
+      while(diff>8)diff-=16;
+      while(diff<-8)diff+=16;
+
+      const angle=idx*ANGLE_STEP;
+      card.classList.remove('is-active','is-next','is-prev','is-far');
+      if(diff===0){
+        card.classList.add('is-active');
+        card.style.transform=`rotate(${angle}deg) scale(1)`;
+      }else if(diff===1){
+        card.classList.add('is-next');
+        card.style.transform=`rotate(${angle}deg) scale(0.94)`;
+      }else if(diff===-1){
+        card.classList.add('is-prev');
+        card.style.transform=`rotate(${angle}deg) scale(0.94)`;
+      }else{
+        card.classList.add('is-far');
+        card.style.transform=`rotate(${angle}deg) scale(0.85)`;
+      }
+    });
+  }
+
+  /* ======================================================================
+     PARALLAX AND CINEMATIC CAMERA DOLLY
+     ====================================================================== */
+  function applyParallax(){
+    for(let i=0;i<layerEls.length;i++){
+      const d=depths[i];
+      const f=Math.pow(d/8,1.15)*S;
+      const layerDolly=dollyOffset*(Math.pow(d/8,1.25)*0.82+0.18);
+      const x=q(-px*f+layerDolly);
+      const y=q(-py*f*.55);
+      layerEls[i].style.transform=`translate3d(${x}px,${y}px,0)`;
+    }
+  }
+
+  function stepParallax(dt,t){
+    if(!reduce&&performance.now()-lastInput>3500&&!drag){tx=Math.sin(t*.19)*.38;ty=Math.sin(t*.13+1)*.16;}
+    const k=1-Math.exp(-dt*(reduce?9:3.4));
+    px+=(tx-px)*k;py+=(ty-py)*k;
+
+    const dollyK=1-Math.exp(-dt*5.6);
+    dollyOffset+=(targetDollyOffset-dollyOffset)*dollyK;
+
+    const rest=reduce?0:Math.sin(t*.6)*.5;
+    tagV+=(-(tagA-rest)*24-tagV*2.8)*dt;
+    tagA+=tagV*dt;
+    tagA=clamp(tagA,-18,18);
+    updateWheel();
+
+    applyParallax();
+  }
+
+  /* ======================================================================
+     AUDIO CHIMES (Web Audio API)
+     ====================================================================== */
+  let audioCtx=null;
+  function getAudio(){
+    if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+    if(audioCtx.state==='suspended')audioCtx.resume();
+    return audioCtx;
+  }
+  function playTone(freqs,dur,type='sine'){
+    try{
+      const ctx=getAudio();
+      freqs.forEach((f,i)=>{
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.type=type;osc.frequency.setValueAtTime(f,ctx.currentTime);
+        gain.gain.setValueAtTime(0.045,ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+dur);
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.start(ctx.currentTime+i*0.05);osc.stop(ctx.currentTime+dur+0.1);
+      });
+    }catch(e){}
+  }
+  window.playInstrument=function(name){
+    if(name==='ghumot')playTone([140,180,220],0.42,'triangle');
+    else if(name==='damphu')playTone([110,164.81],0.36,'triangle');
+  };
+
+  /* ======================================================================
+     SLIDE TRANSITION CONTROLLER
+     ====================================================================== */
+  function dollyToSlide(targetIdx){
+    if(targetIdx<1||targetIdx>totalSlides||targetIdx===currentSlide||transitioning)return;
+    transitioning=true;
+
+    const currentSlideEl=slides[currentSlide-1];
+    const nextSlideEl=slides[targetIdx-1];
+    const direction=targetIdx>currentSlide?1:-1;
+
+    tagV+=direction*35;
+    targetDollyOffset=-direction*380;
+    leafBurst(W*(direction>0?0.8:0.2),H*0.5);
+
+    currentSlideEl.classList.remove('active');
+    currentSlideEl.classList.add('leaving');
+    const oldSlide=currentSlideEl;
+    setTimeout(()=>{oldSlide.classList.remove('leaving');},800);
+
+    playTone([440,554.37],0.3);
+
+    setTimeout(()=>{
+      currentSlide=targetIdx;
+
+      buildSlideDiorama(currentSlide);
+
+      dollyOffset=direction*380;
+      targetDollyOffset=0;
+
+      nextSlideEl.style.transition='none';
+      nextSlideEl.style.transform='translateY(-115vh) scale(0.96) rotate('+(direction>0?'1.5deg':'-1.5deg')+')';
+      nextSlideEl.style.opacity='0';
+      void nextSlideEl.offsetWidth;
+
+      nextSlideEl.style.transition='';
+      nextSlideEl.style.transform='';
+      nextSlideEl.style.opacity='';
+      nextSlideEl.classList.add('active');
+
+      $('dk-cur').textContent=currentSlide<10?'0'+currentSlide:currentSlide;
+      updateNotesUI();
+      updateOverviewHighlight();
+
+      setTimeout(()=>{transitioning=false;},420);
+    },280);
+  }
+
+  function nextSlide(){dollyToSlide(currentSlide<totalSlides?currentSlide+1:1);}
+  function prevSlide(){if(currentSlide>1)dollyToSlide(currentSlide-1);}
+
+  /* ======================================================================
+     PRESENTER NOTES & 60s SPEECH TIMER
+     ====================================================================== */
+  const speechNotes={
+    1:{speaker:'Aarav Patil (Group Leader)',text:"Respected teachers and dear friends, today Group 4 proudly presents our English MAT Art-Integrated Project on 'Glimpses of India'. We explore the cultural dialogue between 'A Baker from Goa' by Lucio Rodrigues and our mandatory paired state, Sikkim."},
+    2:{speaker:'Aarav Patil',text:"Lucio Rodrigues captures the nostalgic aroma of freshly baked loaves in Goan villages. The baker was not just a merchant, but a childhood friend whose breads marked every wedding, feast, and engagement."},
+    3:{speaker:'Aarav Patil',text:"Our team of six students divided the work into distinct individual art forms — from culinary arts and Thangka painting to music, architecture, and interactive quiz curation."},
+    4:{speaker:'Aarav Patil',text:"Goa's folk dances are a joyous synthesis of Portuguese elegance and Konkani devotion. The Fugdi is characterized by lightning circle twirls, while the Dekhnni features the traditional clay Ghumot drum."},
+    5:{speaker:'Aarav Patil & Ishita Joshi',text:"In Sikkim, dance is rooted in deep Buddhist spirituality and nature worship. The sacred Cham masked dances performed by monks represent the destruction of evil and the blessing of the soil."},
+    6:{speaker:'Aarav Patil (Research Lead)',text:"Tracing historical development, Goa's dances evolved through Portuguese colonial influence, while Sikkim's Cham dances date back to Guru Padmasambhava's 8th-century tantric consecration."},
+    7:{speaker:'Kabir Sharma (Poster Lead)',text:"Here is our mandatory group promotional poster for the Sikkim Sacred Dance Festival. Designed with layered papercut framing, it captures the sacred majesty of Rumtek Monastery."},
+    8:{speaker:'Ananya Deshmukh',text:"For my individual art form, I investigated the food science of both regions. Goa's wood-fired Pao contrasts with Sikkim's steamed Momos, Thukpa soup, and fermented Gundruk."},
+    9:{speaker:'Rohan Kulkarni',text:"My visual art project analyzes the sacred geometry of Thangka paintings and Mandalas in Sikkim, comparing them with the iconic blue-glazed Azulejos ceramic tiles of Goa."},
+    10:{speaker:'Ishita Joshi',text:"In performing arts, I studied traditional percussion. The Goan Ghumot produces deep bass resonance, while Sikkim's Damphu frame drum carries 32 pegs honoring Buddha's virtues."},
+    11:{speaker:'Tanvi Shinde',text:"To evaluate peer comprehension, I created an interactive cultural quiz. Classmates can test their knowledge on both states with instant scoring."},
+    12:{speaker:'Kabir Sharma',text:"My travel brochure explores Old Goa's 16th-century Baroque Basilica of Bom Jesus alongside Sikkim's earthquake-resistant timber monasteries like Rumtek and Pemayangtse."},
+    13:{speaker:'Group Collective Task',text:"This comparative matrix encapsulates our findings across Dance, Food, Attire, and Geography. Where Goa thrives on golden bread, Sikkim enchants with butter tea."},
+    14:{speaker:'Group Reflections',text:"Our learning reflections show that art integration turns literature into a multi-sensory journey. We mastered research, design, and collaborative problem solving."},
+    15:{speaker:'All Members',text:"This slide outlines our adherence to the 10-mark rubric and prepares us for the 1-minute Assessment of Speaking Skills. Each student has rehearsed their speech."},
+    16:{speaker:'Aarav Patil (Conclusion)',text:"We express sincere gratitude to our English teacher and Indira National School. Appreciating our paired states makes us proud citizens of a diverse and united India. Thank you!"}
+  };
+
+  let speechSeconds=60,timerInterval=null,timerActive=false;
+  function updateNotesUI(){
+    const d=speechNotes[currentSlide]||{speaker:'Team Member',text:''};
+    $('notes-speaker').textContent='Speaker: '+d.speaker;
+    $('notes-title').textContent='Slide '+currentSlide+': '+(slides[currentSlide-1]?.dataset.title||'');
+    $('notes-body').innerHTML=`<p style="margin-bottom:12px">"${d.text}"</p>
+      <div style="padding:10px 14px;background:rgba(217,164,91,.15);border:1px dashed var(--ochre);font-size:.8rem;color:var(--orange)">
+        <strong>ALS Speaking Tip:</strong> Maintain steady posture, make eye contact, and articulate how literature connects directly with Indian cultural roots.
+      </div>`;
+  }
+  function toggleSpeechTimer(){
+    timerActive=!timerActive;
+    if(timerActive){
+      $('timer-play').textContent='⏸';
+      timerInterval=setInterval(()=>{
+        if(speechSeconds>0){
+          speechSeconds--;
+          const m=Math.floor(speechSeconds/60),s=speechSeconds%60;
+          $('timer-digits').textContent=(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+        }else{clearInterval(timerInterval);$('timer-digits').textContent='00:00 ✓';playTone([523.25,659.25],0.6);}
+      },1000);
+    }else{$('timer-play').textContent='▶';clearInterval(timerInterval);}
+  }
+
+  /* ======================================================================
+     CULTURAL QUIZ ARENA
+     ====================================================================== */
+  const quizQuestions=[
+    {q:"What was the traditional name for the village baker in Goa as described by Lucio Rodrigues?",opts:["Pader","Chogyal","Kabai","Bolo"],ans:0,exp:"In Goan villages, the baker was affectionately known as the 'pader', an indispensable figure in daily life."},
+    {q:"Which sacred mountain peak is revered as the guardian protector of Sikkim?",opts:["Mount Everest","Mount Kanchenjunga","Nanda Devi","Dhaulagiri"],ans:1,exp:"Mount Kanchenjunga (8,586 m) is worshipped as the eternal guardian deity in Sikkim's Singhi Chham dance."},
+    {q:"What musical sound announced the morning arrival of the Goan baker?",opts:["Church bell chime","Jhang, jhang of his bamboo staff","Violin chord","Earthen whistle"],ans:1,exp:"The baker made his musical entry with the 'jhang, jhang' sound of his specially made bamboo staff fitted with bells."},
+    {q:"Which traditional fermented leafy vegetable is an integral staple of Sikkimese cuisine?",opts:["Gundruk","Bebinca","Poi","Kimchi"],ans:0,exp:"Gundruk is naturally fermented mustard and radish greens, an ancient high-altitude preservation science."},
+    {q:"Which clay pot percussion instrument is indigenous to Goan folk music such as Dekhnni?",opts:["Damphu","Ghumot","Dholak","Mridangam"],ans:1,exp:"The Ghumot is an earthen pot with both sides open, covered with membrane, producing warm resonant rhythms."}
+  ];
+  let curQ=0,quizScore=0;
+  function initQuiz(){curQ=0;quizScore=0;renderQuiz();}
+  function renderQuiz(){
+    const qd=quizQuestions[curQ];
+    if(!qd){
+      $('quiz-prompt').textContent='Quiz Completed! Outstanding Cultural Mastery!';
+      $('quiz-opts').innerHTML=`<div style="grid-column:span 2;padding:14px;text-align:center;background:rgba(16,185,129,.18);border:1px solid #10B981"><h4 style="color:#065F46;font-size:1.15rem;margin-bottom:3px">Final Score: ${quizScore}/${quizQuestions.length}</h4><p style="color:#374151;font-size:.82rem">Exceptional grasp of both Goan bakery lore and Sikkimese traditions!</p></div>`;
+      $('quiz-tracker').textContent='Complete';
+      $('quiz-feedback').style.display='none';
+      $('quiz-next').style.display='none';
+      playTone([523.25,659.25,783.99],0.8);
+      return;
+    }
+    $('quiz-tracker').textContent=`Question ${curQ+1} of ${quizQuestions.length}`;
+    $('quiz-score').textContent=`Score: ${quizScore} / ${quizQuestions.length}`;
+    $('quiz-prompt').textContent=qd.q;
+    $('quiz-feedback').style.display='none';
+    $('quiz-next').style.display='none';
+    const opts=$('quiz-opts');opts.innerHTML='';
+    qd.opts.forEach((o,i)=>{
+      const btn=document.createElement('button');
+      btn.className='qp-choice';
+      btn.innerHTML=String.fromCharCode(65+i)+'. '+o;
+      btn.addEventListener('click',()=>handleQuiz(i,btn));
+      opts.appendChild(btn);
+    });
+  }
+  function handleQuiz(i,btn){
+    const qd=quizQuestions[curQ];
+    document.querySelectorAll('.qp-choice').forEach(b=>b.disabled=true);
+    const fb=$('quiz-feedback');
+    if(i===qd.ans){
+      btn.classList.add('correct');quizScore++;
+      fb.style.display='block';fb.style.background='rgba(16,185,129,.14)';fb.style.color='#065F46';
+      fb.innerHTML=`<strong>✓ Correct!</strong> ${qd.exp}`;
+      playTone([523.25,659.25],0.35);
+    }else{
+      btn.classList.add('wrong');
+      document.querySelectorAll('.qp-choice')[qd.ans].classList.add('correct');
+      fb.style.display='block';fb.style.background='rgba(239,68,68,.14)';fb.style.color='#991B1B';
+      fb.innerHTML=`<strong>✗ Incorrect.</strong> ${qd.exp}`;
+      playTone([220,196],0.3,'sawtooth');
+    }
+    $('quiz-score').textContent=`Score: ${quizScore} / ${quizQuestions.length}`;
+    $('quiz-next').style.display='inline-block';
+  }
+
+  /* Comparative tabs */
+  document.querySelectorAll('.p-tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const t=btn.dataset.tab;
+      document.querySelectorAll('.p-tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.p-tab-pane').forEach(p=>p.classList.remove('active'));
+      const pane=$('pane-'+t);
+      if(pane)pane.classList.add('active');
+    });
+  });
+
+  /* Overview grid modal */
+  function buildOverviewGrid(){
+    const g=$('ov-grid');g.innerHTML='';
+    slides.forEach((s,i)=>{
+      const n=i+1;
+      const tile=document.createElement('div');
+      tile.className='ov-tile'+(n===currentSlide?' active':'');
+      tile.innerHTML=`<div class="ov-num">Slide ${n<10?'0'+n:n}</div><div class="ov-name">${s.dataset.title||'Slide '+n}</div>`;
+      tile.addEventListener('click',()=>{$('overviewModal').classList.remove('open');dollyToSlide(n);});
+      g.appendChild(tile);
+    });
+  }
+  function updateOverviewHighlight(){
+    $('ov-grid').querySelectorAll('.ov-tile').forEach((t,i)=>{
+      t.classList.toggle('active',i+1===currentSlide);
+    });
+  }
+
+  /* Autoplay */
+  let autoplayTimer=null,isAutoplay=false;
+  function toggleAutoplay(){
+    isAutoplay=!isAutoplay;
+    $('dk-auto').classList.toggle('on',isAutoplay);
+    if(isAutoplay)autoplayTimer=setInterval(nextSlide,7500);
+    else clearInterval(autoplayTimer);
+  }
+
+  /* Fullscreen */
+  function toggleFullscreen(){
+    if(!document.fullscreenElement){document.documentElement.requestFullscreen().catch(()=>{});$('dk-fs').textContent='✕';}
+    else{document.exitFullscreen();$('dk-fs').textContent='⛶';}
+  }
+
+  /* Day/Night toggle */
+  function setNight(on){
+    body.classList.toggle('night',on);
+    $('toggle').setAttribute('aria-pressed',String(on));
+    $('toggleLabel').textContent=on?'Night':'Day';
+    document.querySelector('meta[name="theme-color"]').setAttribute('content',on?'#161a45':'#f3e8d2');
+  }
+  $('toggle').addEventListener('click',()=>{setNight(!body.classList.contains('night'));tagV+=18;});
+
+  /* Recut diorama */
+  $('recut').addEventListener('click',()=>{
+    seed=(Math.random()*1e9)|0;
+    buildSlideDiorama(currentSlide);
+    if(!reduce){layerEls.forEach(el=>{if(el.classList.contains('place')){el.classList.remove('place');void el.offsetWidth;el.classList.add('place');}});}
+    tagV-=24;
+  });
+
+  /* ======================================================================
+     FRAME LOOP
+     ====================================================================== */
+  let raf=0,last=performance.now(),clock=0;
+  function frame(now){
+    raf=requestAnimationFrame(frame);
+    const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
+    const target=body.classList.contains('night')?1:0;
+    nightAmt+=(target-nightAmt)*(1-Math.exp(-dt*1.6));
+    stepParallax(dt,clock);stepLeaves(dt,clock);stepFox(dt);stepFlies(dt,clock);
+  }
+  function start(){if(!raf){last=performance.now();raf=requestAnimationFrame(frame);}}
+  function stop(){cancelAnimationFrame(raf);raf=0;}
+  document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+
+  /* ======================================================================
+     POINTER EVENTS
+     ====================================================================== */
+  let lastPX=null,lastPT=0;
+  stage.addEventListener('pointermove',e=>{
+    const now=performance.now();
+    if(e.pointerType==='mouse'&&!drag){tx=clamp((e.clientX/W-.5)*2,-1,1);ty=clamp((e.clientY/H-.5)*2,-1,1);}
+    else if(drag){tx=clamp(drag.tx+(drag.x-e.clientX)/(W*.35),-1,1);ty=clamp(drag.ty+(drag.y-e.clientY)/(H*.35),-1,1);}
+    if(lastPX!==null){const v=(e.clientX-lastPX)/Math.max(8,now-lastPT);tagV+=-v*8;}
+    lastPX=e.clientX;lastPT=now;lastInput=now;
+    const f=Math.pow(7.4/8,1.15)*S;ptr.x=e.clientX+px*f;ptr.y=e.clientY+py*f*.55;ptr.t=now;
+  });
+  stage.addEventListener('pointerdown',e=>{
+    lastInput=performance.now();
+    if(e.pointerType!=='mouse'){drag={x:e.clientX,y:e.clientY,tx,ty,moved:false};}
+  });
+  const endDrag=()=>{drag=null;};
+  stage.addEventListener('pointerup',endDrag);stage.addEventListener('pointercancel',endDrag);stage.addEventListener('pointerleave',()=>{lastPX=null;});
+  stage.addEventListener('click',e=>{
+    if(e.target===foxBtn||e.target.closest('#dock, .controls, .folio-placard, .modal-paper, #wheel'))return;
+    const f=Math.pow(7.7/8,1.15)*S;
+    leafBurst(e.clientX+px*f,e.clientY+py*f*.55);
+    tagV+=(Math.random()-.5)*24;
+  });
+  foxBtn.addEventListener('click',e=>{e.stopPropagation();hop();});
+
+  /* ======================================================================
+     KEYBOARD NAVIGATION
+     ====================================================================== */
+  window.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    switch(e.key){
+      case 'ArrowRight':case ' ':case 'PageDown':
+        e.preventDefault();nextSlide();break;
+      case 'ArrowLeft':case 'Backspace':case 'PageUp':
+        e.preventDefault();prevSlide();break;
+      case 'Home':e.preventDefault();dollyToSlide(1);break;
+      case 'End':e.preventDefault();dollyToSlide(totalSlides);break;
+      case 'f':case 'F':e.preventDefault();hop();break;
+      case 'n':case 'N':e.preventDefault();setNight(!body.classList.contains('night'));break;
+      case 'o':case 'O':case 'g':case 'G':e.preventDefault();$('overviewModal').classList.toggle('open');break;
+      case 'p':case 'P':e.preventDefault();$('notesModal').classList.toggle('open');break;
+      case 'a':case 'A':e.preventDefault();toggleAutoplay();break;
+      case 'Escape':$('notesModal').classList.remove('open');$('overviewModal').classList.remove('open');break;
+    }
+  });
+
+  /* ======================================================================
+     DOCK LISTENERS
+     ====================================================================== */
+  $('dk-next').addEventListener('click',nextSlide);
+  $('dk-prev').addEventListener('click',prevSlide);
+  $('dk-auto').addEventListener('click',toggleAutoplay);
+  $('dk-fs').addEventListener('click',toggleFullscreen);
+  $('dk-overview').addEventListener('click',()=>$('overviewModal').classList.toggle('open'));
+  $('dk-notes').addEventListener('click',()=>$('notesModal').classList.toggle('open'));
+  $('dk-print').addEventListener('click',()=>window.print());
+  $('notes-close').addEventListener('click',()=>$('notesModal').classList.remove('open'));
+  $('ov-close').addEventListener('click',()=>$('overviewModal').classList.remove('open'));
+  $('timer-play').addEventListener('click',toggleSpeechTimer);
+  $('quiz-restart').addEventListener('click',initQuiz);
+  $('quiz-next').addEventListener('click',()=>{curQ++;renderQuiz();});
+
+  const btnRestart=$('btn-restart');if(btnRestart)btnRestart.addEventListener('click',()=>dollyToSlide(1));
+  const btnOvEnd=$('btn-ov-end');if(btnOvEnd)btnOvEnd.addEventListener('click',()=>$('overviewModal').classList.add('open'));
+
+  /* Touch swipe */
+  let tx0=0,ty0=0;
+  window.addEventListener('touchstart',e=>{tx0=e.changedTouches[0].screenX;ty0=e.changedTouches[0].screenY;},{passive:true});
+  window.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].screenX-tx0,dy=e.changedTouches[0].screenY-ty0;
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0)nextSlide();else prevSlide();}
+  },{passive:true});
+
+  /* ======================================================================
+     ORGANIC RAG PAPER GRAIN
+     ====================================================================== */
+  function makeRagGrain(){
+    const c=document.createElement('canvas');c.width=c.height=160;const g=c.getContext('2d'),id=g.createImageData(160,160),d=id.data;
+    for(let i=0;i<d.length;i+=4){const n=Math.random();if(n<.5){d[i]=74;d[i+1]=52;d[i+2]=30;d[i+3]=(.5-n)*46;}else{d[i]=255;d[i+1]=251;d[i+2]=240;d[i+3]=(n-.5)*40;}}
+    g.putImageData(id,0,0);
+    for(let k=0;k<90;k++){g.strokeStyle=k%3?'rgba(255,252,242,.2)':'rgba(96,66,36,.13)';g.lineWidth=.6;g.beginPath();const x=Math.random()*160,y=Math.random()*160,a=Math.random()*6.28,l=4+Math.random()*14;g.moveTo(x,y);g.quadraticCurveTo(x+Math.cos(a+.6)*l*.5,y+Math.sin(a+.6)*l*.5,x+Math.cos(a)*l,y+Math.sin(a)*l);g.stroke();}
+    return c.toDataURL();
+  }
+  try{$('grainImg').setAttribute('href',makeRagGrain());}catch(e){}
+
+  /* ======================================================================
+     RESIZE HANDLER
+     ====================================================================== */
+  let rT=0;
+  window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{buildSlideDiorama(currentSlide);applyParallax();},120);});
+  reduceMQ.addEventListener('change',e=>{reduce=e.matches;});
+
+  /* ======================================================================
+     BOOTSTRAP
+     ====================================================================== */
+  buildSlideDiorama(1);
+  buildWheel();
+  makeLeaves();
+  applyParallax();
+  buildOverviewGrid();
+  initQuiz();
+  updateNotesUI();
+  start();
+
+  // Export to window for programmatic control
+  window.dollyToSlide = dollyToSlide;
+  window.buildSlideDiorama = buildSlideDiorama;
+  window.nextSlide = nextSlide;
+  window.prevSlide = prevSlide;
+})();
+</script>
+</body>
+</html>

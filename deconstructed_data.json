@@ -1,0 +1,1752 @@
+[
+  {
+    "filename": "Adolscence.pptx",
+    "aspect": "16:9",
+    "slides": 78,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "flip",
+      "reveal",
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 264,
+    "pics": 50,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Animated Timer Template with Textured Background for PowerPoint.pptx",
+    "aspect": "4:3",
+    "slides": 1,
+    "fonts": [
+      "Calibri",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#1F497D"
+      ],
+      [
+        "lt2",
+        "#EEECE1"
+      ],
+      [
+        "accent1",
+        "#4F81BD"
+      ],
+      [
+        "accent2",
+        "#C0504D"
+      ],
+      [
+        "accent3",
+        "#9BBB59"
+      ],
+      [
+        "accent4",
+        "#8064A2"
+      ],
+      [
+        "accent5",
+        "#4BACC6"
+      ],
+      [
+        "accent6",
+        "#F79646"
+      ],
+      [
+        "hlink",
+        "#0000FF"
+      ],
+      [
+        "folHlink",
+        "#800080"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": true,
+    "shapes": 6,
+    "pics": 1,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Car engine PPT Project of lib PPT - 2.pptx",
+    "aspect": "1.88:1",
+    "slides": 25,
+    "fonts": [
+      "Sabon Next LT",
+      "Avenir Next LT Pro"
+    ],
+    "colors": [
+      [
+        "dk1",
+        "#000000"
+      ],
+      [
+        "lt1",
+        "#FFFFFF"
+      ],
+      [
+        "dk2",
+        "#1B2F30"
+      ],
+      [
+        "lt2",
+        "#F1F3F0"
+      ],
+      [
+        "accent1",
+        "#C129E7"
+      ],
+      [
+        "accent2",
+        "#6F2CD9"
+      ],
+      [
+        "accent3",
+        "#2B31E7"
+      ],
+      [
+        "accent4",
+        "#176CD5"
+      ],
+      [
+        "accent5",
+        "#26BCD3"
+      ],
+      [
+        "accent6",
+        "#15C493"
+      ],
+      [
+        "hlink",
+        "#3D94B9"
+      ],
+      [
+        "folHlink",
+        "#7F7F7F"
+      ]
+    ],
+    "transitions": [
+      "wheel",
+      "wipe",
+      "pull",
+      "dissolve",
+      "newsflash",
+      "wedge"
+    ],
+    "morph": false,
+    "timing": true,
+    "shapes": 59,
+    "pics": 61,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": [
+      "Hello Everybody",
+      "Have you ever wondered how do cars move?Let me show you how cars move\u00a0It is quite easy to understand",
+      "Cars are vehicles which helps us to travel",
+      "Fun facts !!!!      Karl Benz                  Nikolaus Otto",
+      "How do cars move?"
+    ]
+  },
+  {
+    "filename": "Computer Project.pptx",
+    "aspect": "16:9",
+    "slides": 4,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 7,
+    "pics": 9,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Culture and dance of sikkim.pptx",
+    "aspect": "16:9",
+    "slides": 12,
+    "fonts": [
+      "Arial",
+      "Arial"
+    ],
+    "colors": [
+      [
+        "dk1",
+        "#7BD37C"
+      ],
+      [
+        "lt1",
+        "#8C2222"
+      ],
+      [
+        "dk2",
+        "#FFFFFF"
+      ],
+      [
+        "lt2",
+        "#33CC33"
+      ],
+      [
+        "accent1",
+        "#F4D111"
+      ],
+      [
+        "accent2",
+        "#E6205F"
+      ],
+      [
+        "accent3",
+        "#5F3289"
+      ],
+      [
+        "accent4",
+        "#FFE4A0"
+      ],
+      [
+        "accent5",
+        "#F18621"
+      ],
+      [
+        "accent6",
+        "#421D07"
+      ],
+      [
+        "hlink",
+        "#421D07"
+      ],
+      [
+        "folHlink",
+        "#0097A7"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": false,
+    "shapes": 33,
+    "pics": 55,
+    "tables": 1,
+    "svgs": 0,
+    "sample_titles": [
+      "INTRODUCTION",
+      "Sikkim",
+      "Cultural Context",
+      "Mask Dance (Cham)",
+      "Bhutia Folk Dance"
+    ]
+  },
+  {
+    "filename": "Cybersecurity-in-2025-Navigating-an-Era-of-Unprecedented-Complexity.pptx",
+    "aspect": "16:9",
+    "slides": 7,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 66,
+    "pics": 14,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Dance-and-Movement-of-Sikkim-and-Maharashtra-A-Cultural-Journey.pptx",
+    "aspect": "16:9",
+    "slides": 11,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": false,
+    "shapes": 67,
+    "pics": 26,
+    "tables": 0,
+    "svgs": 4,
+    "sample_titles": []
+  },
+  {
+    "filename": "Divit Memes.pptx",
+    "aspect": "1.0:1",
+    "slides": 1,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 9,
+    "pics": 7,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Every child\u2019s story ( Song).pptx",
+    "aspect": "16:9",
+    "slides": 4,
+    "fonts": [
+      "Century Gothic",
+      "Century Gothic"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#505046"
+      ],
+      [
+        "lt2",
+        "#F5F6F4"
+      ],
+      [
+        "accent1",
+        "#57903F"
+      ],
+      [
+        "accent2",
+        "#F03F2B"
+      ],
+      [
+        "accent3",
+        "#3488A0"
+      ],
+      [
+        "accent4",
+        "#F8D22F"
+      ],
+      [
+        "accent5",
+        "#5CC6D6"
+      ],
+      [
+        "accent6",
+        "#B8D233"
+      ],
+      [
+        "hlink",
+        "#00B0F0"
+      ],
+      [
+        "folHlink",
+        "#B2B2B2"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 11,
+    "pics": 5,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": [
+      "Every child\u2019s story",
+      "Every Child\u2019s Story",
+      "Every Child\u2019s Story",
+      "Every Child\u2019s Story"
+    ]
+  },
+  {
+    "filename": "Light PPT.pptx",
+    "aspect": "16:9",
+    "slides": 82,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "flip",
+      "reveal",
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 434,
+    "pics": 95,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Lightning.pptx",
+    "aspect": "16:9",
+    "slides": 28,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#1FFBFD"
+      ],
+      [
+        "accent2",
+        "#0AA6ED"
+      ],
+      [
+        "accent3",
+        "#0085F2"
+      ],
+      [
+        "accent4",
+        "#125AC4"
+      ],
+      [
+        "accent5",
+        "#00307E"
+      ],
+      [
+        "accent6",
+        "#000096"
+      ],
+      [
+        "hlink",
+        "#FFFFFF"
+      ],
+      [
+        "folHlink",
+        "#262626"
+      ]
+    ],
+    "transitions": [
+      "timing"
+    ],
+    "morph": false,
+    "timing": true,
+    "shapes": 803,
+    "pics": 67,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Milkshakes template.pptx",
+    "aspect": "1.0:1",
+    "slides": 12,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": false,
+    "shapes": 15,
+    "pics": 155,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Reproduction in Animals Quiz.pptx",
+    "aspect": "16:9",
+    "slides": 78,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "flip",
+      "reveal",
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 262,
+    "pics": 50,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Retort-Processing-of-Flavoured-Milk.pptx",
+    "aspect": "16:9",
+    "slides": 8,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": false,
+    "shapes": 65,
+    "pics": 10,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "SSA 2.pptx",
+    "aspect": "16:9",
+    "slides": 19,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "push",
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 325,
+    "pics": 96,
+    "tables": 0,
+    "svgs": 1,
+    "sample_titles": []
+  },
+  {
+    "filename": "SSC Dnace and Movements of maharastra and sikkim.pptx",
+    "aspect": "16:9",
+    "slides": 11,
+    "fonts": [
+      "Arial",
+      "Arial"
+    ],
+    "colors": [
+      [
+        "dk1",
+        "#3F3F3F"
+      ],
+      [
+        "lt1",
+        "#FFFFFF"
+      ],
+      [
+        "dk2",
+        "#FFF7E9"
+      ],
+      [
+        "lt2",
+        "#74B198"
+      ],
+      [
+        "accent1",
+        "#540E36"
+      ],
+      [
+        "accent2",
+        "#F1E2CA"
+      ],
+      [
+        "accent3",
+        "#E89A00"
+      ],
+      [
+        "accent4",
+        "#F8C995"
+      ],
+      [
+        "accent5",
+        "#873A6D"
+      ],
+      [
+        "accent6",
+        "#CA0D4B"
+      ],
+      [
+        "hlink",
+        "#4E4E4E"
+      ],
+      [
+        "folHlink",
+        "#0097A7"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 768,
+    "pics": 6,
+    "tables": 1,
+    "svgs": 0,
+    "sample_titles": [
+      "Dance and movements of Sikkim and Maharastra",
+      "Introduction",
+      "Table of contents",
+      "Sikkim",
+      "Maruni Dance"
+    ]
+  },
+  {
+    "filename": "Shikshapatri Quiz.pptx",
+    "aspect": "16:9",
+    "slides": 53,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "reveal",
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 326,
+    "pics": 64,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Shreeji Clinic board.pptx",
+    "aspect": "2.33:1",
+    "slides": 1,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 3,
+    "pics": 0,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Skit on cyber security.pptx",
+    "aspect": "16:9",
+    "slides": 5,
+    "fonts": [
+      "Avenir Next LT Pro Light",
+      "Avenir Next LT Pro"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#775F55"
+      ],
+      [
+        "lt2",
+        "#EBDDC3"
+      ],
+      [
+        "accent1",
+        "#94B6D2"
+      ],
+      [
+        "accent2",
+        "#DD8047"
+      ],
+      [
+        "accent3",
+        "#A5AB81"
+      ],
+      [
+        "accent4",
+        "#D8B25C"
+      ],
+      [
+        "accent5",
+        "#7BA79D"
+      ],
+      [
+        "accent6",
+        "#968C8C"
+      ],
+      [
+        "hlink",
+        "#F7B615"
+      ],
+      [
+        "folHlink",
+        "#704404"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": true,
+    "shapes": 10,
+    "pics": 10,
+    "tables": 0,
+    "svgs": 3,
+    "sample_titles": [
+      "Skit on cyber security",
+      "Title Lorem Ipsum"
+    ]
+  },
+  {
+    "filename": "Social Studies Subject for Middle School - 8th Grade_ Geography and Colonialism .pptx",
+    "aspect": "16:9",
+    "slides": 90,
+    "fonts": [
+      "Arial",
+      "Arial"
+    ],
+    "colors": [
+      [
+        "dk1",
+        "#553410"
+      ],
+      [
+        "lt1",
+        "#C69C6D"
+      ],
+      [
+        "dk2",
+        "#D0C4B4"
+      ],
+      [
+        "lt2",
+        "#B9A289"
+      ],
+      [
+        "accent1",
+        "#382006"
+      ],
+      [
+        "accent2",
+        "#FFFFFF"
+      ],
+      [
+        "accent3",
+        "#FFFFFF"
+      ],
+      [
+        "accent4",
+        "#FFFFFF"
+      ],
+      [
+        "accent5",
+        "#FFFFFF"
+      ],
+      [
+        "accent6",
+        "#FFFFFF"
+      ],
+      [
+        "hlink",
+        "#382006"
+      ],
+      [
+        "folHlink",
+        "#0097A7"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 11014,
+    "pics": 61,
+    "tables": 13,
+    "svgs": 0,
+    "sample_titles": [
+      "Dance and Movement of Sikkim and Maharashtra: A Cultural Journey",
+      "Dance and Movement of Sikkim and Maharashtra: A Cultural Journey",
+      "Sikkim: A Melting Pot of Ethnic Dance Traditions",
+      "Contents of this template",
+      "Whoa!"
+    ]
+  },
+  {
+    "filename": "Some-Natural-Phenomena-Static-Electricity.pptx",
+    "aspect": "16:9",
+    "slides": 8,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 61,
+    "pics": 12,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Sound.pptx",
+    "aspect": "16:9",
+    "slides": 83,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "flip",
+      "reveal",
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 506,
+    "pics": 92,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Special assembly ppt VIII Delta.pptx",
+    "aspect": "16:9",
+    "slides": 46,
+    "fonts": [
+      "Arial Black",
+      "Sabon Next LT"
+    ],
+    "colors": [
+      [
+        "dk1",
+        "#000000"
+      ],
+      [
+        "lt1",
+        "#FDFAF6"
+      ],
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#F5CDCE"
+      ],
+      [
+        "accent2",
+        "#DE8C8C"
+      ],
+      [
+        "accent3",
+        "#AAC3E8"
+      ],
+      [
+        "accent4",
+        "#D2D592"
+      ],
+      [
+        "accent5",
+        "#CCBE89"
+      ],
+      [
+        "accent6",
+        "#1F2C8F"
+      ],
+      [
+        "hlink",
+        "#1F2C8F"
+      ],
+      [
+        "folHlink",
+        "#AAC3E9"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 316,
+    "pics": 171,
+    "tables": 0,
+    "svgs": 7,
+    "sample_titles": [
+      "School prayer",
+      "\u092a\u094d\u0930\u093e\u0930\u094d\u0925\u0928\u093eSchool prayer",
+      "School Song",
+      "Pledge",
+      "Pledge"
+    ]
+  },
+  {
+    "filename": "Understanding Marginalization Animation.pptx",
+    "aspect": "16:9",
+    "slides": 18,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 223,
+    "pics": 38,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "Understanding Marginalization Printable.pptx",
+    "aspect": "16:9",
+    "slides": 9,
+    "fonts": [
+      "Calibri Light",
+      "Calibri"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#44546A"
+      ],
+      [
+        "lt2",
+        "#E7E6E6"
+      ],
+      [
+        "accent1",
+        "#4472C4"
+      ],
+      [
+        "accent2",
+        "#ED7D31"
+      ],
+      [
+        "accent3",
+        "#A5A5A5"
+      ],
+      [
+        "accent4",
+        "#FFC000"
+      ],
+      [
+        "accent5",
+        "#5B9BD5"
+      ],
+      [
+        "accent6",
+        "#70AD47"
+      ],
+      [
+        "hlink",
+        "#0563C1"
+      ],
+      [
+        "folHlink",
+        "#954F72"
+      ]
+    ],
+    "transitions": [
+      "morph",
+      "fade"
+    ],
+    "morph": true,
+    "timing": true,
+    "shapes": 76,
+    "pics": 13,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": []
+  },
+  {
+    "filename": "final odisha ppt (IMP).pptx",
+    "aspect": "1.46:1",
+    "slides": 7,
+    "fonts": [
+      "Trebuchet MS",
+      "Trebuchet MS"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#B13F9A"
+      ],
+      [
+        "lt2",
+        "#F4E7ED"
+      ],
+      [
+        "accent1",
+        "#B83D68"
+      ],
+      [
+        "accent2",
+        "#AC66BB"
+      ],
+      [
+        "accent3",
+        "#DE6C36"
+      ],
+      [
+        "accent4",
+        "#F9B639"
+      ],
+      [
+        "accent5",
+        "#CF6DA4"
+      ],
+      [
+        "accent6",
+        "#FA8D3D"
+      ],
+      [
+        "hlink",
+        "#FFDE66"
+      ],
+      [
+        "folHlink",
+        "#D490C5"
+      ]
+    ],
+    "transitions": [
+      "wheel",
+      "cut",
+      "pull",
+      "dissolve",
+      "newsflash",
+      "wedge"
+    ],
+    "morph": false,
+    "timing": true,
+    "shapes": 57,
+    "pics": 34,
+    "tables": 0,
+    "svgs": 0,
+    "sample_titles": [
+      "about Odisha",
+      "Sand art",
+      "ARt",
+      "Precaution is better than cure"
+    ]
+  },
+  {
+    "filename": "flowchart of flavored milk [Autosaved].pptx",
+    "aspect": "16:9",
+    "slides": 10,
+    "fonts": [
+      "Aptos Display",
+      "Aptos"
+    ],
+    "colors": [
+      [
+        "dk2",
+        "#0E2841"
+      ],
+      [
+        "lt2",
+        "#E8E8E8"
+      ],
+      [
+        "accent1",
+        "#156082"
+      ],
+      [
+        "accent2",
+        "#E97132"
+      ],
+      [
+        "accent3",
+        "#196B24"
+      ],
+      [
+        "accent4",
+        "#0F9ED5"
+      ],
+      [
+        "accent5",
+        "#A02B93"
+      ],
+      [
+        "accent6",
+        "#4EA72E"
+      ],
+      [
+        "hlink",
+        "#467886"
+      ],
+      [
+        "folHlink",
+        "#96607D"
+      ]
+    ],
+    "transitions": [],
+    "morph": false,
+    "timing": false,
+    "shapes": 31,
+    "pics": 6,
+    "tables": 1,
+    "svgs": 0,
+    "sample_titles": [
+      "PROCESS FLOW OF FLAVORED MILK",
+      "Flavored milk",
+      "Ingredients",
+      "Process Flowchart",
+      "RETORT"
+    ]
+  }
+]
