@@ -123,6 +123,9 @@ body.night .vignette{box-shadow:inset 0 0 22vmin rgba(2,2,20,.55)}
 /* ---------- paper labels (the reference tag, extended into a family of cards) ---------- */
 .content{position:absolute;left:0;top:0;width:var(--W);height:var(--H);will-change:transform;pointer-events:none}
 .slot{position:absolute;top:0;width:var(--W);height:var(--H);contain:layout style}
+/* a plate that is not on stage needs neither layout nor paint; only the plate
+   being walked to (and the one leaving) is ever rendered in full */
+.slot:not(.on):not(.off){content-visibility:auto;contain-intrinsic-size:var(--W) var(--H)}
 .slot>*{position:absolute}
 .slot .anim{opacity:0}
 .slot.on .anim{animation:placeIn .9s cubic-bezier(.2,.8,.25,1) both;animation-delay:calc(var(--i,0) * 110ms + 380ms)}
@@ -267,6 +270,25 @@ body.night .hint{background:rgba(12,13,40,.8);color:#e7e1ef}
 .defs{position:absolute;width:0;height:0;overflow:hidden}
 .panda-btn{position:absolute;left:0;top:0;width:10px;height:10px;padding:0;margin:0;border:0;border-radius:40%;background:transparent;cursor:pointer;pointer-events:auto;touch-action:manipulation}
 .panda-btn:focus-visible{outline:2px dashed #fff6df;outline-offset:4px}
+/* ---------- lite tier (weak devices, see deck.js setLite) ----------
+   The drawing is identical; only the most expensive pixels are traded away:
+   the double gaussian drop shadow on each sheet becomes one hard paper edge,
+   the moving leaves and the glow dots lose their filters, and the twinkling
+   stars animate less often.                                                 */
+body.lite .layer.cut{filter:drop-shadow(0 4px 0 var(--shade))}
+body.lite .layer path,body.lite .layer circle{transition:fill .5s ease,opacity .5s ease}
+body.lite .leaf,body.lite .hang .obj{filter:none}
+body.lite .glowdots{filter:none}
+body.lite .glint{animation:none;opacity:.5}
+body.lite .pins .tw{animation-duration:4.4s}
+body.lite .tag-wrap{filter:drop-shadow(2px 6px 5px var(--shade))}
+body.lite .card-wrap{filter:drop-shadow(0 7px 6px var(--shade))}
+body.lite .poster-wrap{filter:drop-shadow(0 10px 9px var(--shade))}
+/* a filtered element that also *moves* re-runs its blur every single frame;
+   dropping the filter on the swinging tags is cheaper than dropping the swing */
+body.lite .tag-wrap.swingy{filter:none}
+body.lite .hang .swing{animation-duration:9s}
+
 @media (prefers-reduced-motion:reduce){
   .place>svg,.slot.on .anim,.slot.on li,.slot.on .row,.slot.on .mini,.slot.on .tl>div{animation-duration:.01s;animation-delay:0s}
   .hang .swing,.pins .tw{animation:none}

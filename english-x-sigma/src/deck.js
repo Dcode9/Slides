@@ -13,6 +13,44 @@
   const body=document.body, stage=$('stage'), vp=$('vp');
   const reduceMQ=matchMedia('(prefers-reduced-motion: reduce)'); let reduce=reduceMQ.matches;
   reduceMQ.addEventListener&&reduceMQ.addEventListener('change',e=>{reduce=e.matches;});
+
+  /* ---------- quality tiers ----------
+     "full" is the deck exactly as designed.  "lite" trades only the most
+     expensive pixels — per-layer gaussian drop shadows, the grain on thin
+     blades, the blur on falling leaves, half the particles, the idle camera
+     drift — for a deck that is still unmistakably the same paper diorama on a
+     device that cannot afford all those blurs.  It switches itself on when the
+     device advertises that it is weak, or when the first second of the deck
+     genuinely runs below ~38 fps.  It never switches back, so it can't flicker. */
+  const perf={lite:false,checked:false,frames:0,slow:0};
+  function setLite(on){
+    if(perf.lite===on)return;
+    perf.lite=on;body.classList.toggle('lite',on);
+  }
+  (function detect(){
+    // ?lite / #lite forces the tier (handy for judging it on a fast machine or
+    // for a projector laptop that is slow only on battery); ?full forces the
+    // design as drawn.
+    if(/[?&]lite\b/.test(location.search)||/#lite\b/.test(location.hash))return setLite(true);
+    if(/[?&]full\b/.test(location.search))return;
+    const c=navigator.connection||{};
+    if(c.saveData)return setLite(true);
+    if((navigator.deviceMemory||8)<=2)return setLite(true);
+    if((navigator.hardwareConcurrency||8)<=2)return setLite(true);
+  })();
+  function noteFrame(dt){
+    if(perf.checked)return;
+    perf.frames++;
+    if(perf.frames>20){                             // ignore the warm-up frames
+      if(dt>0.034)perf.slow++;                      // slower than ~29fps
+      if(perf.frames===140){
+        perf.checked=true;
+        // a few hiccups are normal; a machine whose first two seconds are a
+        // fifth slow frames needs the cheaper tier
+        if(perf.slow>24)setLite(true);
+      }
+    }
+  }
   const live=$('live'); const say=s=>{live.textContent=s;};
   const ROMAN=n=>{const v=[[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let s='';for(const [a,b] of v)while(n>=a){s+=b;n-=a;}return s;};
 
@@ -31,17 +69,42 @@
   }
   try{$('grainImg').setAttribute('href',makeGrain());}catch(e){}
 
-  /* ---------- the nine sheets ---------- */
+  /* ---------- the nine sheets ----------
+     Each sheet is generated as one long strip, but it is split on the \u0001
+     tile marks into W-wide pieces.  Only the pieces in and around the camera
+     are ever put in the document: a phone that shows plate V has ~4 tiles per
+     sheet mounted instead of all 99, so the DOM stays small, the style tree
+     stays small, and navigation never pays for art that is 10 m off-screen.  */
   const art=WORLD.build(1847);
   const layersHost=$('layers'), layerEls=[];      // {el,f,depth,tiles}
   const order=[['L1',3],['L2',3],['L3',4],['L4',4],['L5',5],['L6',6],['L7',6]];
+  const SVGNS='http://www.w3.org/2000/svg';
+  function splitArt(s){
+    const parts=s.split('\u0001'), head=parts.shift();
+    const tail=(parts.length&&parts[parts.length-1].indexOf('<g class="tile"')!==0)?parts.pop():'';
+    const tiles=[];
+    for(const p of parts){
+      const m=p.match(/^<g class="tile" data-j="(\d+)">/);
+      if(!m)continue;
+      // inner = everything between the opening tag and the tile's own closing </g>
+      tiles.push({j:+m[1],inner:p.slice(p.indexOf('>')+1,-4)});
+    }
+    return {head,tail,tiles};
+  }
   function addLayer(key,sh,i,host){
-    const L=LAYERS[key],lw=WORLD.widthOf(L.f)+2*M,lh=H+2*M;
+    const L=LAYERS[key],lw=WORLD.widthOf(L.f)+2*M,lh=H+2*M,spec=splitArt(art[key]);
     const el=document.createElement('div');el.className='layer cut place';el.id=key;el.dataset.depth=L.depth;
     el.style.cssText=`--i:${i};--sh:${sh};left:${-M}px;top:${-M}px;width:${lw}px;height:${lh}px`;
-    el.innerHTML=`<svg width="${lw}" height="${lh}" viewBox="${-M} ${-M} ${lw} ${lh}" focusable="false" aria-hidden="true">${art[key]}</svg>`;
+    el.innerHTML=`<svg width="${lw}" height="${lh}" viewBox="${-M} ${-M} ${lw} ${lh}" focusable="false" aria-hidden="true">${spec.head}<g class="tiles"></g>${spec.tail}</svg>`;
     host.appendChild(el);
-    const rec={el,f:L.f,depth:L.depth,df:depthF(L.depth),tiles:Array.from(el.querySelectorAll('g.tile'))};layerEls.push(rec);return rec;
+    const hostG=el.querySelector('g.tiles');
+    const tiles=spec.tiles.map(t=>{
+      const g=document.createElementNS(SVGNS,'g');g.setAttribute('class','tile');g.setAttribute('data-j',t.j);
+      hostG.appendChild(g);
+      return {j:t.j,el:g,key,inner:t.inner,on:false};
+    });
+    const rec={el,key,f:L.f,depth:L.depth,df:depthF(L.depth),tiles};
+    layerEls.push(rec);return rec;
   }
   order.forEach(([k,sh],i)=>addLayer(k,sh,i,layersHost));
   const fliesC=document.createElement('canvas');fliesC.className='layer';fliesC.id='flies';fliesC.dataset.depth='7.4';fliesC.style.cssText=`left:${-M}px;top:${-M}px`;layersHost.appendChild(fliesC);
@@ -81,13 +144,16 @@
     hang.innerHTML=items.map(it=>{const len=it.y+M,up=len+it.h*1.6+40;
       return `<div class="hang ${it.cls}" style="left:${q(it.x)}px;--len:${q(len)}px;--up:${q(up)};--hd:${it.delay}s"><div class="swing" style="--sd:${(4+R()*3).toFixed(2)}s;--sdl:-${(R()*4).toFixed(2)}s"><span class="string"></span><div class="obj">${it.html}</div></div></div>`;}).join('');
   }
+  let pinsBuilt=false;
   function buildPins(){
+    if(pinsBuilt)return;pinsBuilt=true;
     const pins=$('pins');pins.setAttribute('viewBox',`0 0 ${W} ${H}`);F.setSeed(5);const R=()=>F.R();
     let s='';const n=Math.round(W*H/9000);
-    for(let i=0;i<n;i++){const x=R()*W,y=Math.pow(R(),1.4)*H*.5,r=F.rr(.5,1.5);s+=`<circle${R()<.35?' class="tw"':''} style="animation-delay:-${(R()*3).toFixed(2)}s" cx="${q(x)}" cy="${q(y)}" r="${q(r)}"/>`;}
+    const twMax=perf.lite?16:40;let tw=0;
+    for(let i=0;i<n;i++){const x=R()*W,y=Math.pow(R(),1.4)*H*.5,r=F.rr(.5,1.5);const on=R()<.35&&tw<twMax;if(on)tw++;s+=`<circle${on?' class="tw"':''} style="animation-delay:-${(R()*3).toFixed(2)}s" cx="${q(x)}" cy="${q(y)}" r="${q(r)}"/>`;}
     pins.innerHTML=s;
   }
-  buildHangers();buildPins();
+  buildHangers();
 
   /* ---------- the paper labels ---------- */
   const grainSvg=cls=>`<svg class="${cls}" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>`;
@@ -129,7 +195,15 @@
     let dataUrl='';
     const show=src=>{img.src=src;ph.classList.add('has');};
     const tryLoad=(list)=>{if(!list.length)return;const src=list[0];const t=new Image();t.onload=()=>show(src);t.onerror=()=>tryLoad(list.slice(1));t.src=src;};
-    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);else tryLoad(['poster.jpg','poster.png','poster.jpeg','poster.webp']);
+    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);
+    else{
+      // The poster is a 350 KB photograph on a plate that is 13 plates away:
+      // don't spend a slow connection's bandwidth on it until it is wanted.
+      let asked=false;
+      const ask=()=>{if(asked)return;asked=true;tryLoad(['poster.jpg','poster.png','poster.jpeg','poster.webp']);};
+      (window.requestIdleCallback||(f=>setTimeout(f,4000)))(ask,{timeout:6000});
+      document.addEventListener('deck:poster',ask,{once:true});
+    }
     const input=document.createElement('input');input.type='file';input.accept='image/*';input.style.display='none';document.body.appendChild(input);
     input.addEventListener('change',()=>{const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{dataUrl=r.result;show(dataUrl);embed.hidden=false;say('Poster loaded. Use "Save copy with poster" to keep it inside the file.');};r.readAsDataURL(f);});
     const open=e=>{e.stopPropagation();input.click();};
@@ -149,23 +223,113 @@
   const hashK=()=>{const m=location.hash.match(/\d+/);return m?clamp(parseInt(m[0],10)-1,0,N-1):0;};
   const dflt=k=>SLIDES[k].mode==='night';
   function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
-  function cull(a,b){ // keep only the tiles between slide positions a..b alive
-    for(const L of layerEls){if(!L.tiles.length)continue;const u0=Math.min(a,b)*W*L.f-W*.3,u1=Math.max(a,b)*W*L.f+W*1.3;
-      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-M,t1=t0+W;t.style.display=(t1<u0||t0>u1)?'none':'';}}
+  /* ---------- background fill ----------
+     Tiles are drawn on demand.  While the deck is idle we quietly draw the
+     ones the talk is likely to need next, nearest plate first, a few
+     milliseconds at a time — so walking forward never has to wait for paper. */
+  const tileIndex={};
+  for(const L of layerEls){const m=tileIndex[L.key]=tileIndex[L.key]||{};for(const t of L.tiles)m[t.j]=t;}
+  const idle=window.requestIdleCallback
+    ? (f)=>window.requestIdleCallback(f,{timeout:1500})
+    : (f)=>setTimeout(()=>f({timeRemaining:()=>8}),60);
+  let prefetchQ=[],prefetching=false;
+  function pumpPrefetch(){
+    if(prefetching||!prefetchQ.length)return;
+    prefetching=true;
+    const step=(deadline)=>{
+      const left=deadline&&deadline.timeRemaining?()=>deadline.timeRemaining():()=>0;
+      let n=0;
+      while(prefetchQ.length&&n<3&&(n===0||left()>5)){
+        const t=prefetchQ.shift();
+        if(!t.inner)t.inner=WORLD.fill(t.key,t.j)||'';
+        n++;
+      }
+      prefetching=false;
+      if(prefetchQ.length)idle(step);
+    };
+    idle(step);
+  }
+  function drainPrefetch(n){
+    while(n-->0&&prefetchQ.length){
+      const t=prefetchQ.shift();
+      if(!t.inner)t.inner=WORLD.fill(t.key,t.j)||'';
+    }
+  }
+  function schedulePrefetch(centre){
+    const seen=new Set();prefetchQ=[];
+    // lite devices only look one plate ahead: enough, and it keeps the fan quiet
+    const reach=perf.lite?1:N;
+    const at=centre==null?cur:centre;
+    const order=[];
+    for(let d=0;d<reach;d++){
+      if(d===0)order.push(at);
+      else{order.push(at-d,at+d);}
+    }
+    for(const k of order){
+      if(k<0||k>=N)continue;
+      for(const key in tileIndex){
+        const f=LAYERS[key].f;
+        const j0=Math.max(0,Math.floor((k*W*f+M)/W)-1),j1=Math.floor(((k+1)*W*f+M)/W);
+        for(let j=j0;j<=j1;j++){
+          const t=tileIndex[key][j];
+          if(t&&!t.inner&&!seen.has(key+':'+j)){seen.add(key+':'+j);prefetchQ.push(t);}
+        }
+      }
+    }
+    pumpPrefetch();
+  }
+
+  /* ---------- tile window ----------
+     A tile is *mounted* (its art injected) only while it is in, or just
+     outside, the camera window — or on the plate we are walking to.  Anything
+     else has zero nodes in the document, which is what keeps this deck usable
+     on a low-end machine: no memory for path data that cannot be seen and no
+     style recalculation over it when day turns to night.                  */
+  const MARGIN=.34;            // slide-widths of art kept just outside the frame
+  let lastTileCam=-999;
+  function mountTile(t,on,onlyIfReady){
+    if(on===t.on)return;
+    if(on){
+      // tiles are drawn the first time they are needed; after that the markup
+      // is kept so walking back and forth stays instant
+      if(!t.inner){
+        if(onlyIfReady)return;                 // will be mounted on a later frame
+        t.inner=WORLD.fill(t.key,t.j)||'';
+      }
+      t.el.innerHTML=t.inner;
+    }else t.el.textContent='';
+    t.on=on;
+  }
+  function applyTiles(){
+    const a=cam-MARGIN,b=cam+1+MARGIN;              // what the camera window shows
+    const c=cur-.18,d=cur+1.18;                     // the plate on stage
+    const e=tween?tween.to-.18:0,f=tween?tween.to+1.18:-1;   // the plate we walk to
+    for(const L of layerEls){
+      if(!L.tiles.length)continue;
+      const j0=Math.max(0,Math.floor((a*W*L.f+M)/W)-1),j1=Math.min(L.tiles.length-1,Math.floor((b*W*L.f+M)/W));
+      const k0=Math.max(0,Math.floor((c*W*L.f+M)/W)-1),k1=Math.min(L.tiles.length-1,Math.floor((d*W*L.f+M)/W));
+      const n0=Math.max(0,Math.floor((e*W*L.f+M)/W)-1),n1=Math.min(L.tiles.length-1,Math.floor((f*W*L.f+M)/W));
+      for(const t of L.tiles){
+        if(t.j>=j0&&t.j<=j1)mountTile(t,true,false);
+        else if((t.j>=k0&&t.j<=k1)||(t.j>=n0&&t.j<=n1))mountTile(t,true,true);
+        else mountTile(t,false);
+      }
+    }
   }
   const MAX_HOP_SPEED=440; // max horizontal speed (px/sec) to keep movement grounded & weighted
   const MIN_HOP_DUR=0.66;  // minimum time per hop (s) for clear squash, parabolic float, and landing
   const MAX_HOP_DUR=0.80;  // maximum time per hop (s) to prevent zero-gravity float
   function goTo(k,instant){
     k=clamp(k,0,N-1);if(k===cur&&!instant&&tween===null)return;
+    if(SLIDES[k]&&/poster/.test(SLIDES[k].id||''))document.dispatchEvent(new Event('deck:poster'));
     const prev=cur;cur=k;
     if(dflt(prev)!==dflt(k)||instant){manual=false;setNight(dflt(k),true);}
-    if(location.hash!=='#'+(k+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));
+    if(location.hash!=='#'+(k+1)){try{history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));}catch(e){}}
     updateCounter();
     const d=Math.abs(k-cam);
     if(instant||reduce||d===0){
       slots.forEach((s,i)=>{if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),1200);}});
-      cam=k;tween=null;slots[k].classList.add('on');cull(k,k);applyCamera(true);pandaTo(k,true);
+      cam=k;tween=null;slots[k].classList.add('on');applyTiles();schedulePrefetch(k);applyCamera(true);pandaTo(k,true);
     }
     else{
       const targetPandaX=ux(k,SLIDES[k].panda==null?.5:SLIDES[k].panda,1);
@@ -181,7 +345,7 @@
       }
       slots.forEach((s,i)=>{if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),Math.max(1500,Math.round(dur*1000)));}});
       tween={from:cam,to:k,t:0,dur,shown:false};
-      cull(Math.min(prev,k),Math.max(prev,k));
+      applyTiles();schedulePrefetch(k);
       pandaTo(k,false,dur);
     }
     say('Plate '+(k+1)+' of '+N+': '+(SLIDES[k].title||SLIDES[k].id));
@@ -191,7 +355,7 @@
     const tw=tween;tw.t+=dt/tw.dur;const t=Math.min(1,tw.t),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
     cam=tw.from+(tw.to-tw.from)*e;
     if(!tw.shown&&t>.5){tw.shown=true;slots[tw.to].classList.add('on');}
-    if(t>=1){cam=tw.to;tween=null;cull(cur,cur);}
+    if(t>=1){cam=tw.to;tween=null;applyTiles();}
   }
 
   /* ---------- parallax (mouse) + camera, applied to every sheet ---------- */
@@ -281,10 +445,10 @@
   const leafShapes=['M0 -9C5 -6 6 1 0 9C-6 1 -5 -6 0 -9Z','M0 -9L2.5 -4L6.5 -5L4.5 0L7 3L2 3.5L0 9L-2 3.5L-7 3L-4.5 0L-6.5 -5L-2.5 -4Z','M0 -9C3 -7 4.5 -3 3.5 0C5 2 4 6 0 9C-4 6 -5 2 -3.5 0C-4.5 -3 -3 -7 0 -9Z'];
   const leafCls=['lf-a','lf-b','lf-c','lf-a','lf-b'];const leaves=[];
   function makeLeaves(){
-    const n=18;let html='';
+    const n=perf.lite?10:16;let html='';
     for(let i=0;i<n;i++){html+=`<div class="leaf"><svg viewBox="-10 -10 20 20" width="20" height="20"><path class="${leafCls[i%5]}" d="${leafShapes[i%3]}"/><path class="lf-v" d="M0 -7V8"/></svg></div>`;}
     leavesEl.innerHTML=html;
-    Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<8}));
+    Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<6}));
     leaves.forEach(l=>{if(l.ambient)spawnLeaf(l,Math.random()*W,Math.random()*H*.9);else l.el.style.opacity='0';});
   }
   function spawnLeaf(l,x,y,burst){l.on=true;l.x=x;l.y=y;l.vx=burst?rr(-80,80):rr(8,26);l.vy=burst?rr(-70,-20):rr(18,34);l.rot=Math.random()*360;l.vr=rr(-90,90);l.sz=rr(.8,1.5)*clamp(U/9,.7,1.4);l.el.style.opacity='1';}
@@ -299,14 +463,22 @@
 
   /* ---------- fireflies (and day-time pollen) ---------- */
   const fx=fliesC.getContext('2d');let dpr=1,flies=[],nightAmt=0,sprite=null;
+  // The glow layer is drawn at half resolution: fireflies and pollen are soft
+  // round lights, so upscaling 2x is invisible — and it is 4x less canvas to
+  // clear and upload on every frame, which is exactly what low-end GPUs hate.
+  const FLY_DPR=.5;
   function sizeFlies(){
-    dpr=1;fliesC.width=W+2*M;fliesC.height=H+2*M;fliesC.style.width=(W+2*M)+'px';fliesC.style.height=(H+2*M)+'px';
-    flies=[];for(let i=0;i<38;i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
+    dpr=FLY_DPR;const cw=Math.round((W+2*M)*dpr),ch=Math.round((H+2*M)*dpr);
+    fliesC.width=cw;fliesC.height=ch;fliesC.style.width=(W+2*M)+'px';fliesC.style.height=(H+2*M)+'px';
+    flies=[];const nf=perf.lite?22:38;
+    for(let i=0;i<nf;i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
     sprite=document.createElement('canvas');sprite.width=sprite.height=64;const g=sprite.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,250,200,1)');gr.addColorStop(.14,'rgba(246,236,130,.95)');gr.addColorStop(.4,'rgba(214,230,110,.28)');gr.addColorStop(1,'rgba(200,220,100,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
   }
   let ptr={x:-9999,y:-9999,t:0};
   function stepFlies(dt,t){
-    fx.setTransform(1,0,0,1,M,M);fx.clearRect(-M,-M,W+2*M,H+2*M);const na=nightAmt;
+    const na=nightAmt;
+    if(na<.02&&!flies.length)return;
+    fx.setTransform(dpr,0,0,dpr,M*dpr,M*dpr);fx.clearRect(-M,-M,W+2*M,H+2*M);
     for(const f of flies){
       f.a+=(Math.sin(t*.7+f.ph)*1.6)*dt;let vx=Math.cos(f.a)*f.sp,vy=Math.sin(f.a)*f.sp*.6;
       if(na>.5&&performance.now()-ptr.t<2500){const dx=ptr.x-f.x,dy=ptr.y-f.y,d=Math.hypot(dx,dy);if(d<W*.3&&d>20){vx+=dx/d*22;vy+=dy/d*22;}}
@@ -325,12 +497,20 @@
   const kickTags=v=>{for(const tg of physTags)tg.v+=v;};
 
   /* ---------- the frame loop ---------- */
-  let raf=0,last=performance.now(),clock=0;
+  let raf=0,last=performance.now(),clock=0,flyAcc=0;
   function frame(now){
     raf=requestAnimationFrame(frame);
     const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
+    noteFrame(dt);
     const target=body.classList.contains('night')?1:0;nightAmt+=(target-nightAmt)*(1-Math.exp(-dt*1.6));
-    stepCamera(dt);stepParallax(dt,clock);applyCamera();stepTags(dt,clock);stepLeaves(dt,clock);stepPanda(dt);stepFlies(dt,clock);
+    stepCamera(dt);
+    if(tween&&prefetchQ.length){drainPrefetch(1);lastTileCam=-999;}
+    if(Math.abs(cam-lastTileCam)>0.035){lastTileCam=cam;applyTiles();}
+    stepParallax(dt,clock);applyCamera();stepTags(dt,clock);stepLeaves(dt,clock);stepPanda(dt);
+    // the glow layer runs at 30fps in lite mode (motion is identical, it is just
+    // sampled less often; the *cost* is what halves)
+    flyAcc+=dt;
+    if(!perf.lite||flyAcc>=1/30){stepFlies(flyAcc,clock);flyAcc=0;}
   }
   function start(){if(!raf){last=performance.now();raf=requestAnimationFrame(frame);}}
   function stop(){cancelAnimationFrame(raf);raf=0;}
@@ -360,6 +540,7 @@
 
   const toggle=$('toggle'),toggleLabel=$('toggleLabel');
   function setNight(on,auto){
+    if(on)buildPins();                       // the stars are drawn on first need
     body.classList.toggle('night',on);toggle.setAttribute('aria-pressed',String(on));toggleLabel.textContent=on?'Night':'Day';
     const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',on?'#161a45':'#f3e8d2');
     if(!auto){manual=true;say(on?'Night falls on the diorama: windows light up and fireflies come out.':'Morning returns.');}
@@ -390,11 +571,15 @@
 
   /* ---------- go ---------- */
   makeLeaves();sizeFlies();
-  const k0=hashK();cur=k0;cam=k0;cull(k0,k0);
-  if(dflt(k0)){body.classList.add('night');nightAmt=1;toggle.setAttribute('aria-pressed','true');toggleLabel.textContent='Night';}
+  idle(()=>buildPins());                       // stars only matter at night
+  schedulePrefetch();                           // draw the neighbours while idle
+  const k0=hashK();cur=k0;cam=k0;applyTiles();
+  if(dflt(k0)){buildPins();body.classList.add('night');nightAmt=1;toggle.setAttribute('aria-pressed','true');toggleLabel.textContent='Night';}
   updateCounter();pandaTo(k0,true);applyCamera();
   setTimeout(()=>slots[k0].classList.add('on'),reduce?0:650);
-  if(location.hash!=='#'+(k0+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k0+1));
+  if(location.hash!=='#'+(k0+1)){try{history.replaceState(null,'',(location.pathname||'')+'#'+(k0+1));}catch(e){}}
   start();
-  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},hop:hopLocal,setCam(x){tween=null;cam=x;cull(Math.floor(x),Math.ceil(x));applyCamera();}};
+  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},get lite(){return perf.lite;},
+    stats(){let total=0,mounted=0,drawn=0;for(const L of layerEls)for(const t of L.tiles){total++;if(t.on)mounted++;if(t.inner)drawn++;}
+      return {tiles:total,mounted,drawn,elements:document.getElementsByTagName('*').length};},hop:hopLocal,setCam(x){tween=null;cam=x;applyTiles();applyCamera();}};
 })();

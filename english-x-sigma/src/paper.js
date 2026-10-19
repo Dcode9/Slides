@@ -16,24 +16,52 @@ const PAPER = (() => {
   const lerp = (a,b,t) => a+(b-a)*t;
   const smooth = t => { t = clamp(t,0,1); return t*t*(3-2*t); };
 
-  /* ---------- paper geometry (reference) ---------- */
+  /* ---------- paper geometry (reference) ----------
+     Path data is emitted as one absolute M followed by *relative* implicit
+     linetos ("M10 20 4-1 4-1"), which is ~45% shorter than the equivalent
+     absolute "L" list while describing exactly the same outline.  Deltas are
+     rounded against the running (rounded) position, so rounding never drifts
+     along a long ridge.                                              */
+  const nf = v => { const r = Math.round(v*10)/10; return r === 0 ? '0' : String(r); };
+  function emit(pts, close){
+    if(!pts || !pts.length) return '';
+    let s = '', px = 0, py = 0;
+    for(let i=0;i<pts.length;i++){
+      const rx = Math.round(pts[i][0]*10)/10, ry = Math.round(pts[i][1]*10)/10;
+      if(i === 0){ s = 'M' + nf(rx) + ' ' + nf(ry); px = rx; py = ry; continue; }
+      const dx = Math.round((rx-px)*10)/10, dy = Math.round((ry-py)*10)/10;
+      px += dx; py += dy;
+      const sx = nf(dx), sy = nf(dy);
+      // a leading '-' is its own separator; anything else needs a space so that
+      // "1.2" followed by "4.4" can never fuse into "1.24.4".
+      s += (i === 1 ? 'l' : '') + (sx.charAt(0) === '-' ? '' : ' ') + sx + (sy.charAt(0) === '-' ? '' : ' ') + sy;
+    }
+    return close ? s + 'Z' : s;
+  }
   function area(p){let a=0;for(let i=0;i<p.length;i++){const u=p[i],v=p[(i+1)%p.length];a+=u[0]*v[1]-v[0]*u[1];}return a;}
   function orient(p){return area(p)<0?p.slice().reverse():p;}
   function trace(p,j,step){
-    let s='';const n=p.length;
+    const pts=[];const n=p.length;
     for(let i=0;i<n;i++){
-      const a=p[i],b=p[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,k=Math.max(1,Math.round(L/step)),nx=-dy/L,ny=dx/L;
+      const a=p[i],b=p[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;
+      // Very long edges (the deckle frame is ~5000px) get proportionally wider
+      // samples: the tear is a low-frequency wobble, so 7000px needs ~300
+      // samples, not 1000.  Short edges keep the original sampling, which also
+      // keeps the generated artwork identical.
+      let k=Math.max(1,Math.round(L/step));
+      if(L>1500) k=Math.min(k,Math.max(2,Math.round(L/24)));
+      const nx=-dy/L,ny=dx/L;
       for(let t=0;t<k;t++){
         let x=a[0]+dx*t/k,y=a[1]+dy*t/k;
         if(t>0){const o=(R()-.5)*2*j;x+=nx*o;y+=ny*o;}
-        s+=(s?'L':'M')+q(x)+' '+q(y);
+        pts.push([x,y]);
       }
     }
-    return s+'Z';
+    return emit(pts,true);
   }
   const cut  = (p,j=.7,step=7) => trace(orient(p),j,step);
   const hole = (p,j=.7,step=7) => trace(orient(p).slice().reverse(),j,step);
-  function poly(p){p=orient(p);let s='M'+q(p[0][0])+' '+q(p[0][1]);for(let i=1;i<p.length;i++)s+='L'+q(p[i][0])+' '+q(p[i][1]);return s+'Z';}
+  function poly(p){return emit(orient(p),true);}
   function circ(cx,cy,r,n){const p=[];n=n||Math.max(8,Math.round(r*1.4));for(let i=0;i<n;i++){const a=i/n*Math.PI*2;p.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}return p;}
   function ell(cx,cy,rx,ry,n){const p=[];n=n||Math.max(10,Math.round((rx+ry)*.8));for(let i=0;i<n;i++){const a=i/n*Math.PI*2;p.push([cx+Math.cos(a)*rx,cy+Math.sin(a)*ry]);}return p;}
   const rect = (x,y,w,h) => [[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
@@ -59,7 +87,7 @@ const PAPER = (() => {
   }
   function blade(bx,by,h,lean,wb){
     const L=[],Rt=[];
-    for(let i=0;i<=6;i++){const t=i/6,x=bx+lean*t*t,y=by-h*t,hw=wb*.5*(1-t)*(1-t*.15);L.push([x-hw,y]);if(i<6)Rt.push([x+hw,y]);}
+    for(let i=0;i<=4;i++){const t=i/4,x=bx+lean*t*t,y=by-h*t,hw=wb*.5*(1-t)*(1-t*.15);L.push([x-hw,y]);if(i<4)Rt.push([x+hw,y]);}
     return poly(L.concat(Rt.reverse()));
   }
   function mushroom(cx,by,s){
@@ -77,9 +105,9 @@ const PAPER = (() => {
     let d='';const tipX=bx+dir*len*.62,tipY=by-len*.86,cx=bx+dir*len*.02,cy=by-len*.78;
     const P=t=>[(1-t)*(1-t)*bx+2*(1-t)*t*cx+t*t*tipX,(1-t)*(1-t)*by+2*(1-t)*t*cy+t*t*tipY];
     const sp=[],sp2=[];
-    for(let i=0;i<=10;i++){const t=i/10,[x,y]=P(t),w=1.8*(1-t)+.4;sp.push([x-w,y]);sp2.push([x+w,y]);}
+    for(let i=0;i<=7;i++){const t=i/7,[x,y]=P(t),w=1.8*(1-t)+.4;sp.push([x-w,y]);sp2.push([x+w,y]);}
     d+=poly(sp.concat(sp2.reverse()));
-    for(let t=.1;t<.97;t+=.075){
+    for(let t=.1;t<.97;t+=.095){
       const [x,y]=P(t),[x2,y2]=P(Math.min(1,t+.01)),ta=Math.atan2(y2-y,x2-x),L=len*.26*(1-t*.78);
       for(const side of [-1,1]){
         const a=ta+side*1.05,ex=x+Math.cos(a)*L,ey=y+Math.sin(a)*L,mx=x+Math.cos(a)*L*.5,my=y+Math.sin(a)*L*.5,wd=L*.2;
@@ -131,23 +159,26 @@ const PAPER = (() => {
     let d=cut(trunk,.35,8);
     for(let i=0;i<nF;i++){
       const a=-Math.PI*.95+i/(nF-1)*Math.PI*.9+(R()-.5)*.18,len=h*(.38+R()*.14),droop=.9+R()*.5;
-      const pts=[];const S=8;
+      // only small palms (a few pixels on screen) can afford a coarse frond:
+      // a 800px- tall giant needs every one of its 8 sample points
+      const pts=[];const S=h<150?6:8;
       // frond centre line: starts along angle a, droops with t
       const px=t=>top[0]+Math.cos(a)*len*t+ (Math.cos(a)>0?1:-1)*0, py=t=>top[1]+Math.sin(a)*len*t+droop*len*t*t*.55;
       const L=[],Rt=[];
       for(let k=0;k<=S;k++){const t=k/S,w=h*.028*(1-t)*(t<.1?t*10:1)+.6;const x=px(t),y=py(t);
         const x2=px(Math.min(1,t+.02)),y2=py(Math.min(1,t+.02)),ta=Math.atan2(y2-y,x2-x),nx=-Math.sin(ta),ny=Math.cos(ta);
         L.push([x+nx*w*2.2,y+ny*w*2.2]);Rt.push([x-nx*w*2.2,y-ny*w*2.2]);}
-      d+=cut(L.concat(Rt.reverse()),Math.max(1.2,h*.02),Math.max(4,h*.03));
+      d+=cut(L.concat(Rt.reverse()),Math.max(1.2,h*.02),h<150?Math.max(5.5,h*.042):Math.max(4,h*.03));
     }
-    for(let k=0;k<3;k++)d+=cut(circ(top[0]+(k-1)*h*.03,top[1]+h*.03,h*.028,8),.2,3);
+    const nutR=h*.028;
+    for(let k=0;k<3;k++)d+=cut(circ(top[0]+(k-1)*h*.03,top[1]+h*.03,nutR,nutR>12?8:6),.2,3);
     return d;
   }
   // round broadleaf tree (mango / cashew / jackfruit)
   function roundTree(cx,by,h,w){
     let d=cut([[cx-w*.05,by+3],[cx-w*.035,by-h*.38],[cx+w*.035,by-h*.38],[cx+w*.05,by+3]],.3,6);
     const lobes=[[0,-.68,.48],[-.3,-.52,.36],[.3,-.5,.38],[-.16,-.78,.3],[.18,-.8,.3],[0,-.45,.4]];
-    for(const [lx,ly,lr] of lobes)d+=cut(circ(cx+lx*w,by+ly*h,lr*w*.62,14),Math.max(.6,h*.012),6);
+    for(const [lx,ly,lr] of lobes){const r=lr*w*.62;d+=cut(circ(cx+lx*w,by+ly*h,r,r>60?14:r>18?12:8),Math.max(.6,h*.012),7);}
     return d;
   }
   // rhododendron bush: dark leaves and a cluster of red-orange blooms
@@ -517,7 +548,10 @@ const PAPER = (() => {
   function lampDiya(){return P('c-cap',cut([[-6,0],[6,0],[4,-5],[-4,-5]],.2,3))+P('c-lamp',cut([[-2,-5],[2,-5],[0,-12]],.1,2));}
   function carnivalMask(){return P('c-bell2',cut([[-22,-8],[22,-8],[24,-20],[12,-30],[-12,-30],[-24,-20]],.4,3))+P('c-foxd',cut(ell(-9,-19,5,3.5,10),.1,2)+cut(ell(9,-19,5,3.5,10),.1,2))+P('c-cap',cut([[-6,-30],[6,-30],[2,-44],[-2,-44]],.2,3)+circPath(-18,-30,3)+circPath(18,-30,3))+P('c-river',circPath(-24,-34,3)+circPath(24,-34,3));}
 
-  return {setSeed,R:()=>R(),rr,q,clamp,lerp,smooth,cut,hole,poly,circ,ell,rect,wave,ridge,pine,blade,mushroom,fern,foxglove,rhodoSpike,palm,roundTree,rhodoBush,
+  // getR/setR let callers sandbox the random stream: a tile of artwork can be
+  // regenerated later without disturbing the sequence the other sheets rely on.
+  const getR=()=>R, setR=f=>{R=f;};
+  return {setSeed,getR,setR,R:()=>R(),rr,q,clamp,lerp,smooth,cut,hole,poly,circ,ell,rect,wave,ridge,pine,blade,mushroom,fern,foxglove,rhodoSpike,palm,roundTree,rhodoBush,
     P,G,church,house,gompa,chorten,hut,boat,flagLine,flagsSvg,panda,pader,woman,fugdiPair,ghodeModni,mandoCouple,snowLion,chaamDancer,maruni,drummer,lepchaPair,yak,tiatrCurtain,
     ghumot,violin,breadBasket,foodGoa,foodSikkim,butterLamp,prayerWheel,conch,coconutNut,lampDiya,carnivalMask};
 })();
