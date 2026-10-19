@@ -867,7 +867,7 @@ const PI=Math.PI,TAU=PI*2;
 /* ---------- world metrics ---------- */
 let W=0,H=0,M=0,U=0,S=0,portrait=false,VIS=.6,K=8;
 const SHEETS=['L1','L2','L3','L4','L5','L6','L7','L8'];
-// dolly speed per sheet (multiples of one section width D): far sheets glide, near sheets sweep
+// Layer depths determine parallax and the minimum safe SVG overscan for each sheet.
 // seam heights: every scene relaxes to these lines off-screen so neighbouring scenes join cleanly
 const BASE={L1:.45,L2:.52,L3:.59,L4:.66,L5:.72,L6:.8,L7:.83,L8:.955};
 const TONE={L1:'c-far',L2:'c-hill',L3:'c-ridge',L4:'c-meadow',L5:'c-moss',L6:'c-teal',L7:'c-ground',L8:'c-fg'};
