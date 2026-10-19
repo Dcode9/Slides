@@ -1,3 +1,14 @@
 .vercel
 __pycache__/
 *.pyc
+*.png
+*.jpg
+*.jpeg
+!assets/
+!images/
+!english-x-sigma/poster.jpg
+!english-x-sigma/poster.webp
+test_*.py
+screenshot_*.png
+index.old.html
+*.pptx

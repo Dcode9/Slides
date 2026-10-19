@@ -1,0 +1,275 @@
+:root{
+  --cream:#f3e8d2;
+  --sage:#9bb89b;
+  --moss:#5f7f5b;
+  --teal:#274e52;
+  --ochre:#d9a45b;
+  --orange:#c8642d;
+  --ink:#3b2b1d;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",P052,"URW Palladio L",Georgia,serif;
+  --shade:rgba(58,38,18,.34);
+  --edge:rgba(255,250,236,.5);
+  --paper:#f8efdb;
+  --paper-ink:#3b2b1d;
+  --kick:#9a5526;
+  --em:#c8642d;
+  --sub:#5b4632;
+  --dash:rgba(122,78,40,.35);
+  --W:1920px;--H:1080px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:#1f3a3c;color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body.night{--shade:rgba(6,6,32,.62);--edge:rgba(176,186,255,.2);--paper:#e7e1ef;--paper-ink:#2a2644;--kick:#7b5aa6;--em:#8d4a86;--sub:#4a4468;--dash:rgba(70,60,120,.4)}
+
+/* ---------- the box (a fixed 1920x1080 diorama, scaled to fit the screen) ---------- */
+.stage{position:fixed;inset:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default}
+.viewport{position:absolute;left:0;top:0;width:var(--W);height:var(--H);transform-origin:0 0;overflow:hidden;background:#1f3a3c}
+.sky{position:absolute;inset:0;background:radial-gradient(120% 75% at 70% 22%,#fbf3e1 0%,#f3e8d2 42%,#ecd9b4 100%)}
+.sky-night{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;background:radial-gradient(95% 70% at 70% 20%,#3a3f8a 0%,#252a69 36%,#161a45 72%,#10132f 100%)}
+body.night .sky-night{opacity:1}
+.sky-grain{position:absolute;inset:0;width:100%;height:100%;opacity:.9;transition:opacity 1.4s ease}
+.pins{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none;visibility:hidden;transition:opacity 1.2s ease .5s,visibility 1.2s ease .5s}
+body.night .pins{opacity:1;visibility:visible}
+.pins circle{fill:#fff4d6;transform-box:fill-box;transform-origin:center}
+.pins .tw{animation:twinkle 3.2s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.3);opacity:.35}}
+
+.layer{position:absolute;left:0;top:0;will-change:transform;pointer-events:none}
+.layer>svg{display:block;overflow:visible}
+.cut{filter:drop-shadow(0 -1px 0 var(--edge)) drop-shadow(0 calc(var(--sh,4) * 1px) calc(var(--sh,4) * 1.5px) var(--shade));transition:filter 1.2s ease var(--d,0s)}
+.place>svg{animation:placeIn .9s cubic-bezier(.2,.8,.25,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes placeIn{from{transform:translateY(7%);opacity:0}to{transform:none;opacity:1}}
+
+.layer path,.layer circle,.layer ellipse,.layer rect{transition:fill 1.25s cubic-bezier(.55,.05,.3,1) var(--d,0s),opacity 1.25s ease var(--d,0s),stroke 1.25s ease var(--d,0s)}
+.grain{fill:url(#grainPat);pointer-events:none;transition:opacity 1.2s ease}
+body.night .grain{opacity:.5}
+body.night .sky-grain{opacity:.35}
+
+/* day / night paper stock (reference palette) */
+.c-far{fill:#dfdec3} body.night .c-far{fill:#4a508f}
+.c-hill{fill:#bdcfb2} body.night .c-hill{fill:#3e4487}
+.c-roof{fill:#a8bd9c} body.night .c-roof{fill:#353b7b}
+.c-win{fill:#8aa083} body.night .c-win{fill:#ffd57c}
+.winglow{opacity:0} body.night .winglow{opacity:1}
+.c-ridge{fill:#9bb89b} body.night .c-ridge{fill:#343a7c}
+.c-meadow{fill:#7e9c74} body.night .c-meadow{fill:#2b3071}
+.c-river{fill:#b7d2c8} body.night .c-river{fill:#5763ae}
+.c-ripple{fill:#f1f2e3} body.night .c-ripple{fill:#b9c1f2}
+.glint{fill:#fff3c9;opacity:0} body.night .glint{opacity:.95;animation:glint 2.6s ease-in-out infinite}
+@keyframes glint{0%,100%{opacity:.95}50%{opacity:.12}}
+.c-moss{fill:#5f7f5b} body.night .c-moss{fill:#24295f}
+.c-teal{fill:#274e52} body.night .c-teal{fill:#1a1d4e}
+.c-ground{fill:#d9a45b} body.night .c-ground{fill:#352b63}
+.c-burrow{fill:#4a3019} body.night .c-burrow{fill:#110e2a}
+.c-stem{fill:#f0e3c6} body.night .c-stem{fill:#8d86b9}
+.c-cap{fill:#c8642d} body.night .c-cap{fill:#7b3e6b}
+.c-dot{fill:#f8efdc} body.night .c-dot{fill:#aef6e4}
+.c-fern{fill:#5f7f5b} body.night .c-fern{fill:#262d62}
+.c-fall1{fill:#c9713a} body.night .c-fall1{fill:#5a3766}
+.c-fall2{fill:#b98f4c} body.night .c-fall2{fill:#443d78}
+.c-tuft{fill:#8a9a55} body.night .c-tuft{fill:#2c2a5c}
+.c-pebble{fill:#e9dcc0} body.night .c-pebble{fill:#5a5690}
+.c-fg{fill:#1f4245} body.night .c-fg{fill:#121439}
+.c-fg2{fill:#3d6a50} body.night .c-fg2{fill:#1b1d4a}
+.c-bell{fill:#c8642d} body.night .c-bell{fill:#8a4a86}
+.c-bell2{fill:#efc27d} body.night .c-bell2{fill:#d7a3d8}
+.c-mat{fill:#efe3c9} body.night .c-mat{fill:#8f8bb6}
+.c-frame{fill:#1c3739} body.night .c-frame{fill:#0b0c27}
+.c-fox{fill:#c8642d} body.night .c-fox{fill:#a14f36}
+.c-foxc{fill:#f6ecd6} body.night .c-foxc{fill:#d2cbe4}
+.c-foxd{fill:#3a2b24} body.night .c-foxd{fill:#17152f}
+.glowdots{filter:url(#softGlow)}
+.puff{fill:#e0b673;opacity:0} body.night .puff{fill:#9d96cc}
+/* new paper stock for Goa & Sikkim (same family of tints) */
+.c-snow{fill:#f7f2e4} body.night .c-snow{fill:#aab0e0}
+.c-gold{fill:#e0b060} body.night .c-gold{fill:#8b7cb0}
+.c-wood{fill:#8a5a30} body.night .c-wood{fill:#2a2550}
+.c-skin{fill:#d9a45b} body.night .c-skin{fill:#8d86b9}
+.c-blue{fill:#6f8fae} body.night .c-blue{fill:#3a4580}
+.c-wall{fill:#f6ecd6} body.night .c-wall{fill:#cfc7e2}
+.c-yellow{fill:#efc27d} body.night .c-yellow{fill:#b193c7}
+.c-smoke{fill:#f6ecd6;opacity:.6} body.night .c-smoke{fill:#b9b4d6}
+.c-lamp{fill:#ffd57c} body.night .c-lamp{fill:#ffd57c}
+.lampglow{opacity:0} body.night .lampglow{opacity:1}
+
+/* ---------- hanging things ---------- */
+.hang{position:absolute;top:0;transition:transform 1.6s cubic-bezier(.5,-.28,.25,1.22);transition-delay:var(--hd,0s)}
+.hang .swing{position:relative;transform-origin:50% 0;animation:swing var(--sd,5s) ease-in-out infinite alternate;animation-delay:var(--sdl,0s)}
+.hang .string{position:absolute;left:50%;top:0;width:1px;margin-left:-.5px;height:var(--len);background:linear-gradient(rgba(74,54,34,.25),rgba(74,54,34,.6))}
+body.night .hang .string{background:linear-gradient(rgba(220,220,255,.08),rgba(220,220,255,.36))}
+.hang .obj{position:absolute;left:50%;top:var(--len);transform:translate(-50%,-6%);filter:drop-shadow(0 5px 6px var(--shade))}
+.hang .obj svg{display:block;overflow:visible}
+.hang.day{transform:none}
+body.night .hang.day{transform:translateY(calc(-1px * var(--up)))}
+.hang.nite{transform:translateY(calc(-1px * var(--up)))}
+body.night .hang.nite{transform:none}
+@keyframes swing{from{transform:rotate(-1.6deg)}to{transform:rotate(1.6deg)}}
+.halo{position:absolute;left:50%;top:50%;width:260%;height:260%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.34) 0%,rgba(255,236,190,.12) 34%,rgba(255,236,190,0) 66%);pointer-events:none}
+
+/* ---------- leaves / fireflies ---------- */
+.leaf{position:absolute;left:0;top:0;will-change:transform;filter:drop-shadow(1px 4px 3px var(--shade))}
+.leaf svg{display:block}
+.lf-a{fill:#d9a45b} body.night .lf-a{fill:#6c5a8f}
+.lf-b{fill:#c8642d} body.night .lf-b{fill:#7a4577}
+.lf-c{fill:#9bb89b} body.night .lf-c{fill:#4a569a}
+.lf-v{fill:none;stroke:rgba(255,246,226,.55);stroke-width:.7} body.night .lf-v{stroke:rgba(210,210,255,.3)}
+.leaf path{transition:fill 1.2s ease .6s}
+#flies{pointer-events:none}
+
+.vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 16vmin rgba(60,36,14,.22);transition:box-shadow 1.4s ease}
+body.night .vignette{box-shadow:inset 0 0 22vmin rgba(2,2,20,.55)}
+
+/* ---------- paper labels (the reference tag, extended into a family of cards) ---------- */
+.content{position:absolute;left:0;top:0;width:var(--W);height:var(--H);will-change:transform;pointer-events:none}
+.slot{position:absolute;top:0;width:var(--W);height:var(--H);contain:layout style}
+.slot>*{position:absolute}
+.slot .anim{opacity:0}
+.slot.on .anim{animation:placeIn .9s cubic-bezier(.2,.8,.25,1) both;animation-delay:calc(var(--i,0) * 110ms + 380ms)}
+.slot.on .anim.drop{animation-name:dropIn}
+@keyframes dropIn{from{transform:translateY(-6%);opacity:0}to{transform:none;opacity:1}}
+.slot.off .anim{animation:placeOut .45s ease both;animation-delay:calc(var(--i,0) * 40ms)}
+@keyframes placeOut{from{transform:none;opacity:1}to{transform:translateY(5%);opacity:0}}
+.slot.on li,.slot.on .row,.slot.on .mini,.slot.on .tl>div{animation:placeIn .7s cubic-bezier(.2,.8,.25,1) both;animation-delay:calc(var(--i,0) * 110ms + var(--j,0) * 85ms + 620ms)}
+.slot:not(.on) li,.slot:not(.on) .row,.slot:not(.on) .mini,.slot:not(.on) .tl>div{opacity:0}
+
+.tag-wrap{transform-origin:50% 0;will-change:transform;filter:drop-shadow(2px 10px 9px var(--shade))}
+.tag-wrap.swingy{animation:swing var(--sd,5s) ease-in-out infinite alternate;animation-delay:var(--sdl,0s)}
+.tag.small{padding:44px 22px 22px}
+.tag.small .sub{font-size:15px;max-width:30ch}
+.tag-string{display:block;margin:0 auto;width:1px;height:var(--len,54px);background:linear-gradient(rgba(74,54,34,.2),rgba(74,54,34,.7))}
+body.night .tag-string{background:linear-gradient(rgba(230,230,255,.1),rgba(230,230,255,.45))}
+.tag{position:relative;width:var(--tw,290px);padding:52px 28px 26px;text-align:center;pointer-events:auto;
+  background:var(--paper);color:var(--paper-ink);
+  clip-path:polygon(24% 0,76% 0,100% 16%,100% 100%,0 100%,0 16%);
+  transition:background-color 1.2s ease,color 1.2s ease}
+.tag>*{position:relative}
+.tag::after{content:"";position:absolute;inset:7px;border:1px dashed var(--dash);clip-path:polygon(23% 0,77% 0,100% 15%,100% 100%,0 100%,0 15%);pointer-events:none}
+.tag-hole{position:absolute;left:50%;top:15px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#1f3a3c;box-shadow:0 0 0 3.5px var(--ochre),0 0 0 4.5px rgba(90,56,24,.35);transition:background-color 1.2s ease}
+body.night .tag-hole{background:#141841}
+.tag-knot{position:absolute;left:50%;top:-2px;width:1px;height:25px;margin-left:-.5px;background:rgba(74,54,34,.7)}
+body.night .tag-knot{background:rgba(230,230,255,.45)}
+.kicker{margin:0 0 8px;font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--kick);font-variant-numeric:oldstyle-nums;transition:color 1.2s ease}
+.tag h1{margin:0;font-weight:400;font-size:64px;line-height:.96;letter-spacing:-.01em}
+.tag h1 em,.card h2 em,.card h3 em,.big em{display:block;font-style:italic;color:var(--em);font-size:1.12em;letter-spacing:0;transition:color 1.2s ease}
+.card h2 em.in,.card h3 em.in{display:inline;font-size:1em}
+.tag .sub{margin:14px auto 0;max-width:26ch;font-size:17px;line-height:1.42;font-style:italic;color:var(--sub);transition:color 1.2s ease}
+.rule{display:block;width:44px;height:6px;margin:12px auto 0;background:radial-gradient(circle,var(--moss) 1.4px,transparent 1.8px) 0 50%/9px 6px repeat-x}
+.rule.left{margin-left:0}
+
+/* a sheet of paper: the tag's cousin */
+.card-wrap{position:relative;filter:drop-shadow(0 -1px 0 var(--edge)) drop-shadow(0 9px 9px var(--shade))}
+.card-wrap.pinned::before{content:"";position:absolute;left:50%;top:-9px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#1f3a3c;box-shadow:0 0 0 3.5px var(--ochre),0 0 0 4.5px rgba(90,56,24,.35);z-index:2}
+.card{position:relative;background:var(--paper);color:var(--paper-ink);padding:30px 36px 30px;pointer-events:auto;
+  clip-path:var(--clip);transition:background-color 1.2s ease,color 1.2s ease;font-size:21.5px;line-height:1.38}
+.card::after{content:"";position:absolute;inset:9px;border:1px dashed var(--dash);clip-path:var(--clip2);pointer-events:none}
+.card>*{position:relative}
+.card h2{margin:0 0 6px;font-weight:400;font-size:46px;line-height:1.02;letter-spacing:-.01em}
+.card h3{margin:0 0 6px;font-weight:400;font-size:30px;line-height:1.08}
+.card .sub{margin:0 0 10px;font-size:18px;line-height:1.4;font-style:italic;color:var(--sub);transition:color 1.2s ease}
+.card .rule{margin:10px 0 14px}
+.card p{margin:0 0 10px}
+.card ul{margin:0;padding:0;list-style:none}
+.card li{position:relative;padding-left:26px;margin:0 0 9px}
+.card li::before{content:"";position:absolute;left:3px;top:.52em;width:9px;height:9px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--moss);opacity:.85}
+.card li b,.card .row b{font-weight:600}
+.card .cols{display:grid;grid-template-columns:1fr 1fr;column-gap:32px}
+.card .cols3{display:grid;grid-template-columns:1fr 1fr 1fr;column-gap:26px}
+.card .note{font-size:16.5px;font-style:italic;color:var(--sub);margin-top:8px}
+.card .lead{font-size:23px}
+.card em.o{color:var(--em);font-style:italic}
+.small{font-size:17px;line-height:1.35}
+.card .cap{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--kick);margin:0 0 6px}
+
+/* member / outcome tables */
+.roster{width:100%;border-collapse:collapse;font-size:21px}
+.roster td,.roster th{padding:9px 10px;text-align:left;vertical-align:top;border-bottom:1px dashed var(--dash)}
+.roster th{font-weight:400;font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--kick)}
+.roster td:first-child{white-space:nowrap}
+.roster .n{font-size:24px}
+.roster .r{color:var(--sub);font-style:italic;white-space:nowrap}
+.roster tr:last-child td{border-bottom:0}
+.badge{display:inline-block;margin-left:8px;padding:1px 9px 2px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#f8efdb;background:var(--teal);clip-path:polygon(2% 10%,98% 0,100% 90%,0 100%)}
+body.night .badge{background:#3a3f86}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:150px 1fr;row-gap:0}
+.tl>div{padding:7px 0 7px 0;border-bottom:1px dashed var(--dash)}
+.tl>div:nth-last-child(-n+2){border-bottom:0}
+.tl .yr{font-style:italic;color:var(--em);font-size:22px;padding-right:12px}
+
+/* comparison table */
+.cmp{width:100%;border-collapse:collapse;font-size:19.5px;line-height:1.32}
+.cmp th{font-weight:400;text-align:left;padding:6px 12px 10px;font-size:26px;border-bottom:2px solid var(--dash)}
+.cmp th:first-child{width:118px}
+.cmp th em{color:var(--em)}
+.cmp td{padding:11px 12px;vertical-align:top;border-bottom:1px dashed var(--dash)}
+.cmp tr:last-child td{border-bottom:0}
+.cmp td:first-child{font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--kick);padding-top:16px}
+.cmp td.th{background:rgba(155,184,155,.18)}
+body.night .cmp td.th{background:rgba(120,110,190,.18)}
+
+/* mini cards grid (learning outcomes) */
+.grid5{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 24px}
+.mini{position:relative;background:rgba(255,255,255,.28);padding:16px 18px 14px;clip-path:var(--mclip);font-size:19px;line-height:1.35}
+body.night .mini{background:rgba(60,50,110,.18)}
+.mini .who{font-size:25px;margin:0 0 4px}
+.mini .who span{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--kick);margin-left:8px}
+
+/* the poster frame */
+.poster-wrap{filter:drop-shadow(0 -1px 0 var(--edge)) drop-shadow(0 14px 14px var(--shade))}
+.poster{position:relative;background:var(--paper);padding:22px;clip-path:var(--clip);transition:background-color 1.2s ease}
+.poster .ph{position:relative;width:100%;height:100%;background:#efe3c9;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;cursor:pointer;pointer-events:auto}
+body.night .poster .ph{background:#cfc7e2}
+.poster .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
+.poster .ph.has img{display:block}
+.poster .ph.has .ph-text{display:none}
+.poster .ph-text{position:relative;padding:28px;color:var(--sub);font-style:italic;font-size:20px;line-height:1.45}
+.poster .ph-text b{display:block;font-style:normal;font-size:30px;color:var(--paper-ink);margin-bottom:8px}
+.poster .ph::after{content:"";position:absolute;inset:14px;border:1px dashed var(--dash);pointer-events:none}
+.poster .corner{position:absolute;width:38px;height:38px;background:var(--paper);clip-path:polygon(0 0,100% 0,0 100%);filter:drop-shadow(1px 2px 2px rgba(0,0,0,.25));z-index:3}
+.poster .corner.tr{transform:rotate(90deg)}.poster .corner.br{transform:rotate(180deg)}.poster .corner.bl{transform:rotate(270deg)}
+
+/* captions in the scene (the reference "hint" style) */
+.scene-note{padding:8px 14px;font-size:15.5px;font-style:italic;line-height:1.35;color:#f8efdb;background:rgba(28,55,57,.78);
+  clip-path:polygon(0 8%,40% 0,100% 6%,99% 94%,55% 100%,1% 96%);transition:background-color 1.2s ease;white-space:nowrap}
+body.night .scene-note{background:rgba(12,13,40,.8);color:#e7e1ef}
+.scene-note b{font-weight:600;font-style:normal;color:#f2c47f}
+
+/* ---------- controls ---------- */
+.controls{position:absolute;right:48px;bottom:40px;z-index:11;display:flex;gap:12px;align-items:center}
+.chip{appearance:none;display:inline-flex;align-items:center;gap:10px;padding:10px 16px 10px 12px;border:0;font:inherit;font-size:16px;color:var(--ink);cursor:pointer;background:#f8efdb;pointer-events:auto;
+  clip-path:polygon(2% 6%,30% 0,62% 4%,99% 1%,100% 52%,98% 96%,64% 100%,34% 97%,1% 100%,0 48%);
+  filter:drop-shadow(0 4px 5px var(--shade));transition:transform .25s cubic-bezier(.3,1.6,.5,1),background-color 1.2s ease,color 1.2s ease}
+.chip[hidden]{display:none}
+.chip:hover{transform:translateY(-2px) rotate(-1deg)}
+.chip:active{transform:translateY(1px) scale(.98)}
+.chip:focus-visible{outline:none;background:#fff7e4;box-shadow:inset 0 0 0 2px var(--orange)}
+body.night .chip{background:#e7e1ef;color:#2a2644}
+.chip.counter{cursor:default;padding:10px 14px;font-style:italic}
+.chip.counter b{font-weight:400;font-style:normal;font-variant-numeric:tabular-nums}
+.chip svg.arrow{width:18px;height:18px}
+.track{position:relative;width:52px;height:26px;border-radius:13px;background:#d9c7a1;box-shadow:inset 0 2px 3px rgba(80,50,20,.3);transition:background-color .9s ease}
+body.night .track{background:#3a3f86}
+.knob{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;transition:transform .7s cubic-bezier(.5,-.3,.3,1.35)}
+body.night .knob{transform:translateX(26px)}
+.knob svg{position:absolute;inset:0;width:22px;height:22px;transition:opacity .5s ease,transform .7s ease}
+.knob .k-moon{opacity:0;transform:rotate(-90deg)}
+body.night .knob .k-sun{opacity:0;transform:rotate(90deg)}
+body.night .knob .k-moon{opacity:1;transform:none}
+.chip-label{min-width:3.2em;text-align:left;font-style:italic}
+.hint{position:absolute;left:48px;bottom:40px;z-index:11;margin:0;padding:9px 14px;max-width:560px;font-size:15px;font-style:italic;line-height:1.35;color:#f8efdb;background:rgba(28,55,57,.78);
+  clip-path:polygon(0 8%,40% 0,100% 6%,99% 94%,55% 100%,1% 96%);transition:opacity .8s ease,background-color 1.2s ease;pointer-events:none}
+body.night .hint{background:rgba(12,13,40,.8);color:#e7e1ef}
+.hint b{font-weight:600;font-style:normal;color:#f2c47f}
+.hint.gone{opacity:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.panda-btn{position:absolute;left:0;top:0;width:10px;height:10px;padding:0;margin:0;border:0;border-radius:40%;background:transparent;cursor:pointer;pointer-events:auto;touch-action:manipulation}
+.panda-btn:focus-visible{outline:2px dashed #fff6df;outline-offset:4px}
+@media (prefers-reduced-motion:reduce){
+  .place>svg,.slot.on .anim,.slot.on li,.slot.on .row,.slot.on .mini,.slot.on .tl>div{animation-duration:.01s;animation-delay:0s}
+  .hang .swing,.pins .tw{animation:none}
+}
+/* grain overlays must stay out of flow (after the .tag>* / .card>* rules) */
+.tag-grain,.card-grain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}

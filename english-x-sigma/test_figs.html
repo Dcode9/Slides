@@ -1,0 +1,22 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="src/style.css">
+<style>body{background:#f3e8d2;overflow:auto}#board{position:relative;width:1920px;height:1080px;background:#d9a45b}.lbl{position:absolute;font:14px serif;color:#3b2b1d}</style></head>
+<body><div id="board"><svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080"></svg></div>
+<svg class="defs"><defs><pattern id="grainPat" patternUnits="userSpaceOnUse" width="160" height="160"><image id="grainImg" width="160" height="160"/></pattern><radialGradient id="winGlowGrad"><stop offset="0" stop-color="#ffd98a" stop-opacity=".75"/><stop offset=".45" stop-color="#ffc766" stop-opacity=".22"/><stop offset="1" stop-color="#ffc766" stop-opacity="0"/></radialGradient></defs></svg>
+<script src="src/paper.js"></script>
+<script>
+const F=PAPER;let out='';
+const items=[['panda',F.panda(),2.2],['pader',F.pader(),2.2],['fugdiPair',F.fugdiPair(),2.2],['ghodeModni',F.ghodeModni(),2.2],['mandoCouple',F.mandoCouple(),2.2],['snowLion',F.snowLion(),1.6],['chaamDancer',F.chaamDancer(),2.0],['maruni',F.maruni(),2.2],['drummer',F.drummer(),2.2],['lepchaPair',F.lepchaPair(),2.2],['yak',F.yak(),2.2],['church',F.church(),2.0],['house',F.house(true),2.0],['gompa',F.gompa(),2.0],['chorten',F.chorten(),2.2],['hut',F.hut(),2.0],['boat',F.boat(),2.0],['tiatr',F.tiatrCurtain(),2.0],['ghumot',F.ghumot(),3],['violin',F.violin(),3],['breadBasket',F.breadBasket(),3],['foodGoa',F.foodGoa(),2.2],['foodSikkim',F.foodSikkim(),2.2],['butterLamp',F.butterLamp(),4],['prayerWheel',F.prayerWheel(),3],['conch',F.conch(),4],['coconutNut',F.coconutNut(),4],['lampDiya',F.lampDiya(),4],['carnivalMask',F.carnivalMask(),3]];
+let x=140,y=290,i=0;
+for(const [name,svg,sc] of items){out+=`<g transform="translate(${x} ${y}) scale(${sc})">${svg}</g><text x="${x}" y="${y+24}" font-size="15" text-anchor="middle" fill="#3b2b1d" font-family="serif">${name}</text>`;x+=250;if(x>1850){x=140;y+=280;}}
+// flora
+let fl='';
+fl+=`<path class="c-ridge" d="${F.palm(60,0,180,20,7)}${F.palm(170,0,120,-14,6)}"/>`;
+fl+=`<path class="c-moss" d="${F.roundTree(320,0,150,160)}"/>`;
+const rb=F.rhodoBush(450,0,70);fl+=`<path class="c-fern" d="${rb.leaf}"/><path class="c-bell" d="${rb.bloom}"/><path class="c-bell2" d="${rb.dot}"/>`;
+const fg=F.foxglove(560,0,220,10,1);fl+=`<path class="c-fg" d="${fg.stalk}"/><path class="c-bell" d="${fg.bells}"/><path class="c-bell2" d="${fg.inner}"/>`;
+const rs=F.rhodoSpike(640,0,220,-8,-1);fl+=`<path class="c-fg" d="${rs.stalk}"/><path class="c-bell" d="${rs.bells}"/><path class="c-bell2" d="${rs.inner}"/>`;
+fl+=`<path class="c-teal" d="${F.pine(760,0,200,90)}"/>`;
+const flg=F.flagLine(840,-150,1060,-120,30,12,16);fl+=`<path class="c-wood" d="${F.poly([[838,0],[842,0],[841,-150],[839,-150]])}${F.poly([[1058,0],[1062,0],[1061,-120],[1059,-120]])}"/>`+F.flagsSvg(flg);
+out+=`<g transform="translate(0 1060)">${fl}</g>`;
+document.getElementById('s').innerHTML=out;
+</script></body></html>

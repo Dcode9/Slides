@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3e8d2">
+<meta name="description" content="Glimpses of India — Goa (A Baker from Goa) and Sikkim: folk dance, culture and food. A paper-cut diorama presentation by Class X Sigma.">
+<title>Glimpses of India · Goa & Sikkim · Class X Sigma</title>
+<style>
+/*__STYLE__*/
+</style>
+</head>
+<body>
+<main class="stage" id="stage" aria-label="Glimpses of India: a paper-cut diorama presentation that walks from a forest hollow to Goa and up to Sikkim">
+  <div class="viewport" id="vp">
+    <div class="sky" id="sky">
+      <div class="sky-night"></div>
+      <svg class="sky-grain" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>
+      <svg class="pins" id="pins" aria-hidden="true" focusable="false"></svg>
+    </div>
+    <div class="layer" id="hangs" data-depth="0.4" aria-hidden="true"></div>
+    <div id="layers"></div>
+    <div class="content" id="content"></div>
+    <nav class="controls" aria-label="Presentation controls">
+      <button type="button" class="chip" id="prev" aria-label="Previous plate"><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="chip counter" id="counter" aria-live="polite"></span>
+      <button type="button" class="chip" id="next" aria-label="Next plate"><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+      <button type="button" class="chip" id="toggle" aria-pressed="false" aria-label="Night">
+        <span class="track" aria-hidden="true"><span class="knob">
+          <svg class="k-sun" viewBox="-11 -11 22 22" focusable="false"><g fill="#c8642d"><circle r="5.6"/><path d="M0-10 1.6-6.8h-3.2zM0 10l1.6-3.2h-3.2zM-10 0l3.2 1.6v-3.2zM10 0 6.8 1.6v-3.2zM-7 -7l3.4 1.2-2.2 2.2zM7 7 3.6 5.8l2.2-2.2zM7 -7 5.8-3.6 3.6-5.8zM-7 7l1.2-3.4 2.2 2.2z"/></g></svg>
+          <svg class="k-moon" viewBox="-11 -11 22 22" focusable="false"><path fill="#f4ead2" d="M3.2-8.6A9 9 0 1 0 8.8 4 7.2 7.2 0 0 1 3.2-8.6z"/></svg>
+        </span></span>
+        <span class="chip-label" id="toggleLabel">Day</span>
+      </button>
+      <button type="button" class="chip" id="embed" hidden aria-label="Save a copy of this presentation with the poster embedded"><span class="chip-label" style="min-width:0">Save copy with poster</span></button>
+      <button type="button" class="chip" id="full" aria-label="Full screen"><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </nav>
+    <p class="hint" id="hint"><span id="hintText"><b>→</b> walks to the next plate · <b>click the red panda</b> · <b>N</b> night · <b>F</b> full screen</span></p>
+  </div>
+</main>
+<p class="sr-only" aria-live="polite" id="live"></p>
+
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="grainPat" patternUnits="userSpaceOnUse" width="160" height="160"><image id="grainImg" width="160" height="160"/></pattern>
+    <radialGradient id="winGlowGrad"><stop offset="0" stop-color="#ffd98a" stop-opacity=".75"/><stop offset=".45" stop-color="#ffc766" stop-opacity=".22"/><stop offset="1" stop-color="#ffc766" stop-opacity="0"/></radialGradient>
+    <radialGradient id="lampGlowGrad"><stop offset="0" stop-color="#ffd98a" stop-opacity=".8"/><stop offset=".4" stop-color="#ffc766" stop-opacity=".25"/><stop offset="1" stop-color="#ffc766" stop-opacity="0"/></radialGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+</svg>
+
+<script>
+/*__PAPER__*/
+</script>
+<script>
+/*__CONTENT__*/
+</script>
+<script>
+/*__WORLD__*/
+</script>
+<script>
+/*__DECK__*/
+</script>
+</body>
+</html>
