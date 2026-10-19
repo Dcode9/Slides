@@ -873,6 +873,10 @@ const BASE={L1:.45,L2:.52,L3:.59,L4:.66,L5:.72,L6:.8,L7:.83,L8:.955};
 const TONE={L1:'c-far',L2:'c-hill',L3:'c-ridge',L4:'c-meadow',L5:'c-moss',L6:'c-teal',L7:'c-ground',L8:'c-fg'};
 const E={};
 const X=t=>W*VIS*t, Y=t=>H*t;
+// Bound each sheet by its actual maximum camera + pointer travel, plus filter bleed.
+const overscanForDepth=depth=>Math.ceil(
+  380*(Math.pow(depth/8,1.25)*.82+.18)+Math.pow(depth/8,1.15)*S+32
+);
 function metrics(){
   W=Math.max(320,innerWidth);H=Math.max(420,innerHeight);
   portrait=H>W*1.08;
@@ -880,10 +884,8 @@ function metrics(){
   const narrow=W<=840,pw=Math.min(660,W*.56)+clamp(W*.055,28,84);
   VIS=narrow?1:clamp((W-pw)/W,.36,.66);
   K=Math.min(W*VIS,H*1.08)/100;
-  // Only transition travel (380px), pointer parallax, and shadow bleed need overscan.
-  // Each slide rebuilds its own scene, so allocating multi-viewport sheets wastes memory.
-  const overscan=Math.ceil(430+S);
-  SHEETS.forEach(l=>E[l]=overscan);
+  // Each slide rebuilds its own scene, so retain only depth-specific travel overscan.
+  SHEETS.forEach((l,i)=>E[l]=overscanForDepth(i+1));
   const wh=$('wheel');
   if(wh){const ws=clamp(Math.min(W/1200,H/760),0.72,1.15);wh.style.setProperty('--ws',ws.toFixed(3));}
 }
@@ -1493,7 +1495,7 @@ function sizeLayers(){
     svg.setAttribute('width',q(w));
     svg.setAttribute('height',q(H+2*M));
   });
-  const f9=$("L9"),eh=Math.ceil(430+S),sw=W+2*eh;
+  const f9=$("L9"),eh=overscanForDepth(2.2),sw=W+2*eh;
   f9.style.width=q(sw)+'px';f9.style.height=q(H+2*M)+'px';
   f9.style.marginTop=q(-M)+'px';f9.style.marginLeft=q(-eh)+'px';
   const s9=svgOf('L9');s9.setAttribute('viewBox',`${q(-eh)} ${q(-M)} ${q(sw)} ${q(H+2*M)}`);s9.setAttribute('width',q(sw));s9.setAttribute('height',q(H+2*M));
