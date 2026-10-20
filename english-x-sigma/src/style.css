@@ -123,7 +123,7 @@ body.night .vignette{box-shadow:inset 0 0 22vmin rgba(2,2,20,.55)}
 /* ---------- paper labels (the reference tag, extended into a family of cards) ---------- */
 .content{position:absolute;left:0;top:0;width:var(--W);height:var(--H);will-change:transform;pointer-events:none}
 .slot{position:absolute;top:0;width:var(--W);height:var(--H);contain:layout style}
-.slot:not(.on):not(.off){visibility:hidden;pointer-events:none}
+.slot:not(.on):not(.off){visibility:hidden;pointer-events:none;content-visibility:hidden}
 .slot.on,.slot.off{visibility:visible}
 .slot>*{position:absolute}
 .slot .anim{opacity:0}
@@ -273,6 +273,11 @@ body.night .hint{background:rgba(12,13,40,.8);color:#e7e1ef}
   .place>svg,.slot.on .anim,.slot.on li,.slot.on .row,.slot.on .mini,.slot.on .tl>div{animation-duration:.01s;animation-delay:0s}
   .hang .swing,.pins .tw{animation:none}
 }
+/* adaptive lite: keep the paper, drop the continuous compositing */
+body.lite2 .glint,body.lite2 .pins .tw,body.lite2 .hang .swing,body.lite2 .tag-wrap.swingy{animation:none!important}
+body.lite2 .place>svg,body.lite2 .slot.on .anim,body.lite2 .slot.on li,body.lite2 .slot.on .row,body.lite2 .slot.on .mini,body.lite2 .slot.on .tl>div{animation-duration:.28s!important;animation-delay:0s!important}
+body.lite2 .cut{transition:none}
+body.lite2 .layer [class*="c-"],body.lite2 .puff,body.lite2 .grain{transition-duration:.3s}
 /* grain overlays must stay out of flow (after the .tag>* / .card>* rules) */
 .tag-grain,.card-grain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
