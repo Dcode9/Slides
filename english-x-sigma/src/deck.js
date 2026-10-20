@@ -87,19 +87,21 @@
        Each tile gets its own trimmed band (1:1 viewBox, so nothing shifts
        by a pixel); all tiles share one shadow filter per depth. */
     const frag=document.createDocumentFragment();
+    const pad = 280;
+    const tileW = W + 2 * pad;
     for(const g of gs){
-      const j=+g.dataset.j,u0=j*W-M;
-      let y0=-M,y1=H+M;
-      try{const bb=g.getBBox();if(bb.height>1){y0=Math.max(-M,Math.floor(bb.y-40));y1=Math.min(H+M,Math.ceil(bb.y+bb.height+40));}}catch(e){}
+      const j=+g.dataset.j,u0=j*W-pad;
+      let y0=-M-80,y1=H+M;
+      try{const bb=g.getBBox();if(bb.height>1){y0=Math.max(-M-160,Math.floor(bb.y-40));y1=Math.min(H+M,Math.ceil(bb.y+bb.height+40));}}catch(e){}
       const hh=Math.max(80,y1-y0);
       const tw=document.createElement('div');
       tw.className='tile';tw.dataset.j=j;
-      tw.style.cssText=`left:${j*W}px;top:${y0+M}px;width:${W}px;height:${hh}px`;
+      tw.style.cssText=`left:${j*W - pad + M}px;top:${y0+M}px;width:${tileW}px;height:${hh}px`;
       const fid='cutS'+sh;
       const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
-      s.setAttribute('viewBox',`${u0} ${y0} ${W} ${hh}`);
+      s.setAttribute('viewBox',`${u0} ${y0} ${tileW} ${hh}`);
       s.setAttribute('aria-hidden','true');s.setAttribute('focusable','false');
-      s.style.cssText=`width:${W}px;height:${hh}px;display:block;overflow:hidden`;
+      s.style.cssText=`width:${tileW}px;height:${hh}px;display:block;overflow:visible`;
 
       const wrap=document.createElementNS('http://www.w3.org/2000/svg','g');
       wrap.setAttribute('class','pc');wrap.setAttribute('filter',`url(#${fid})`);
@@ -127,13 +129,13 @@
   const vig=document.createElement('div');vig.className='vignette';layersHost.appendChild(vig);
   // the frame: fixed, with a gentle parallax of its own. One tile, one svg,
   // 1:1 with the stage so its deckle edge lands on exactly the same pixels.
-  const L9=document.createElement('div');L9.className='layer';L9.id='L9';L9.dataset.depth='2.2';L9.style.cssText=`--i:8;--sh:9;left:${-M}px;top:${-M}px;width:${W+2*M}px;height:${H+2*M}px`;
-  L9.innerHTML=`<div class="tile" style="left:0;top:0;width:${W+2*M}px;height:${H+2*M}px">`
-    +`<svg viewBox="${-M} ${-M} ${W+2*M} ${H+2*M}" focusable="false" aria-hidden="true" style="width:${W+2*M}px;height:${H+2*M}px;display:block;overflow:visible">`
+  const L9=document.createElement('div');L9.className='layer';L9.id='L9';L9.dataset.depth='0';L9.style.cssText=`--i:8;--sh:9;left:${-M-80}px;top:${-M-80}px;width:${W+2*M+160}px;height:${H+2*M+160}px`;
+  L9.innerHTML=`<div class="tile" style="left:0;top:0;width:${W+2*M+160}px;height:${H+2*M+160}px">`
+    +`<svg viewBox="${-M-80} ${-M-80} ${W+2*M+160} ${H+2*M+160}" focusable="false" aria-hidden="true" style="width:${W+2*M+160}px;height:${H+2*M+160}px;display:block;overflow:visible">`
     +`<g class="pc" filter="url(#cutS9)">${art.L9}</g></svg></div>`;
   layersHost.appendChild(L9);
   const pandaBtn=document.createElement('button');pandaBtn.type='button';pandaBtn.className='panda-btn';pandaBtn.setAttribute('aria-label','The red panda. Press to make it hop');$('L7').appendChild(pandaBtn);
-  const f7=depthF(7), fh=depthF(.4), fFlies=depthF(7.4), fLeaves=depthF(7.7), f9=depthF(2.2);
+  const f7=depthF(7), fh=depthF(.4), fFlies=depthF(7.4), fLeaves=depthF(7.7), f9=0;
 
   /* ---------- hanging things: sun, moon, clouds, stars on threads ---------- */
   const F=PAPER;
@@ -240,7 +242,7 @@
   function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
   function cull(a,b){ // keep only the tiles between slide positions a..b alive
     for(const L of layerEls){if(!L.tiles.length)continue;const u0=Math.min(a,b)*W*L.f-W*.3,u1=Math.max(a,b)*W*L.f+W*1.3;
-      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-M,t1=t0+W;t.style.display=(t1<u0||t0>u1)?'none':'';}}
+      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-280,t1=j*W+W+280;t.style.display=(t1<u0||t0>u1)?'none':'';}}
     // the paper cards are a sheet of their own: only the plates in play are
     // laid out, so the content layer stays ~3 plates wide instead of 18
     const lo=Math.min(a,b)-1,hi=Math.max(a,b)+1;

@@ -380,7 +380,7 @@ const WORLD = (() => {
   /* ---------- sheet 9 — the box: deckle-edged cream mat in a dark board frame ---------- */
   function buildFrame(){
     const e=Math.max(10,Math.min(W,H)*.024),rad=e*3;
-    const outer=[[-M-4,-M-4],[W+M+4,-M-4],[W+M+4,H+M+4],[-M-4,H+M+4]];
+    const outer=[[-M-80,-M-80],[W+M+80,-M-80],[W+M+80,H+M+80],[-M-80,H+M+80]];
     const rrect=(ins,wob)=>{const p=[],x0=ins,y0=ins,xx1=W-ins,y1=H-ins,r=rad;
       const seg=(ax,ay,bx,by)=>{const L=Math.hypot(bx-ax,by-ay),k=Math.max(1,Math.round(L/11));for(let t=0;t<k;t++){const u=t/k;p.push([ax+(bx-ax)*u+(R()-.5)*wob,ay+(by-ay)*u+(R()-.5)*wob]);}};
       const arc=(cx,cy,a0)=>{for(let i=0;i<6;i++){const a=a0+i/6*Math.PI/2;p.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}};

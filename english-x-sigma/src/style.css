@@ -43,7 +43,7 @@ body.night .pins{opacity:1;visibility:visible}
 .layer{contain:layout style}
 /* sheet tiles: each one carries its own trimmed band + baked shadow */
 .tile{position:absolute;contain:layout style}
-.tile>svg,.layer>svg.fx{display:block;overflow:hidden}
+.tile>svg,.layer>svg.fx{display:block;overflow:visible}
 .cut{filter:drop-shadow(0 -1px 0 var(--edge)) drop-shadow(0 calc(var(--sh,4) * 1px) calc(var(--sh,4) * 1.5px) var(--shade));transition:filter 1.2s ease var(--d,0s)}
 /* day/night paper stock for the paper-cut shadow baked into each sheet */
 #layers .pe{flood-color:#fffaf0;flood-opacity:.5;transition:flood-color 1.2s ease,flood-opacity 1.2s ease}
