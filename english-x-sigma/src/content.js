@@ -45,7 +45,19 @@ const SLIDES = [
  ],
  scene:{ L2:[{a:.2,fig:'cottage'},{a:.8,fig:'cottage'}], L7:[{a:.25,fig:'burrow'},{a:.1,fig:'mushrooms',n:4},{a:.6,fig:'mushrooms',n:3},{a:.87,fig:'mushrooms',n:5},{a:.38,fig:'mushrooms',n:2}] } },
 
-/* 1 ─ Chosen sub-unit */
+/* 1 ─ Group */
+{ id:'group', panda:.86, items:[
+  {type:'card', x:330, y:96, w:1260, rot:.4, pin:true, html:`
+    <div class="speaker-tag">Presenter: Dhairya Shah</div>
+    <h2>Class ${DATA.klass} ${DATA.division} · <em class="in">Group ${DATA.group}</em></h2>
+    <table class="roster"><thead><tr><th>Member</th><th>Roll no.</th><th>Responsibility & Presentation Slides</th></tr></thead><tbody>
+    ${DATA.members.map((m,i)=>`<tr class="row" style="--j:${i}"><td class="n">${m.name}${m.lead?'<span class="badge">Leader</span>':''}</td><td class="r">${m.roll}</td><td>${m.task}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="note">The group poster was illustrated by Aditya Jagdale; presentation slides are shared across all members.</p>`},
+ ],
+ scene:{ L7:[{a:.06,fig:'conch',s:1.4},{a:.14,fig:'coconutNut',s:1.5}], L5:[{a:.1,fig:'palmTall'}], L4:[{a:.3,fig:'boat',s:.9}] } },
+
+/* 2 ─ Chosen sub-unit: Baker from Goa */
 { id:'baker', panda:.57, items:[
   {type:'card', x:120, y:96, w:900, rot:-.5, pin:true, html:`
     <div class="speaker-tag">Presenter: Sarthak Kulkarni</div>
@@ -60,18 +72,6 @@ const SLIDES = [
   {type:'note', x:1250, y:905, html:`The <b>pader</b> on his morning round — basket of poee, bamboo staff, bread-bangles`},
  ],
  scene:{ L7:[{a:.74,fig:'pader',s:2.7},{a:.62,fig:'breadBasket',s:1.6},{a:.9,fig:'coconutNut',s:1.6}], L5:[{a:.89,fig:'house',s:1.7}], L2:[{a:.6,fig:'house',s:.6}] } },
-
-/* 2 ─ Group */
-{ id:'group', panda:.86, items:[
-  {type:'card', x:330, y:96, w:1260, rot:.4, pin:true, html:`
-    <div class="speaker-tag">Presenter: Dhairya Shah</div>
-    <h2>Class ${DATA.klass} ${DATA.division} · <em class="in">Group ${DATA.group}</em></h2>
-    <table class="roster"><thead><tr><th>Member</th><th>Roll no.</th><th>Responsibility & Presentation Slides</th></tr></thead><tbody>
-    ${DATA.members.map((m,i)=>`<tr class="row" style="--j:${i}"><td class="n">${m.name}${m.lead?'<span class="badge">Leader</span>':''}</td><td class="r">${m.roll}</td><td>${m.task}</td></tr>`).join('')}
-    </tbody></table>
-    <p class="note">The group poster was illustrated by Aditya Jagdale; presentation slides are shared across all members.</p>`},
- ],
- scene:{ L7:[{a:.06,fig:'conch',s:1.4},{a:.14,fig:'coconutNut',s:1.5}], L5:[{a:.1,fig:'palmTall'}], L4:[{a:.3,fig:'boat',s:.9}] } },
 
 /* 3 ─ Introduction to Goa */
 { id:'goa', panda:.3, items:[

@@ -972,7 +972,19 @@ const SLIDES = [
  ],
  scene:{ L2:[{a:.2,fig:'cottage'},{a:.8,fig:'cottage'}], L7:[{a:.25,fig:'burrow'},{a:.1,fig:'mushrooms',n:4},{a:.6,fig:'mushrooms',n:3},{a:.87,fig:'mushrooms',n:5},{a:.38,fig:'mushrooms',n:2}] } },
 
-/* 1 ─ Chosen sub-unit */
+/* 1 ─ Group */
+{ id:'group', panda:.86, items:[
+  {type:'card', x:330, y:96, w:1260, rot:.4, pin:true, html:`
+    <div class="speaker-tag">Presenter: Dhairya Shah</div>
+    <h2>Class ${DATA.klass} ${DATA.division} · <em class="in">Group ${DATA.group}</em></h2>
+    <table class="roster"><thead><tr><th>Member</th><th>Roll no.</th><th>Responsibility & Presentation Slides</th></tr></thead><tbody>
+    ${DATA.members.map((m,i)=>`<tr class="row" style="--j:${i}"><td class="n">${m.name}${m.lead?'<span class="badge">Leader</span>':''}</td><td class="r">${m.roll}</td><td>${m.task}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="note">The group poster was illustrated by Aditya Jagdale; presentation slides are shared across all members.</p>`},
+ ],
+ scene:{ L7:[{a:.06,fig:'conch',s:1.4},{a:.14,fig:'coconutNut',s:1.5}], L5:[{a:.1,fig:'palmTall'}], L4:[{a:.3,fig:'boat',s:.9}] } },
+
+/* 2 ─ Chosen sub-unit: Baker from Goa */
 { id:'baker', panda:.57, items:[
   {type:'card', x:120, y:96, w:900, rot:-.5, pin:true, html:`
     <div class="speaker-tag">Presenter: Sarthak Kulkarni</div>
@@ -987,18 +999,6 @@ const SLIDES = [
   {type:'note', x:1250, y:905, html:`The <b>pader</b> on his morning round — basket of poee, bamboo staff, bread-bangles`},
  ],
  scene:{ L7:[{a:.74,fig:'pader',s:2.7},{a:.62,fig:'breadBasket',s:1.6},{a:.9,fig:'coconutNut',s:1.6}], L5:[{a:.89,fig:'house',s:1.7}], L2:[{a:.6,fig:'house',s:.6}] } },
-
-/* 2 ─ Group */
-{ id:'group', panda:.86, items:[
-  {type:'card', x:330, y:96, w:1260, rot:.4, pin:true, html:`
-    <div class="speaker-tag">Presenter: Dhairya Shah</div>
-    <h2>Class ${DATA.klass} ${DATA.division} · <em class="in">Group ${DATA.group}</em></h2>
-    <table class="roster"><thead><tr><th>Member</th><th>Roll no.</th><th>Responsibility & Presentation Slides</th></tr></thead><tbody>
-    ${DATA.members.map((m,i)=>`<tr class="row" style="--j:${i}"><td class="n">${m.name}${m.lead?'<span class="badge">Leader</span>':''}</td><td class="r">${m.roll}</td><td>${m.task}</td></tr>`).join('')}
-    </tbody></table>
-    <p class="note">The group poster was illustrated by Aditya Jagdale; presentation slides are shared across all members.</p>`},
- ],
- scene:{ L7:[{a:.06,fig:'conch',s:1.4},{a:.14,fig:'coconutNut',s:1.5}], L5:[{a:.1,fig:'palmTall'}], L4:[{a:.3,fig:'boat',s:.9}] } },
 
 /* 3 ─ Introduction to Goa */
 { id:'goa', panda:.3, items:[
@@ -1749,12 +1749,12 @@ const WORLD = (() => {
        Each tile gets its own trimmed band (1:1 viewBox, so nothing shifts
        by a pixel); all tiles share one shadow filter per depth. */
     const frag=document.createDocumentFragment();
-    const pad = 280;
+    const pad = 380;
     const tileW = W + 2 * pad;
     for(const g of gs){
       const j=+g.dataset.j,u0=j*W-pad;
       let y0=-M-80,y1=H+M;
-      try{const bb=g.getBBox();if(bb.height>1){y0=Math.max(-M-160,Math.floor(bb.y-40));y1=Math.min(H+M,Math.ceil(bb.y+bb.height+40));}}catch(e){}
+      try{const bb=g.getBBox();if(bb.height>1){y0=Math.floor(bb.y-60);y1=Math.ceil(bb.y+bb.height+60);}}catch(e){}
       const hh=Math.max(80,y1-y0);
       const tw=document.createElement('div');
       tw.className='tile';tw.dataset.j=j;
@@ -1904,7 +1904,7 @@ const WORLD = (() => {
   function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
   function cull(a,b){ // keep only the tiles between slide positions a..b alive
     for(const L of layerEls){if(!L.tiles.length)continue;const u0=Math.min(a,b)*W*L.f-W*.3,u1=Math.max(a,b)*W*L.f+W*1.3;
-      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-280,t1=j*W+W+280;t.style.display=(t1<u0||t0>u1)?'none':'';}}
+      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-380,t1=j*W+W+380;t.style.display=(t1<u0||t0>u1)?'none':'';}}
     // the paper cards are a sheet of their own: only the plates in play are
     // laid out, so the content layer stays ~3 plates wide instead of 18
     const lo=Math.min(a,b)-1,hi=Math.max(a,b)+1;

@@ -87,12 +87,12 @@
        Each tile gets its own trimmed band (1:1 viewBox, so nothing shifts
        by a pixel); all tiles share one shadow filter per depth. */
     const frag=document.createDocumentFragment();
-    const pad = 280;
+    const pad = 380;
     const tileW = W + 2 * pad;
     for(const g of gs){
       const j=+g.dataset.j,u0=j*W-pad;
       let y0=-M-80,y1=H+M;
-      try{const bb=g.getBBox();if(bb.height>1){y0=Math.max(-M-160,Math.floor(bb.y-40));y1=Math.min(H+M,Math.ceil(bb.y+bb.height+40));}}catch(e){}
+      try{const bb=g.getBBox();if(bb.height>1){y0=Math.floor(bb.y-60);y1=Math.ceil(bb.y+bb.height+60);}}catch(e){}
       const hh=Math.max(80,y1-y0);
       const tw=document.createElement('div');
       tw.className='tile';tw.dataset.j=j;
@@ -242,7 +242,7 @@
   function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
   function cull(a,b){ // keep only the tiles between slide positions a..b alive
     for(const L of layerEls){if(!L.tiles.length)continue;const u0=Math.min(a,b)*W*L.f-W*.3,u1=Math.max(a,b)*W*L.f+W*1.3;
-      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-280,t1=j*W+W+280;t.style.display=(t1<u0||t0>u1)?'none':'';}}
+      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-380,t1=j*W+W+380;t.style.display=(t1<u0||t0>u1)?'none':'';}}
     // the paper cards are a sheet of their own: only the plates in play are
     // laid out, so the content layer stays ~3 plates wide instead of 18
     const lo=Math.min(a,b)-1,hi=Math.max(a,b)+1;
