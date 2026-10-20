@@ -38,6 +38,15 @@ const WORLD = (() => {
     for(let j=0;j<n;j++){const u0=j*W-M,u1=u0+W;s+=tileOpen(j)+fn(j,u0,u1)+'</g>';}
     return s;
   }
+  /* The paper tooth is painted as a second pass over the same silhouette. Store
+     that silhouette once and re-use it with <use>, instead of writing the whole
+     multi-kilobyte path data a second time: identical pixels, half the markup. */
+  let uid = 0;
+  const shape = (cls,d,id) => `<g class="${cls}"><path id="${id}" d="${d}"/></g>`;
+  // (fragment-local href: the referenced shape always sits earlier in the same
+  // tile, so a tile can be detached or duplicated without losing its grain)
+  const grainOf = ids => `<g class="grain">${ids.map(i=>`<use href="#${i}"/>`).join('')}</g>`;
+
   const winGlow=(x,y,r)=>`<circle class="winglow" cx="${q(x)}" cy="${q(y)}" r="${q(r)}" fill="url(#winGlowGrad)"/>`;
   const jitter=(x,j)=>{if(j<=0)return 0;const h=Math.sin(x*127.1+311.7)*43758.5453123;return((h-Math.floor(h))-.5)*2*j;};
   function ridgeChunk(fn,bottom,x0,x1,step=8,j=.9,overlap=2){
@@ -120,8 +129,8 @@ const WORLD = (() => {
       const d2=ridgeChunk(hill,H+M,u0,u1,8,.9,2);
       const g2=ridgeChunk(hill,H+M,u0,u1,8,.9,0);
       let s=`<path class="c-hill" d="${d2}${t.cuts||''}"/><path class="grain" d="${g2}"/>`;
-      if(t.trees)s+=`<path class="c-hill" d="${t.trees}"/><path class="grain" d="${t.trees}"/>`;
-      if(t.roofs)s+=`<path class="c-roof" d="${t.roofs}"/><path class="grain" d="${t.roofs}"/>`;
+      if(t.trees){const a='l2t'+j;s+=shape('c-hill',t.trees,a)+grainOf([a]);}
+      if(t.roofs){const a='l2r'+j;s+=shape('c-roof',t.roofs,a)+grainOf([a]);}
       if(t.glows)s+=t.glows;
       if(t.wins)s+=`<path class="c-win" d="${t.wins}"/>`;
       if(t.bld)s+=t.bld;
@@ -151,7 +160,8 @@ const WORLD = (() => {
       const d3=ridgeChunk(rg,H+M,u0,u1,8,.9,2);
       const g3=ridgeChunk(rg,H+M,u0,u1,8,.9,0);
       const t=perTile[j]||'';
-      return `<path class="c-ridge" d="${d3}${t}"/><path class="grain" d="${g3}${t}"/>`;
+      if(!t) return `<path class="c-ridge" d="${d3}"/><path class="grain" d="${g3}"/>`;
+      return `<path class="c-ridge" d="${d3}"/>${shape('c-ridge',t,'l3'+j)}<path class="grain" d="${g3}"/>${grainOf(['l3'+j])}`;
     });
     return tiles;
   }
@@ -251,7 +261,7 @@ const WORLD = (() => {
         if(goa){d6+=F.palm(x,y6+8,h*.86,side*h*.14,8);}
         else{const w=Math.min(h*.4,W*.2);d6+=pine(x,y6+8,h,w);}
       }
-      tiles+=tileOpen(k)+`<path class="c-teal" d="${d6}"/><path class="grain" d="${d6}"/>`+'</g>';
+      tiles+=tileOpen(k)+shape('c-teal',d6,'l6'+k)+grainOf(['l6'+k])+'</g>';
     }
     return tiles;
   }
@@ -321,14 +331,15 @@ const WORLD = (() => {
       if(t.rbloom)s+=`<path class="c-bell" d="${t.rbloom}"/>`;
       if(t.rdot)s+=`<path class="c-bell2" d="${t.rdot}"/>`;
       if(t.burrow)s+=`<path class="c-burrow" d="${t.burrow}"/>`;
-      if(t.stems)s+=`<path class="c-stem" d="${t.stems}"/>`;
-      if(t.caps)s+=`<path class="c-cap" d="${t.caps}"/>`;
-      s+=`<path class="grain" d="${g7_grain}${t.stems||''}${t.caps||''}"/>`;
+      const dup=[];
+      if(t.stems){s+=shape('c-stem',t.stems,'l7s'+j);dup.push('l7s'+j);}
+      if(t.caps){s+=shape('c-cap',t.caps,'l7c'+j);dup.push('l7c'+j);}
+      s+=`<path class="grain" d="${g7_grain}"/>`+(dup.length?grainOf(dup):'');
       if(t.dots)s+=`<path class="c-dot glowdots" d="${t.dots}"/>`;
       if(t.bld)s+=t.bld;
       return s;
     });
-    return `${tiles}<g id="puffs"></g><g id="pandaG">${F.panda()}</g>`;
+    return {html:tiles, extra:`<g id="puffs"></g><g id="pandaG">${F.panda()}</g>`};
   }
 
   /* ---------- sheet 8 — foreground grasses and tall flower spikes ---------- */
@@ -354,11 +365,13 @@ const WORLD = (() => {
       const t=per[j]||{};
       const d8=ridgeChunk(g8,H+M,u0,u1,8,.8,2);
       const g8_grain=ridgeChunk(g8,H+M,u0,u1,8,.8,0);
-      let s=`<path class="c-fg" d="${d8}${t.fg||''}${t.stalk||''}"/>`;
-      if(t.fg2)s+=`<path class="c-fg2" d="${t.fg2}"/>`;
-      if(t.bell)s+=`<path class="c-bell" d="${t.bell}"/>`;
+      let s=`<path class="c-fg" d="${d8}"/>`;const dup=[];
+      if(t.fg){s+=shape('c-fg',t.fg,'l8a'+j);dup.push('l8a'+j);}
+      if(t.stalk){s+=shape('c-fg',t.stalk,'l8b'+j);dup.push('l8b'+j);}
+      if(t.fg2){s+=shape('c-fg2',t.fg2,'l8c'+j);dup.push('l8c'+j);}
+      if(t.bell){s+=shape('c-bell',t.bell,'l8d'+j);dup.push('l8d'+j);}
       if(t.inner)s+=`<path class="c-bell2" d="${t.inner}"/>`;
-      s+=`<path class="grain" d="${g8_grain}${t.fg||''}${t.fg2||''}${t.stalk||''}${t.bell||''}"/>`;
+      s+=`<path class="grain" d="${g8_grain}"/>`+(dup.length?grainOf(dup):'');
       return s;
     });
     return tiles;
@@ -375,7 +388,7 @@ const WORLD = (() => {
       return p;};
     const mat=cut(outer,0,4000)+hole(rrect(e,2.4),.5,6);
     const frame=cut(outer,0,4000)+hole(rrect(e*.55,1.2),.3,8);
-    return `<path class="c-mat" d="${mat}"/><path class="c-frame" d="${frame}"/><path class="grain" d="${frame}"/>`;
+    return `<path class="c-mat" d="${mat}"/>${shape('c-frame',frame,'l9f')}${grainOf(['l9f'])}`;
   }
 
   function build(seed){
