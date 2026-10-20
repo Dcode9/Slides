@@ -176,31 +176,23 @@
     const d=Math.abs(k-cam);
     if(instant||reduce||d===0){
       slots.forEach((s,i)=>{
-        if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),1200);}
+        if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),1000);}
         if(i===k){s.classList.add('on');s.removeAttribute('inert');s.removeAttribute('aria-hidden');}
         else{s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
       });
       cam=k;tween=null;slots[k].classList.add('on');cull(k,k);applyCamera(true);pandaTo(k,true);
     }
     else{
-      const targetPandaX=ux(k,SLIDES[k].panda==null?.5:SLIDES[k].panda,1);
-      const startPandaX=panda.hop?panda.hop.x1:panda.x;
-      const pandaDist=Math.abs(targetPandaX-startPandaX);
+      // Switching transition time decreased by 30% (* 0.70) while fox maintains its natural speed
       const baseCamDur=clamp(2.4+0.6*d,2.6,4.5);
-      let dur=baseCamDur;
-      if(pandaDist<=W*2.5){
-        const nHops=clamp(Math.round(pandaDist/320),1,7);
-        const hopDist=pandaDist/nHops;
-        const hopDur=clamp(Math.max(MIN_HOP_DUR,hopDist/MAX_HOP_SPEED),MIN_HOP_DUR,MAX_HOP_DUR);
-        dur=Math.max(baseCamDur,(nHops*hopDur)*1.05);
-      }
+      const camDur=baseCamDur*0.70;
       slots.forEach((s,i)=>{
-        if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),Math.max(1500,Math.round(dur*1000)));}
+        if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),Math.max(1000,Math.round(camDur*1000)));}
         if(i!==k&&i!==prev){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
       });
-      tween={from:cam,to:k,t:0,dur,shown:false};
+      tween={from:cam,to:k,t:0,dur:camDur,shown:false};
       cull(Math.min(prev,k),Math.max(prev,k));
-      pandaTo(k,false,dur);
+      pandaTo(k,false);
     }
     say('Plate '+(k+1)+' of '+N+': '+(SLIDES[k].title||SLIDES[k].id));
   }
@@ -220,7 +212,13 @@
       slots[tw.to].removeAttribute('aria-hidden');
     }
     if(t>=1){
-      cam=tw.to;tween=null;cull(cur,cur);
+      const fromK=Math.round(tw.from), toK=tw.to;
+      cam=toK;tween=null;
+      if(panda.hop||panda.hops.length){
+        cull(Math.min(fromK,toK),Math.max(fromK,toK));
+      }else{
+        cull(cur,cur);
+      }
       slots.forEach((s,i)=>{if(i!==cur){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}});
       updatePosterTabindex();
     }
@@ -255,17 +253,13 @@
     pandaBtn.style.width=q(bw)+'px';pandaBtn.style.height=q(bh)+'px';
     pandaBtn.style.transform=`translate(${q(panda.x+M-bw/2)}px,${q(panda.y-lift+M-bh)}px)`;
   }
-  function queueHops(x1,total){
+  function queueHops(x1){
     const x0=panda.hop?panda.hop.x1:panda.x;
     const dist=Math.abs(x1-x0);
     if(dist<6)return;
     const n=clamp(Math.round(dist/320),1,7);
     const hopDist=dist/n;
-    let hopDur=clamp(Math.max(MIN_HOP_DUR,hopDist/MAX_HOP_SPEED),MIN_HOP_DUR,MAX_HOP_DUR);
-    if(total&&total>0){
-      const allocated=(total*0.94)/n;
-      hopDur=clamp(allocated,MIN_HOP_DUR,MAX_HOP_DUR);
-    }
+    const hopDur=clamp(Math.max(MIN_HOP_DUR,hopDist/MAX_HOP_SPEED),MIN_HOP_DUR,MAX_HOP_DUR);
     panda.hops=[];let curX=x0;
     for(let i=0;i<n;i++){
       const xx=x0+(x1-x0)*(i+1)/n;
@@ -276,20 +270,19 @@
     }
     panda.dir=x1>x0?1:-1;
   }
-  function pandaTo(k,instant,panDur){
+  function pandaTo(k,instant){
     const x1=ux(k,SLIDES[k].panda==null?.5:SLIDES[k].panda,1);
     const curX=panda.hop?panda.hop.x1:panda.x;
     if(instant||reduce||Math.abs(x1-curX)>W*2.5){
       panda.hops=[];panda.hop=null;panda.sx=panda.sy=1;panda.x=x1;panda.y=groundAt(x1);panda.dir=1;renderPanda(0);return;
     }
-    queueHops(x1,panDur||(tween?tween.dur:2.6));
+    queueHops(x1);
   }
   function hopLocal(){
     if(panda.hop||panda.hops.length)return;
     const base=cur*W,minX=base+W*.1,maxX=base+W*.9;let tx2;
     for(let k=0;k<12;k++){tx2=minX+Math.random()*(maxX-minX);if(Math.abs(tx2-panda.x)>W*.12&&Math.abs(tx2-panda.x)<W*.45)break;}
-    const dist=Math.abs(tx2-panda.x);
-    queueHops(tx2,Math.max(0.72,dist/340));
+    queueHops(tx2);
     say('The red panda hops '+(panda.dir>0?'to the right':'to the left')+'.');
   }
   const puffs=[];
@@ -303,7 +296,10 @@
       else if(t<.86){const u=(t-.16)/.7,e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;panda.x=h.x0+(h.x1-h.x0)*e;panda.y=groundAt(panda.x);lift=Math.sin(u*Math.PI)*h.hgt;panda.sy=1+.14*Math.cos(u*Math.PI);panda.sx=1-.08*Math.cos(u*Math.PI);}
       else{const u=(t-.86)/.14;if(!h.landed){h.landed=true;panda.x=h.x1;panda.y=groundAt(panda.x);if(!panda.hops.length)landPuff();}panda.sy=1-.18*Math.sin(u*Math.PI);panda.sx=1+.1*Math.sin(u*Math.PI);}
       renderPanda(lift);
-      if(t>=1){panda.hop=null;panda.sx=panda.sy=1;renderPanda(0);}
+      if(t>=1){
+        panda.hop=null;panda.sx=panda.sy=1;renderPanda(0);
+        if(!panda.hops.length&&!tween){cull(cur,cur);}
+      }
     }
     for(const p of puffs){if(!p||p.t>=1)continue;p.t+=dt*1.8;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=160*dt;p.r+=dt*8;
       p.el.setAttribute('transform',`translate(${q(p.x)} ${q(p.y)}) rotate(${q(p.r*40)}) scale(${(panda.s*1.4).toFixed(2)})`);p.el.style.opacity=(1-p.t).toFixed(2);}
