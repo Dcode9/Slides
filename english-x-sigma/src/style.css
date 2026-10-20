@@ -23,8 +23,8 @@ body{background:#1f3a3c;color:var(--ink);font-family:var(--serif);-webkit-font-s
 body.night{--shade:rgba(6,6,32,.62);--edge:rgba(176,186,255,.2);--paper:#e7e1ef;--paper-ink:#2a2644;--kick:#7b5aa6;--em:#8d4a86;--sub:#4a4468;--dash:rgba(70,60,120,.4)}
 
 /* ---------- the box (a fixed 1920x1080 diorama, scaled to fit the screen) ---------- */
-.stage{position:fixed;inset:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default}
-.viewport{position:absolute;left:0;top:0;width:var(--W);height:var(--H);transform-origin:0 0;overflow:hidden;background:#1f3a3c}
+.stage{position:fixed;inset:0;overflow:hidden;overflow:clip;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default}
+.viewport{position:absolute;left:0;top:0;width:var(--W);height:var(--H);transform-origin:0 0;overflow:hidden;overflow:clip;background:#1f3a3c}
 .sky{position:absolute;inset:0;background:radial-gradient(120% 75% at 70% 22%,#fbf3e1 0%,#f3e8d2 42%,#ecd9b4 100%)}
 .sky-night{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;background:radial-gradient(95% 70% at 70% 20%,#3a3f8a 0%,#252a69 36%,#161a45 72%,#10132f 100%)}
 body.night .sky-night{opacity:1}
@@ -35,13 +35,13 @@ body.night .pins{opacity:1;visibility:visible}
 .pins .tw{animation:twinkle 3.2s ease-in-out infinite}
 @keyframes twinkle{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.3);opacity:.35}}
 
-.layer{position:absolute;left:0;top:0;will-change:transform;pointer-events:none}
+.layer{position:absolute;left:0;top:0;will-change:transform;pointer-events:none;contain:layout style}
 .layer>svg{display:block;overflow:visible}
 .cut{filter:drop-shadow(0 -1px 0 var(--edge)) drop-shadow(0 calc(var(--sh,4) * 1px) calc(var(--sh,4) * 1.5px) var(--shade));transition:filter 1.2s ease var(--d,0s)}
 .place>svg{animation:placeIn .9s cubic-bezier(.2,.8,.25,1) both;animation-delay:calc(var(--i,0) * 70ms)}
 @keyframes placeIn{from{transform:translateY(7%);opacity:0}to{transform:none;opacity:1}}
 
-.layer path,.layer circle,.layer ellipse,.layer rect{transition:fill 1.25s cubic-bezier(.55,.05,.3,1) var(--d,0s),opacity 1.25s ease var(--d,0s),stroke 1.25s ease var(--d,0s)}
+.layer [class*="c-"],.layer .winglow,.layer .lampglow,.layer .puff,.grain{transition:fill 1.25s cubic-bezier(.55,.05,.3,1) var(--d,0s),opacity 1.25s ease var(--d,0s),stroke 1.25s ease var(--d,0s)}
 .grain{fill:url(#grainPat);pointer-events:none;transition:opacity 1.2s ease}
 body.night .grain{opacity:.5}
 body.night .sky-grain{opacity:.35}
@@ -123,6 +123,8 @@ body.night .vignette{box-shadow:inset 0 0 22vmin rgba(2,2,20,.55)}
 /* ---------- paper labels (the reference tag, extended into a family of cards) ---------- */
 .content{position:absolute;left:0;top:0;width:var(--W);height:var(--H);will-change:transform;pointer-events:none}
 .slot{position:absolute;top:0;width:var(--W);height:var(--H);contain:layout style}
+.slot:not(.on):not(.off){visibility:hidden;pointer-events:none}
+.slot.on,.slot.off{visibility:visible}
 .slot>*{position:absolute}
 .slot .anim{opacity:0}
 .slot.on .anim{animation:placeIn .9s cubic-bezier(.2,.8,.25,1) both;animation-delay:calc(var(--i,0) * 110ms + 380ms)}

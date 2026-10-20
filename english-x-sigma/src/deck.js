@@ -148,6 +148,16 @@
   let cur=0, cam=0, tween=null, manual=false;
   const hashK=()=>{const m=location.hash.match(/\d+/);return m?clamp(parseInt(m[0],10)-1,0,N-1):0;};
   const dflt=k=>SLIDES[k].mode==='night';
+  function updatePosterTabindex(){const ph=$('posterPh');if(!ph)return;const slot=ph.closest('.slot');const sk=slot?+slot.dataset.k:-1;ph.tabIndex=(sk===cur)?0:-1;}
+  const lockScroll=()=>{
+    if(window.scrollX||window.scrollY)window.scrollTo(0,0);
+    if(stage.scrollLeft||stage.scrollTop){stage.scrollLeft=0;stage.scrollTop=0;}
+    if(vp.scrollLeft||vp.scrollTop){vp.scrollLeft=0;vp.scrollTop=0;}
+  };
+  window.addEventListener('scroll',lockScroll,{passive:true});
+  stage.addEventListener('scroll',lockScroll,{passive:true});
+  vp.addEventListener('scroll',lockScroll,{passive:true});
+
   function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
   function cull(a,b){ // keep only the tiles between slide positions a..b alive
     for(const L of layerEls){if(!L.tiles.length)continue;const u0=Math.min(a,b)*W*L.f-W*.3,u1=Math.max(a,b)*W*L.f+W*1.3;
@@ -162,9 +172,14 @@
     if(dflt(prev)!==dflt(k)||instant){manual=false;setNight(dflt(k),true);}
     if(location.hash!=='#'+(k+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));
     updateCounter();
+    updatePosterTabindex();
     const d=Math.abs(k-cam);
     if(instant||reduce||d===0){
-      slots.forEach((s,i)=>{if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),1200);}});
+      slots.forEach((s,i)=>{
+        if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),1200);}
+        if(i===k){s.classList.add('on');s.removeAttribute('inert');s.removeAttribute('aria-hidden');}
+        else{s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
+      });
       cam=k;tween=null;slots[k].classList.add('on');cull(k,k);applyCamera(true);pandaTo(k,true);
     }
     else{
@@ -179,19 +194,36 @@
         const hopDur=clamp(Math.max(MIN_HOP_DUR,hopDist/MAX_HOP_SPEED),MIN_HOP_DUR,MAX_HOP_DUR);
         dur=Math.max(baseCamDur,(nHops*hopDur)*1.05);
       }
-      slots.forEach((s,i)=>{if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),Math.max(1500,Math.round(dur*1000)));}});
+      slots.forEach((s,i)=>{
+        if(i===prev&&i!==k){s.classList.remove('on');s.classList.add('off');setTimeout(()=>s.classList.remove('off'),Math.max(1500,Math.round(dur*1000)));}
+        if(i!==k&&i!==prev){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
+      });
       tween={from:cam,to:k,t:0,dur,shown:false};
       cull(Math.min(prev,k),Math.max(prev,k));
       pandaTo(k,false,dur);
     }
     say('Plate '+(k+1)+' of '+N+': '+(SLIDES[k].title||SLIDES[k].id));
   }
+  let lastCullCam=-999;
   function stepCamera(dt){
     if(!tween)return;
     const tw=tween;tw.t+=dt/tw.dur;const t=Math.min(1,tw.t),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
     cam=tw.from+(tw.to-tw.from)*e;
-    if(!tw.shown&&t>.5){tw.shown=true;slots[tw.to].classList.add('on');}
-    if(t>=1){cam=tw.to;tween=null;cull(cur,cur);}
+    if(Math.abs(tw.to-tw.from)>1&&Math.abs(cam-lastCullCam)>.35){
+      lastCullCam=cam;
+      cull(cam-.2,cam+1.2);
+    }
+    if(!tw.shown&&t>.5){
+      tw.shown=true;
+      slots[tw.to].classList.add('on');
+      slots[tw.to].removeAttribute('inert');
+      slots[tw.to].removeAttribute('aria-hidden');
+    }
+    if(t>=1){
+      cam=tw.to;tween=null;cull(cur,cur);
+      slots.forEach((s,i)=>{if(i!==cur){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}});
+      updatePosterTabindex();
+    }
   }
 
   /* ---------- parallax (mouse) + camera, applied to every sheet ---------- */
@@ -313,14 +345,21 @@
       const sp=reduce?.4:1;f.x+=vx*dt*sp;f.y+=vy*dt*sp;
       if(f.x<-20)f.x=W+20;if(f.x>W+20)f.x=-20;if(f.y<H*.42)f.a=Math.PI/2;if(f.y>H*.97)f.a=-Math.PI/2;
       if(na>.02){const b=Math.max(0,Math.sin(t*f.bl*2+f.ph))*.8+.2,s=(10+b*12)*f.z*clamp(U/10,.7,1.3);fx.globalAlpha=na*b;fx.drawImage(sprite,f.x-s,f.y-s,s*2,s*2);}
-      if(na<.98){fx.globalAlpha=(1-na)*.55;fx.fillStyle='#fff8e6';fx.beginPath();fx.arc(f.x,f.y,1.3*f.z,0,6.283);fx.fill();}
+    }
+    if(na<.98){
+      fx.globalAlpha=(1-na)*.55;fx.fillStyle='#fff8e6';fx.beginPath();
+      for(const f of flies){fx.moveTo(f.x+1.3*f.z,f.y);fx.arc(f.x,f.y,1.3*f.z,0,6.283);}
+      fx.fill();
     }
     fx.globalAlpha=1;
   }
 
   /* ---------- hanging tags: damped pendulums ---------- */
   function stepTags(dt,t){
-    for(const tg of physTags){const rest=-2.2+(reduce?0:Math.sin(t*.6)*.6);tg.v+=(-(tg.a-rest)*26-tg.v*2.6)*dt;tg.a+=tg.v*dt;tg.a=clamp(tg.a,-16,16);tg.el.style.transform=`rotate(${tg.a.toFixed(2)}deg)`;}
+    for(const tg of physTags){
+      if(!tg.el.closest('.slot.on'))continue;
+      const rest=-2.2+(reduce?0:Math.sin(t*.6)*.6);tg.v+=(-(tg.a-rest)*26-tg.v*2.6)*dt;tg.a+=tg.v*dt;tg.a=clamp(tg.a,-16,16);tg.el.style.transform=`rotate(${tg.a.toFixed(2)}deg)`;
+    }
   }
   const kickTags=v=>{for(const tg of physTags)tg.v+=v;};
 
@@ -391,6 +430,8 @@
   /* ---------- go ---------- */
   makeLeaves();sizeFlies();
   const k0=hashK();cur=k0;cam=k0;cull(k0,k0);
+  slots.forEach((s,i)=>{if(i===k0){s.removeAttribute('inert');s.removeAttribute('aria-hidden');}else{s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}});
+  updatePosterTabindex();
   if(dflt(k0)){body.classList.add('night');nightAmt=1;toggle.setAttribute('aria-pressed','true');toggleLabel.textContent='Night';}
   updateCounter();pandaTo(k0,true);applyCamera();
   setTimeout(()=>slots[k0].classList.add('on'),reduce?0:650);

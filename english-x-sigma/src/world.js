@@ -39,6 +39,20 @@ const WORLD = (() => {
     return s;
   }
   const winGlow=(x,y,r)=>`<circle class="winglow" cx="${q(x)}" cy="${q(y)}" r="${q(r)}" fill="url(#winGlowGrad)"/>`;
+  const jitter=(x,j)=>{if(j<=0)return 0;const h=Math.sin(x*127.1+311.7)*43758.5453123;return((h-Math.floor(h))-.5)*2*j;};
+  function ridgeChunk(fn,bottom,x0,x1,step=8,j=.9,overlap=2){
+    const p=[];const right=x1+overlap;
+    for(let x=x0;x<=right;x+=step)p.push([x,fn(x)+jitter(x,j)]);
+    if(p[p.length-1][0]<right)p.push([right,fn(right)+jitter(right,j)]);
+    p.push([right,bottom],[x0,bottom]);
+    return poly(p);
+  }
+  function riverChunk(yc,hw,x0,x1,step=10,overlap=2){
+    const T=[],B=[];const right=x1+overlap;
+    for(let u=x0;u<=right;u+=step){const jit=jitter(u*1.5,.8);T.push([u,yc(u)-hw(u)+jit]);B.push([u,yc(u)+hw(u)+jit]);}
+    if(T[T.length-1][0]<right){const jit=jitter(right*1.5,.8);T.push([right,yc(right)-hw(right)+jit]);B.push([right,yc(right)+hw(right)+jit]);}
+    return poly(T.concat(B.reverse()));
+  }
 
   /* ---------- sheet 1 — far hills, rising into the Himalaya ---------- */
   function buildL1(){
@@ -51,26 +65,31 @@ const WORLD = (() => {
     peaks.push({c:1.78*W,w:W*.13,h:H*.33});peaks.push({c:1.7*W,w:W*.07,h:H*.24});peaks.push({c:1.87*W,w:W*.08,h:H*.26});
     const prof=u=>{let y=0;for(const p of peaks){const d=Math.abs(u-p.c);if(d<p.w)y=Math.max(y,p.h*(1-d/p.w));}return y;};
     const fn=u=>far(u)-env(u)*prof(u);
-    const d1=ridge(fn,H+M,-M,x1,8,.9);
-    let snow='';
+    const snowPerTile={};
     for(const p of peaks){
       const e=env(p.c);if(e<.25||p.c<1.5*W)continue;
       const top=[],bot=[];const a=p.c-p.w*.42,b=p.c+p.w*.42,n=14;
       for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;top.push([x,fn(x)+(R()-.5)*1.4]);}
       for(let i=n;i>=0;i--){const x=a+(b-a)*i/n,t=1-Math.abs((x-p.c)/(p.w*.42));bot.push([x,fn(x)+p.h*e*(.14+.24*t)+(i%2?6:-4)+(R()-.5)*4]);}
-      snow+=poly(top.concat(bot));
+      const j=Math.floor((p.c+M)/W);
+      snowPerTile[j]=(snowPerTile[j]||'')+poly(top.concat(bot));
     }
-    return `<path class="c-far" d="${d1}"/><path class="c-snow" d="${snow}"/><path class="grain" d="${d1}"/>`;
+    const tiles=tiled(f,(j,u0,u1)=>{
+      const d1=ridgeChunk(fn,H+M,u0,u1,8,.9,2);
+      const g1=ridgeChunk(fn,H+M,u0,u1,8,.9,0);
+      const sn=snowPerTile[j]||'';
+      return `<path class="c-far" d="${d1}"/><path class="c-snow" d="${sn}"/><path class="grain" d="${g1}"/>`;
+    });
+    return tiles;
   }
 
   /* ---------- sheet 2 — rolling hill with tiny trees and far buildings ---------- */
   function buildL2(){
     const f=LAYERS.L2.f,x1=widthOf(f)+M;
     const hill=wave(H*.47,[H*.036,H*.014,H*.006],[W*.9,W*.34,W*.13]);
-    let d2=ridge(hill,H+M,-M,x1,9,.9);
     const phs=R()*6;
     const perTile={};
-    const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);perTile[j]=perTile[j]||{trees:'',roofs:'',wins:'',glows:'',bld:''};perTile[j][key]+=val;};
+    const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);perTile[j]=perTile[j]||{trees:'',roofs:'',wins:'',glows:'',bld:'',cuts:''};perTile[j][key]+=val;};
     for(let x=-M;x<x1;x+=rr(5,15)){
       if(Math.sin(x/W*8.5+phs)+Math.sin(x/W*21+phs*2)*.5>.35){
         const h=rr(2.1,4.2)*U,b=pick(x,f);
@@ -82,8 +101,8 @@ const WORLD = (() => {
       const cx=h.u;
       if(h.fig==='cottage'){
         const s=Math.max(12,U*2.3),by=hill(cx)+s*.25;
-        d2+=cut([[cx-s*.52,by],[cx-s*.52,by-s*.62],[cx+s*.52,by-s*.62],[cx+s*.52,by]],.4,5);
-        d2+=cut([[cx+s*.2,by-s*.8],[cx+s*.2,by-s*1.12],[cx+s*.36,by-s*1.12],[cx+s*.36,by-s*.7]],.3,4);
+        addPt(cx,'cuts',cut([[cx-s*.52,by],[cx-s*.52,by-s*.62],[cx+s*.52,by-s*.62],[cx+s*.52,by]],.4,5));
+        addPt(cx,'cuts',cut([[cx+s*.2,by-s*.8],[cx+s*.2,by-s*1.12],[cx+s*.36,by-s*1.12],[cx+s*.36,by-s*.7]],.3,4));
         addPt(cx,'roofs',cut([[cx-s*.66,by-s*.54],[cx,by-s*1.08],[cx+s*.66,by-s*.54]],.4,4));
         let wins='';
         for(const wx of [-.26,.18]){wins+=poly([[cx+wx*s,by-s*.42],[cx+(wx+.15)*s,by-s*.42],[cx+(wx+.15)*s,by-s*.24],[cx+wx*s,by-s*.24]]);}
@@ -96,9 +115,11 @@ const WORLD = (() => {
         addPt(cx,'glows',winGlow(cx,by-30*s,70*s));
       }
     }
-    const tiles=tiled(f,(j)=>{
-      const t=perTile[j];if(!t)return '';
-      let s='';
+    const tiles=tiled(f,(j,u0,u1)=>{
+      const t=perTile[j]||{};
+      const d2=ridgeChunk(hill,H+M,u0,u1,8,.9,2);
+      const g2=ridgeChunk(hill,H+M,u0,u1,8,.9,0);
+      let s=`<path class="c-hill" d="${d2}${t.cuts||''}"/><path class="grain" d="${g2}"/>`;
       if(t.trees)s+=`<path class="c-hill" d="${t.trees}"/><path class="grain" d="${t.trees}"/>`;
       if(t.roofs)s+=`<path class="c-roof" d="${t.roofs}"/><path class="grain" d="${t.roofs}"/>`;
       if(t.glows)s+=t.glows;
@@ -106,14 +127,13 @@ const WORLD = (() => {
       if(t.bld)s+=t.bld;
       return s;
     });
-    return `<path class="c-hill" d="${d2}"/><path class="grain" d="${d2}"/>${tiles}`;
+    return tiles;
   }
 
   /* ---------- sheet 3 — the sage tree ridge: pines, palms, broadleaf ---------- */
   function buildL3(){
     const f=LAYERS.L3.f,x1=widthOf(f)+M;
     const rg=wave(H*.545,[H*.014,H*.007],[W*.7,W*.23]);
-    const d3=ridge(rg,H+M,-M,x1,9,.9);
     let x=-M;const perTile={};
     while(x<x1){
       const b=pick(x,f);let w;
@@ -127,8 +147,13 @@ const WORLD = (() => {
         perTile[Math.floor((x+M)/W)]=(perTile[Math.floor((x+M)/W)]||'')+t;x+=w*rr(.42,.8);
       }
     }
-    const tiles=tiled(f,(j)=>`<path class="c-ridge" d="${perTile[j]||''}"/>`);
-    return `<path class="c-ridge" d="${d3}"/>${tiles}<path class="grain" d="${d3}"/>`;
+    const tiles=tiled(f,(j,u0,u1)=>{
+      const d3=ridgeChunk(rg,H+M,u0,u1,8,.9,2);
+      const g3=ridgeChunk(rg,H+M,u0,u1,8,.9,0);
+      const t=perTile[j]||'';
+      return `<path class="c-ridge" d="${d3}${t}"/><path class="grain" d="${g3}${t}"/>`;
+    });
+    return tiles;
   }
 
   /* ---------- sheet 4 — meadow, the long river and its branches ---------- */
@@ -136,14 +161,10 @@ const WORLD = (() => {
   function buildL4(){
     const f=LAYERS.L4.f,x1=widthOf(f)+M;
     const md=wave(H*.6,[H*.008,H*.004],[W*.8,W*.25]);
-    const d4=ridge(md,H+M,-M,x1,10,.6);
     const p1=R()*6,p2=R()*6,p3=R()*6;
     const yc=u=>H*.705+H*.026*Math.sin(u/(.9*W)*Math.PI*2+p1)+H*.011*Math.sin(u/(.31*W)*Math.PI*2+p2);
     const hw=u=>H*.011+H*.036*biome(u,f).goa+H*.004*Math.sin(u/(.5*W)*Math.PI*2+p3);
     riverY=yc;
-    const T=[],B=[];
-    for(let u=-M;u<=x1;u+=10){T.push([u,yc(u)-hw(u)+(R()-.5)*1.6]);B.push([u,yc(u)+hw(u)+(R()-.5)*1.6]);}
-    let dr=poly(T.concat(B.reverse()));
     const perTile={};
     const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);perTile[j]=perTile[j]||{dr:'',rip:'',gl:'',bld:''};perTile[j][key]+=val;};
     // forward branches: one per plate, exactly like the reference river
@@ -163,16 +184,18 @@ const WORLD = (() => {
       for(let i=0;i<10;i++){const u=ux(k,R(),f),y=yc(u)+(R()-.5)*hw(u)*1.2,len=rr(10,30),th=1.2;addPt(u,'rip',poly([[u-len/2,y],[u,y-th],[u+len/2,y],[u,y+th*.6]]));}
     }
     for(const h of heroes('L4')){const s=h.s||1;addPt(h.u,'bld',G(h.u,yc(h.u)+hw(h.u)*.2,s,F.boat()));}
-    const tiles=tiled(f,(j)=>{
-      const t=perTile[j];if(!t)return '';
-      let s='';
-      if(t.dr)s+=`<path class="c-river" d="${t.dr}"/>`;
+    const tiles=tiled(f,(j,u0,u1)=>{
+      const t=perTile[j]||{};
+      const d4=ridgeChunk(md,H+M,u0,u1,8,.6,2);
+      const g4=ridgeChunk(md,H+M,u0,u1,8,.6,0);
+      const dr=riverChunk(yc,hw,u0,u1,10,2);
+      let s=`<path class="c-meadow" d="${d4}"/><path class="c-river" d="${dr}${t.dr||''}"/><path class="grain" d="${g4}"/>`;
       if(t.rip)s+=`<path class="c-ripple" d="${t.rip}"/>`;
       if(t.gl)s+=t.gl;
       if(t.bld)s+=t.bld;
       return s;
     });
-    return `<path class="c-meadow" d="${d4}"/><path class="c-river" d="${dr}"/><path class="grain" d="${d4}"/>${tiles}`;
+    return tiles;
   }
 
   /* ---------- sheet 5 — moss banks with an opening on every plate ---------- */
@@ -184,8 +207,6 @@ const WORLD = (() => {
     const near=u=>{let d=1e9;for(const c of centers)d=Math.min(d,Math.abs(u-c));return d;};
     const yb=u=>{const d=near(u),s=clamp(1-(d-.09*W)/(.16*W),0,1);return y5+w5(u)+Math.pow(s,3)*(H+M-y5)*1.02;};
     bank5=yb;
-    const pts=[];for(let u=-M;u<=x1;u+=9)pts.push([u,Math.min(H+M,yb(u))+(R()-.5)*1.6]);pts.push([x1,H+M],[-M,H+M]);
-    const d5=poly(pts);
     const perTile={};const add=(x,t)=>{const j=Math.floor((x+M)/W);perTile[j]=(perTile[j]||'')+t;};
     let x=-M;
     while(x<x1){
@@ -205,13 +226,16 @@ const WORLD = (() => {
       else if(h.fig==='palmTall'){add(u,F.palm(u,y,H*.34,rr(-.2,.2)*H*.1,8));}
       else if(F[h.fig]){const s=h.s||1.6;heroTile[j].svg+=G(u,y,s,F[h.fig](h.fig==='house'));if(h.fig!=='hut')heroTile[j].glows+=winGlow(u,y-28*s,80*s);}
     }
-    const tiles=tiled(f,(j)=>{
-      let s=`<path class="c-moss" d="${perTile[j]||''}"/>`;
+    const tiles=tiled(f,(j,u0,u1)=>{
+      const d5=ridgeChunk(u=>Math.min(H+M,yb(u)),H+M,u0,u1,8,.8,2);
+      const g5=ridgeChunk(u=>Math.min(H+M,yb(u)),H+M,u0,u1,8,.8,0);
+      let s=`<path class="c-moss" d="${d5}${perTile[j]||''}"/>`;
       const ht=heroTile[j];
       if(ht){if(ht.svg)s+=ht.svg;if(ht.glows)s+=ht.glows;}
+      s+=`<path class="grain" d="${g5}"/>`;
       return s;
     });
-    return `<path class="c-moss" d="${d5}"/>${tiles}<path class="grain" d="${d5}"/>`;
+    return tiles;
   }
 
   /* ---------- sheet 6 — the tall teal giants that frame every plate ---------- */
@@ -241,11 +265,9 @@ const WORLD = (() => {
     const burR=W*.1;
     const g7=u=>{let y=g7w(u);for(const b of burrows)y-=H*.04*Math.exp(-Math.pow((u-b)/burR,2));return y;};
     groundAt=g7;
-    const d7=ridge(g7,H+M,-M,x1,8,.7);
     const hs=heroes('L7');
     const occupied=(u,r)=>hs.some(h=>h.fig!=='burrow'&&h.fig!=='mushrooms'&&Math.abs(h.u-u)<r);
-    let burrow='',stems='',caps='',dots='',bld='';
-    const per={};const add=(x,key,t)=>{const j=Math.floor((x+M)/W);per[j]=per[j]||{tuft:'',fall1:'',fall2:'',pebble:'',fern:'',rleaf:'',rbloom:'',rdot:'',shell:''};per[j][key]+=t;};
+    const per={};const add=(x,key,t)=>{const j=Math.floor((x+M)/W);per[j]=per[j]||{tuft:'',fall1:'',fall2:'',pebble:'',fern:'',rleaf:'',rbloom:'',rdot:'',shell:'',burrow:'',stems:'',caps:'',dots:'',bld:''};per[j][key]+=t;};
     // tufts
     for(let x=-M;x<x1;x+=rr(18,60)){const y=g7(x)+2,n=3+Math.floor(R()*3);let t='';for(let k=0;k<n;k++)t+=blade(x+k*2.2,y+2,rr(.9,2.1)*U,rr(-.6,.6)*U,rr(2,3.4));add(x,'tuft',t);}
     // per plate: ferns, pebbles, fallen leaves, low tufts, biome extras
@@ -273,27 +295,46 @@ const WORLD = (() => {
       if(h.fig==='burrow'){
         const bw=Math.max(18,W*.042),bh=bw*.72,by0=g7(x)+bh*1.25;
         const arch=[[x-bw/2,by0]];for(let i=0;i<=12;i++){const a=Math.PI+i/12*Math.PI;arch.push([x+Math.cos(a)*bw/2,by0-bh*.35+Math.sin(a)*bh*.9]);}arch.push([x+bw/2,by0]);
-        burrow+=cut(arch,.6,5);
+        add(x,'burrow',cut(arch,.6,5));
       }else if(h.fig==='mushrooms'){
         const n=h.n||3;
-        for(let k=0;k<n;k++){const mx=x+(k-(n-1)/2)*U*rr(1.4,2.6),s=U*rr(1.1,3.1)*(k===Math.floor(n/2)?1.25:1);const m=F.mushroom(mx,g7(mx)+s*.18,s);stems+=m.stem;caps+=m.cap;dots+=m.dots;}
+        for(let k=0;k<n;k++){const mx=x+(k-(n-1)/2)*U*rr(1.4,2.6),s=U*rr(1.1,3.1)*(k===Math.floor(n/2)?1.25:1);const m=F.mushroom(mx,g7(mx)+s*.18,s);add(mx,'stems',m.stem);add(mx,'caps',m.cap);add(mx,'dots',m.dots);}
       }else if(h.fig==='rhodo'){
         const rb=F.rhodoBush(x,y+6,54*(h.s||1));add(x,'rleaf',rb.leaf);add(x,'rbloom',rb.bloom);add(x,'rdot',rb.dot);
       }else if(h.fig==='boatBeach'){
-        bld+=G(x,y+6,h.s||1.4,F.boat());
+        add(x,'bld',G(x,y+6,h.s||1.4,F.boat()));
       }else if(F[h.fig]){
-        bld+=G(x,y+3,h.s||2,F[h.fig]());
+        add(x,'bld',G(x,y+3,h.s||2,F[h.fig]()));
       }
     }
-    const tiles=tiled(f,(j)=>{const t=per[j];if(!t)return '';return `<path class="c-fall1" d="${t.fall1}"/><path class="c-fall2" d="${t.fall2}"/><path class="c-pebble" d="${t.shell}"/><path class="c-tuft" d="${t.tuft}"/><path class="c-pebble" d="${t.pebble}"/><path class="c-fern" d="${t.fern}${t.rleaf}"/><path class="c-bell" d="${t.rbloom}"/><path class="c-bell2" d="${t.rdot}"/>`;});
-    return `<path class="c-ground" d="${d7}"/>${tiles}<path class="c-burrow" d="${burrow}"/><path class="c-stem" d="${stems}"/><path class="c-cap" d="${caps}"/><path class="grain" d="${d7}${stems}${caps}"/><path class="c-dot glowdots" d="${dots}"/>${bld}<g id="puffs"></g><g id="pandaG">${F.panda()}</g>`;
+    const tiles=tiled(f,(j,u0,u1)=>{
+      const t=per[j]||{};
+      const d7=ridgeChunk(g7,H+M,u0,u1,8,.7,2);
+      const g7_grain=ridgeChunk(g7,H+M,u0,u1,8,.7,0);
+      let s=`<path class="c-ground" d="${d7}"/>`;
+      if(t.fall1)s+=`<path class="c-fall1" d="${t.fall1}"/>`;
+      if(t.fall2)s+=`<path class="c-fall2" d="${t.fall2}"/>`;
+      if(t.shell)s+=`<path class="c-pebble" d="${t.shell}"/>`;
+      if(t.tuft)s+=`<path class="c-tuft" d="${t.tuft}"/>`;
+      if(t.pebble)s+=`<path class="c-pebble" d="${t.pebble}"/>`;
+      if(t.fern||t.rleaf)s+=`<path class="c-fern" d="${t.fern||''}${t.rleaf||''}"/>`;
+      if(t.rbloom)s+=`<path class="c-bell" d="${t.rbloom}"/>`;
+      if(t.rdot)s+=`<path class="c-bell2" d="${t.rdot}"/>`;
+      if(t.burrow)s+=`<path class="c-burrow" d="${t.burrow}"/>`;
+      if(t.stems)s+=`<path class="c-stem" d="${t.stems}"/>`;
+      if(t.caps)s+=`<path class="c-cap" d="${t.caps}"/>`;
+      s+=`<path class="grain" d="${g7_grain}${t.stems||''}${t.caps||''}"/>`;
+      if(t.dots)s+=`<path class="c-dot glowdots" d="${t.dots}"/>`;
+      if(t.bld)s+=t.bld;
+      return s;
+    });
+    return `${tiles}<g id="puffs"></g><g id="pandaG">${F.panda()}</g>`;
   }
 
   /* ---------- sheet 8 — foreground grasses and tall flower spikes ---------- */
   function buildL8(){
     const f=LAYERS.L8.f,x1=widthOf(f)+M;
     const g8=wave(H*.945,[H*.008,H*.005],[W*.6,W*.2]);
-    const d8=ridge(g8,H+M,-M,x1,9,.8);
     const centers=[];for(let k=0;k<N;k++)centers.push(ux(k,.5,f));
     const per={};const add=(x,key,t)=>{const j=Math.floor((x+M)/W);per[j]=per[j]||{fg:'',fg2:'',stalk:'',bell:'',inner:''};per[j][key]+=t;};
     for(let x=-M;x<x1;x+=rr(3.5,9)){
@@ -309,8 +350,18 @@ const WORLD = (() => {
         const fg=fn(x,g8(x)+4,H*fh,W*fl,sd);add(x,'stalk',fg.stalk);add(x,'bell',fg.bells);add(x,'inner',fg.inner);
       }
     }
-    const tiles=tiled(f,(j)=>{const t=per[j];if(!t)return '';return `<path class="c-fg2" d="${t.fg2}"/><path class="c-fg" d="${t.fg}${t.stalk}"/><path class="c-bell" d="${t.bell}"/><path class="c-bell2" d="${t.inner}"/><path class="grain" d="${t.fg}${t.fg2}${t.stalk}${t.bell}"/>`;});
-    return `<path class="c-fg" d="${d8}"/>${tiles}<path class="grain" d="${d8}"/>`;
+    const tiles=tiled(f,(j,u0,u1)=>{
+      const t=per[j]||{};
+      const d8=ridgeChunk(g8,H+M,u0,u1,8,.8,2);
+      const g8_grain=ridgeChunk(g8,H+M,u0,u1,8,.8,0);
+      let s=`<path class="c-fg" d="${d8}${t.fg||''}${t.stalk||''}"/>`;
+      if(t.fg2)s+=`<path class="c-fg2" d="${t.fg2}"/>`;
+      if(t.bell)s+=`<path class="c-bell" d="${t.bell}"/>`;
+      if(t.inner)s+=`<path class="c-bell2" d="${t.inner}"/>`;
+      s+=`<path class="grain" d="${g8_grain}${t.fg||''}${t.fg2||''}${t.stalk||''}${t.bell||''}"/>`;
+      return s;
+    });
+    return tiles;
   }
 
   /* ---------- sheet 9 — the box: deckle-edged cream mat in a dark board frame ---------- */
