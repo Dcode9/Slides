@@ -32,27 +32,27 @@ const WORLD = (() => {
     SLIDES.forEach((sl,k)=>{const list=(sl.scene||{})[layer]||[];for(const h of list)out.push(Object.assign({k,u:ux(k,h.a,f)},h));});
     return out;
   }
-  function tileOpen(j){return `<g class="tile" data-j="${j}">`;}
+  // \u0001 marks a tile boundary: deck.js splits each layer on it so that only
+  // the tiles near the camera are ever put into the document (see deck.js).
+  function tileOpen(j){return `\u0001<g class="tile" data-j="${j}">`;}
   function tiled(f,fn){ // call fn(j,u0,u1) for consecutive W-wide tiles across the layer
     let s='';const n=Math.ceil((widthOf(f)+2*M)/W)+1;
-    for(let j=0;j<n;j++){const u0=j*W-M,u1=u0+W;s+=tileOpen(j)+fn(j,u0,u1)+'</g>';}
+    for(let j=0;j<n;j++){const u0=j*W-M,u1=u0+W;s+=tileOpen(j)+fn(j,u0,u1)+'</g>\u0001';}
     return s;
   }
   const winGlow=(x,y,r)=>`<circle class="winglow" cx="${q(x)}" cy="${q(y)}" r="${q(r)}" fill="url(#winGlowGrad)"/>`;
-  const jitter=(x,j)=>{if(j<=0)return 0;const h=Math.sin(x*127.1+311.7)*43758.5453123;return((h-Math.floor(h))-.5)*2*j;};
-  function ridgeChunk(fn,bottom,x0,x1,step=8,j=.9,overlap=2){
-    const p=[];const right=x1+overlap;
-    for(let x=x0;x<=right;x+=step)p.push([x,fn(x)+jitter(x,j)]);
-    if(p[p.length-1][0]<right)p.push([right,fn(right)+jitter(right,j)]);
-    p.push([right,bottom],[x0,bottom]);
-    return poly(p);
-  }
-  function riverChunk(yc,hw,x0,x1,step=10,overlap=2){
-    const T=[],B=[];const right=x1+overlap;
-    for(let u=x0;u<=right;u+=step){const jit=jitter(u*1.5,.8);T.push([u,yc(u)-hw(u)+jit]);B.push([u,yc(u)+hw(u)+jit]);}
-    if(T[T.length-1][0]<right){const jit=jitter(right*1.5,.8);T.push([right,yc(right)-hw(right)+jit]);B.push([right,yc(right)+hw(right)+jit]);}
-    return poly(T.concat(B.reverse()));
-  }
+
+  /* ---------- on-demand tiles ----------
+     A sheet is a long strip, but only a handful of its W-wide tiles are ever on
+     screen.  Tiles are therefore generated *when they are first needed*
+     (deck.js asks WORLD.fill(key,j)) from a random stream of their own, so the
+     work done at start-up, the strings kept in memory and the nodes in the
+     document are all proportional to what is on screen — not to the length of
+     the deck.  sandbox() keeps those private streams from disturbing the
+     sequence the other sheets are drawn from.                              */
+  const LAZY = {};
+  function sandbox(seed,fn){const saved=F.getR();F.setSeed(seed);try{return fn();}finally{F.setR(saved);}}
+  const TILE_SEED=k=>0x5EED ^ (k*2654435761);
 
   /* ---------- sheet 1 — far hills, rising into the Himalaya ---------- */
   function buildL1(){
@@ -65,44 +65,32 @@ const WORLD = (() => {
     peaks.push({c:1.78*W,w:W*.13,h:H*.33});peaks.push({c:1.7*W,w:W*.07,h:H*.24});peaks.push({c:1.87*W,w:W*.08,h:H*.26});
     const prof=u=>{let y=0;for(const p of peaks){const d=Math.abs(u-p.c);if(d<p.w)y=Math.max(y,p.h*(1-d/p.w));}return y;};
     const fn=u=>far(u)-env(u)*prof(u);
-    const snowPerTile={};
+    const d1=ridge(fn,H+M,-M,x1,8,.9);
+    let snow='';
     for(const p of peaks){
       const e=env(p.c);if(e<.25||p.c<1.5*W)continue;
       const top=[],bot=[];const a=p.c-p.w*.42,b=p.c+p.w*.42,n=14;
       for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;top.push([x,fn(x)+(R()-.5)*1.4]);}
       for(let i=n;i>=0;i--){const x=a+(b-a)*i/n,t=1-Math.abs((x-p.c)/(p.w*.42));bot.push([x,fn(x)+p.h*e*(.14+.24*t)+(i%2?6:-4)+(R()-.5)*4]);}
-      const j=Math.floor((p.c+M)/W);
-      snowPerTile[j]=(snowPerTile[j]||'')+poly(top.concat(bot));
+      snow+=poly(top.concat(bot));
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const d1=ridgeChunk(fn,H+M,u0,u1,8,.9,2);
-      const g1=ridgeChunk(fn,H+M,u0,u1,8,.9,0);
-      const sn=snowPerTile[j]||'';
-      return `<path class="c-far" d="${d1}"/><path class="c-snow" d="${sn}"/><path class="grain" d="${g1}"/>`;
-    });
-    return tiles;
+    return `<path class="c-far" d="${d1}"/><path class="c-snow" d="${snow}"/><path class="grain" d="${d1}"/>`;
   }
 
   /* ---------- sheet 2 — rolling hill with tiny trees and far buildings ---------- */
   function buildL2(){
     const f=LAYERS.L2.f,x1=widthOf(f)+M;
     const hill=wave(H*.47,[H*.036,H*.014,H*.006],[W*.9,W*.34,W*.13]);
+    let d2=ridge(hill,H+M,-M,x1,9,.9);
     const phs=R()*6;
-    const perTile={};
-    const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);perTile[j]=perTile[j]||{trees:'',roofs:'',wins:'',glows:'',bld:'',cuts:''};perTile[j][key]+=val;};
-    for(let x=-M;x<x1;x+=rr(5,15)){
-      if(Math.sin(x/W*8.5+phs)+Math.sin(x/W*21+phs*2)*.5>.35){
-        const h=rr(2.1,4.2)*U,b=pick(x,f);
-        if(b==='goa'){if(R()<.7)addPt(x,'trees',F.palm(x,hill(x)+3,h*1.1,rr(-.3,.3)*h,5));else addPt(x,'trees',F.roundTree(x,hill(x)+3,h*.8,h*.9));}
-        else addPt(x,'trees',pine(x,hill(x)+3,h,h*.55));
-      }
-    }
+    const heroTile={};
+    const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);heroTile[j]=heroTile[j]||{roofs:'',wins:'',glows:'',bld:''};heroTile[j][key]+=val;};
     for(const h of heroes('L2')){
       const cx=h.u;
       if(h.fig==='cottage'){
         const s=Math.max(12,U*2.3),by=hill(cx)+s*.25;
-        addPt(cx,'cuts',cut([[cx-s*.52,by],[cx-s*.52,by-s*.62],[cx+s*.52,by-s*.62],[cx+s*.52,by]],.4,5));
-        addPt(cx,'cuts',cut([[cx+s*.2,by-s*.8],[cx+s*.2,by-s*1.12],[cx+s*.36,by-s*1.12],[cx+s*.36,by-s*.7]],.3,4));
+        d2+=cut([[cx-s*.52,by],[cx-s*.52,by-s*.62],[cx+s*.52,by-s*.62],[cx+s*.52,by]],.4,5);
+        d2+=cut([[cx+s*.2,by-s*.8],[cx+s*.2,by-s*1.12],[cx+s*.36,by-s*1.12],[cx+s*.36,by-s*.7]],.3,4);
         addPt(cx,'roofs',cut([[cx-s*.66,by-s*.54],[cx,by-s*1.08],[cx+s*.66,by-s*.54]],.4,4));
         let wins='';
         for(const wx of [-.26,.18]){wins+=poly([[cx+wx*s,by-s*.42],[cx+(wx+.15)*s,by-s*.42],[cx+(wx+.15)*s,by-s*.24],[cx+wx*s,by-s*.24]]);}
@@ -115,45 +103,50 @@ const WORLD = (() => {
         addPt(cx,'glows',winGlow(cx,by-30*s,70*s));
       }
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=perTile[j]||{};
-      const d2=ridgeChunk(hill,H+M,u0,u1,8,.9,2);
-      const g2=ridgeChunk(hill,H+M,u0,u1,8,.9,0);
-      let s=`<path class="c-hill" d="${d2}${t.cuts||''}"/><path class="grain" d="${g2}"/>`;
-      if(t.trees)s+=`<path class="c-hill" d="${t.trees}"/><path class="grain" d="${t.trees}"/>`;
-      if(t.roofs)s+=`<path class="c-roof" d="${t.roofs}"/><path class="grain" d="${t.roofs}"/>`;
-      if(t.glows)s+=t.glows;
-      if(t.wins)s+=`<path class="c-win" d="${t.wins}"/>`;
-      if(t.bld)s+=t.bld;
+    LAZY.L2=(j)=>sandbox(TILE_SEED(j+2),()=>{
+      const x0=j*W-M,x1t=x0+W,t=heroTile[j];
+      let trees='';
+      for(let x=x0;x<x1t;x+=rr(5,15)){
+        if(Math.sin(x/W*8.5+phs)+Math.sin(x/W*21+phs*2)*.5>.35){
+          const h=rr(2.1,4.2)*U,b=pick(x,f);
+          if(b==='goa')trees+=R()<.7?F.palm(x,hill(x)+3,h*1.1,rr(-.3,.3)*h,5):F.roundTree(x,hill(x)+3,h*.8,h*.9);
+          else trees+=pine(x,hill(x)+3,h,h*.55);
+        }
+      }
+      let s='';
+      if(trees)s+=`<path class="c-hill" d="${trees}"/><path class="grain" d="${trees}"/>`;
+      if(t){
+        if(t.roofs)s+=`<path class="c-roof" d="${t.roofs}"/><path class="grain" d="${t.roofs}"/>`;
+        if(t.glows)s+=t.glows;
+        if(t.wins)s+=`<path class="c-win" d="${t.wins}"/>`;
+        if(t.bld)s+=t.bld;
+      }
       return s;
     });
-    return tiles;
+    return `<path class="c-hill" d="${d2}"/><path class="grain" d="${d2}"/>${tiled(f,()=>'')}`;
   }
 
   /* ---------- sheet 3 — the sage tree ridge: pines, palms, broadleaf ---------- */
   function buildL3(){
     const f=LAYERS.L3.f,x1=widthOf(f)+M;
     const rg=wave(H*.545,[H*.014,H*.007],[W*.7,W*.23]);
-    let x=-M;const perTile={};
-    while(x<x1){
-      const b=pick(x,f);let w;
-      if(b==='goa'){
-        if(R()<.62){const h=rr(4,8.2)*U;w=h*.9;perTile[Math.floor((x+M)/W)]=(perTile[Math.floor((x+M)/W)]||'')+F.palm(x,rg(x)+4,h,rr(-.25,.25)*h,rr(5,7)|0);x+=w*rr(.3,.55);}
-        else{const h=rr(3,5.2)*U;w=h*1.15;perTile[Math.floor((x+M)/W)]=(perTile[Math.floor((x+M)/W)]||'')+F.roundTree(x,rg(x)+4,h,w);x+=w*rr(.5,.8);}
-      }else{
-        const h=rr(3.6,7.8)*U;w=h*rr(.46,.58);
-        let t;
-        if(b==='sikkim'&&R()<.18){t=F.roundTree(x,rg(x)+4,h*.7,w*1.6);}else t=pine(x,rg(x)+4,h,w);
-        perTile[Math.floor((x+M)/W)]=(perTile[Math.floor((x+M)/W)]||'')+t;x+=w*rr(.42,.8);
+    const d3=ridge(rg,H+M,-M,x1,9,.9);
+    LAZY.L3=(j)=>sandbox(TILE_SEED(j+7),()=>{
+      const x0=j*W-M,x1t=x0+W;let d='',x=x0;
+      while(x<x1t){
+        const b=pick(x,f);let w;
+        if(b==='goa'){
+          if(R()<.62){const h=rr(4,8.2)*U;w=h*.9;d+=F.palm(x,rg(x)+4,h,rr(-.25,.25)*h,rr(5,7)|0);x+=w*rr(.3,.55);}
+          else{const h=rr(3,5.2)*U;w=h*1.15;d+=F.roundTree(x,rg(x)+4,h,w);x+=w*rr(.5,.8);}
+        }else{
+          const h=rr(3.6,7.8)*U;w=h*rr(.46,.58);
+          d+=(b==='sikkim'&&R()<.18)?F.roundTree(x,rg(x)+4,h*.7,w*1.6):pine(x,rg(x)+4,h,w);
+          x+=w*rr(.42,.8);
+        }
       }
-    }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const d3=ridgeChunk(rg,H+M,u0,u1,8,.9,2);
-      const g3=ridgeChunk(rg,H+M,u0,u1,8,.9,0);
-      const t=perTile[j]||'';
-      return `<path class="c-ridge" d="${d3}${t}"/><path class="grain" d="${g3}${t}"/>`;
+      return `<path class="c-ridge" d="${d}"/>`;
     });
-    return tiles;
+    return `<path class="c-ridge" d="${d3}"/>${tiled(f,()=>'')}<path class="grain" d="${d3}"/>`;
   }
 
   /* ---------- sheet 4 — meadow, the long river and its branches ---------- */
@@ -161,10 +154,14 @@ const WORLD = (() => {
   function buildL4(){
     const f=LAYERS.L4.f,x1=widthOf(f)+M;
     const md=wave(H*.6,[H*.008,H*.004],[W*.8,W*.25]);
+    const d4=ridge(md,H+M,-M,x1,10,.6);
     const p1=R()*6,p2=R()*6,p3=R()*6;
     const yc=u=>H*.705+H*.026*Math.sin(u/(.9*W)*Math.PI*2+p1)+H*.011*Math.sin(u/(.31*W)*Math.PI*2+p2);
     const hw=u=>H*.011+H*.036*biome(u,f).goa+H*.004*Math.sin(u/(.5*W)*Math.PI*2+p3);
     riverY=yc;
+    const T=[],B=[];
+    for(let u=-M;u<=x1;u+=10){T.push([u,yc(u)-hw(u)+(R()-.5)*1.6]);B.push([u,yc(u)+hw(u)+(R()-.5)*1.6]);}
+    let dr=poly(T.concat(B.reverse()));
     const perTile={};
     const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);perTile[j]=perTile[j]||{dr:'',rip:'',gl:'',bld:''};perTile[j][key]+=val;};
     // forward branches: one per plate, exactly like the reference river
@@ -184,18 +181,16 @@ const WORLD = (() => {
       for(let i=0;i<10;i++){const u=ux(k,R(),f),y=yc(u)+(R()-.5)*hw(u)*1.2,len=rr(10,30),th=1.2;addPt(u,'rip',poly([[u-len/2,y],[u,y-th],[u+len/2,y],[u,y+th*.6]]));}
     }
     for(const h of heroes('L4')){const s=h.s||1;addPt(h.u,'bld',G(h.u,yc(h.u)+hw(h.u)*.2,s,F.boat()));}
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=perTile[j]||{};
-      const d4=ridgeChunk(md,H+M,u0,u1,8,.6,2);
-      const g4=ridgeChunk(md,H+M,u0,u1,8,.6,0);
-      const dr=riverChunk(yc,hw,u0,u1,10,2);
-      let s=`<path class="c-meadow" d="${d4}"/><path class="c-river" d="${dr}${t.dr||''}"/><path class="grain" d="${g4}"/>`;
+    const tiles=tiled(f,(j)=>{
+      const t=perTile[j];if(!t)return '';
+      let s='';
+      if(t.dr)s+=`<path class="c-river" d="${t.dr}"/>`;
       if(t.rip)s+=`<path class="c-ripple" d="${t.rip}"/>`;
       if(t.gl)s+=t.gl;
       if(t.bld)s+=t.bld;
       return s;
     });
-    return tiles;
+    return `<path class="c-meadow" d="${d4}"/><path class="c-river" d="${dr}"/><path class="grain" d="${d4}"/>${tiles}`;
   }
 
   /* ---------- sheet 5 — moss banks with an opening on every plate ---------- */
@@ -207,42 +202,41 @@ const WORLD = (() => {
     const near=u=>{let d=1e9;for(const c of centers)d=Math.min(d,Math.abs(u-c));return d;};
     const yb=u=>{const d=near(u),s=clamp(1-(d-.09*W)/(.16*W),0,1);return y5+w5(u)+Math.pow(s,3)*(H+M-y5)*1.02;};
     bank5=yb;
-    const perTile={};const add=(x,t)=>{const j=Math.floor((x+M)/W);perTile[j]=(perTile[j]||'')+t;};
-    let x=-M;
-    while(x<x1){
-      const y=yb(x);const d=near(x),fromEdge=clamp(1-(d-.1*W)/(.25*W),0,1);
-      const b=pick(x,f);let w;
-      if(y<H*.95){
-        if(b==='goa'){const h=rr(H*.16,H*.3)*(1-fromEdge*.45);w=Math.min(h*.9,W*.14);if(R()<.7)add(x,F.palm(x,y+5,h,rr(-.3,.3)*h*.6,rr(5,8)|0));else add(x,F.roundTree(x,y+5,h*.7,w));x+=w*rr(.28,.5);}
-        else{const h=rr(H*.2,H*.36)*(1-fromEdge*.5);w=Math.min(h*.44,W*.14);add(x,pine(x,y+5,h,w));x+=w*rr(.4,.7);}
-      }else x+=rr(20,60);
-    }
-    // Sikkim: prayer-flag strings on the banks between the trees
+    const pts=[];for(let u=-M;u<=x1;u+=9)pts.push([u,Math.min(H+M,yb(u))+(R()-.5)*1.6]);pts.push([x1,H+M],[-M,H+M]);
+    const d5=poly(pts);
+    // the figures that stand on the banks, one bucket per tile
     const heroTile={};
     for(const h of heroes('L5')){
       const u=h.u,y=yb(u)+6,j=Math.floor((u+M)/W);
-      heroTile[j]=heroTile[j]||{svg:'',glows:''};
+      heroTile[j]=heroTile[j]||{svg:'',glows:'',trees:''};
       if(h.fig==='flags'){const fl=F.flagLine(u-95,y-150,u+125,y-125,28,12,15);heroTile[j].svg+=P('c-wood',poly([[u-97,y+2],[u-93,y+2],[u-94,y-150],[u-96,y-150]])+poly([[u+123,y+2],[u+127,y+2],[u+126,y-125],[u+124,y-125]]))+F.flagsSvg(fl);}
-      else if(h.fig==='palmTall'){add(u,F.palm(u,y,H*.34,rr(-.2,.2)*H*.1,8));}
+      else if(h.fig==='palmTall'){heroTile[j].trees+=F.palm(u,y,H*.34,rr(-.2,.2)*H*.1,8);}
       else if(F[h.fig]){const s=h.s||1.6;heroTile[j].svg+=G(u,y,s,F[h.fig](h.fig==='house'));if(h.fig!=='hut')heroTile[j].glows+=winGlow(u,y-28*s,80*s);}
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const d5=ridgeChunk(u=>Math.min(H+M,yb(u)),H+M,u0,u1,8,.8,2);
-      const g5=ridgeChunk(u=>Math.min(H+M,yb(u)),H+M,u0,u1,8,.8,0);
-      let s=`<path class="c-moss" d="${d5}${perTile[j]||''}"/>`;
+    LAZY.L5=(j)=>sandbox(TILE_SEED(j+11),()=>{
+      const x0=j*W-M,x1t=x0+W;
+      let trees=heroTile[j]?heroTile[j].trees:'';
+      let x=x0;
+      while(x<x1t){
+        const y=yb(x);const d=near(x),fromEdge=clamp(1-(d-.1*W)/(.25*W),0,1);
+        const b=pick(x,f);let w;
+        if(y<H*.95){
+          if(b==='goa'){const h=rr(H*.16,H*.3)*(1-fromEdge*.45);w=Math.min(h*.9,W*.14);trees+=R()<.7?F.palm(x,y+5,h,rr(-.3,.3)*h*.6,rr(5,8)|0):F.roundTree(x,y+5,h*.7,w);x+=w*rr(.28,.5);}
+          else{const h=rr(H*.2,H*.36)*(1-fromEdge*.5);w=Math.min(h*.44,W*.14);trees+=pine(x,y+5,h,w);x+=w*rr(.4,.7);}
+        }else x+=rr(20,60);
+      }
+      let s=`<path class="c-moss" d="${trees}"/>`;
       const ht=heroTile[j];
       if(ht){if(ht.svg)s+=ht.svg;if(ht.glows)s+=ht.glows;}
-      s+=`<path class="grain" d="${g5}"/>`;
       return s;
     });
-    return tiles;
+    return `<path class="c-moss" d="${d5}"/>${tiled(f,()=>'')}<path class="grain" d="${d5}"/>`;
   }
 
   /* ---------- sheet 6 — the tall teal giants that frame every plate ---------- */
   function buildL6(){
     const f=LAYERS.L6.f;const y6=H*.82;
-    let tiles='';
-    for(let k=0;k<N;k++){
+    LAZY.L6=(k)=>sandbox(TILE_SEED(k+13),()=>{
       const b=biome(ux(k,.5,f),f);const goa=b.goa>.5;
       let d6='';
       const giants=[[.015,1.02,1],[.098,.7,1],[.975,.96,-1],[.9,.64,-1]];
@@ -251,9 +245,9 @@ const WORLD = (() => {
         if(goa){d6+=F.palm(x,y6+8,h*.86,side*h*.14,8);}
         else{const w=Math.min(h*.4,W*.2);d6+=pine(x,y6+8,h,w);}
       }
-      tiles+=tileOpen(k)+`<path class="c-teal" d="${d6}"/><path class="grain" d="${d6}"/>`+'</g>';
-    }
-    return tiles;
+      return `<path class="c-teal" d="${d6}"/><path class="grain" d="${d6}"/>`;
+    });
+    return tiled(f,()=>'');
   }
 
   /* ---------- sheet 7 — the ochre forest floor: props, figures, the red panda ---------- */
@@ -261,107 +255,100 @@ const WORLD = (() => {
   function buildL7(){
     const f=LAYERS.L7.f,x1=widthOf(f)+M;
     const g7w=wave(H*.785,[H*.011,H*.006],[W*.95,W*.3]);
-    const burrows=heroes('L7').filter(h=>h.fig==='burrow').map(h=>h.u);
+    const hs=heroes('L7');
+    const burrows=hs.filter(h=>h.fig==='burrow').map(h=>h.u);
     const burR=W*.1;
     const g7=u=>{let y=g7w(u);for(const b of burrows)y-=H*.04*Math.exp(-Math.pow((u-b)/burR,2));return y;};
     groundAt=g7;
-    const hs=heroes('L7');
+    const d7=ridge(g7,H+M,-M,x1,8,.7);
     const occupied=(u,r)=>hs.some(h=>h.fig!=='burrow'&&h.fig!=='mushrooms'&&Math.abs(h.u-u)<r);
-    const per={};const add=(x,key,t)=>{const j=Math.floor((x+M)/W);per[j]=per[j]||{tuft:'',fall1:'',fall2:'',pebble:'',fern:'',rleaf:'',rbloom:'',rdot:'',shell:'',burrow:'',stems:'',caps:'',dots:'',bld:''};per[j][key]+=t;};
-    // tufts
-    for(let x=-M;x<x1;x+=rr(18,60)){const y=g7(x)+2,n=3+Math.floor(R()*3);let t='';for(let k=0;k<n;k++)t+=blade(x+k*2.2,y+2,rr(.9,2.1)*U,rr(-.6,.6)*U,rr(2,3.4));add(x,'tuft',t);}
-    // per plate: ferns, pebbles, fallen leaves, low tufts, biome extras
-    for(let k=0;k<N;k++){
-      const b=biome(ux(k,.5,f),f);
-      for(const [ff,sz,dr2] of [[.03,13,1],[.33,9,-1],[.47,7,1],[.72,10,1],[.96,12,-1]]){
-        const x=ux(k,ff,f);if(occupied(x,150))continue;
-        const scale=b.goa>.5?.8:1;
-        add(x,'fern',F.fern(x,g7(x)+4,sz*U*scale,dr2)+F.fern(x+U*.8,g7(x)+4,sz*U*.7*scale,-dr2));
-      }
-      for(let i=0;i<9;i++){const x=ux(k,rr(.05,.95),f),y=g7(x)+rr(.6,3.5)*U,r=rr(.3,.75)*U;add(x,'pebble',cut(circ(x,y,r,9).map(([a,bb])=>[a,y+(bb-y)*.6]),.25,3));}
-      const nFall=Math.round(W/48);
-      for(let i=0;i<nFall;i++){
-        const x=ux(k,rr(-.02,1.02),f),top=g7(x)+U*2.2,y=top+Math.pow(R(),1.3)*(H*.965-top),sz=rr(.45,.9)*U,a=R()*Math.PI,ca=Math.cos(a),sa=Math.sin(a);
-        const lp=[[-1,0],[-.3,-.42],[.35,-.36],[1,0],[.3,.4],[-.35,.36]].map(([uu,v])=>[x+(uu*ca-v*sa*.8)*sz,y+(uu*sa+v*ca*.8)*sz*.62]);
-        if(b.goa>.5&&R()<.35){add(x,'shell',cut(circ(x,y,sz*.55,8).map(([a2,b2])=>[a2,y+(b2-y)*.7]),.2,3));}
-        else if(R()<.6)add(x,'fall1',cut(lp,.2,3));else add(x,'fall2',cut(lp,.2,3));
-      }
-      for(let i=0;i<Math.round(W/90);i++){const x=ux(k,R(),f),y=g7(x)+rr(.24,.8)*(H*.95-g7(x));let t='';for(let kk=0;kk<3;kk++)t+=blade(x+kk*2.4,y,rr(.6,1.4)*U,rr(-.5,.5)*U,rr(2,3));add(x,'tuft',t);}
-      if(b.sikkim>.5){for(let i=0;i<3;i++){const x=ux(k,rr(.02,.98),f);if(occupied(x,170))continue;const rb=F.rhodoBush(x,g7(x)+rr(1,3)*U,rr(26,46));add(x,'rleaf',rb.leaf);add(x,'rbloom',rb.bloom);add(x,'rdot',rb.dot);}}
-    }
-    // heroes
+    let burrow='',stems='',caps='',dots='',bld='',rhodoLeaf='',rhodoBloom='',rhodoDot='';
+    const addRhodo=(x,rb)=>{rhodoLeaf+=rb.leaf;rhodoBloom+=rb.bloom;rhodoDot+=rb.dot;};
+    // the standing figures are one-per-slide: cheap, so they live on the sheet
     for(const h of hs){
       const x=h.u,y=g7(x);
       if(h.fig==='burrow'){
         const bw=Math.max(18,W*.042),bh=bw*.72,by0=g7(x)+bh*1.25;
         const arch=[[x-bw/2,by0]];for(let i=0;i<=12;i++){const a=Math.PI+i/12*Math.PI;arch.push([x+Math.cos(a)*bw/2,by0-bh*.35+Math.sin(a)*bh*.9]);}arch.push([x+bw/2,by0]);
-        add(x,'burrow',cut(arch,.6,5));
+        burrow+=cut(arch,.6,5);
       }else if(h.fig==='mushrooms'){
         const n=h.n||3;
-        for(let k=0;k<n;k++){const mx=x+(k-(n-1)/2)*U*rr(1.4,2.6),s=U*rr(1.1,3.1)*(k===Math.floor(n/2)?1.25:1);const m=F.mushroom(mx,g7(mx)+s*.18,s);add(mx,'stems',m.stem);add(mx,'caps',m.cap);add(mx,'dots',m.dots);}
+        for(let k=0;k<n;k++){const mx=x+(k-(n-1)/2)*U*rr(1.4,2.6),s=U*rr(1.1,3.1)*(k===Math.floor(n/2)?1.25:1);const m=F.mushroom(mx,g7(mx)+s*.18,s);stems+=m.stem;caps+=m.cap;dots+=m.dots;}
       }else if(h.fig==='rhodo'){
-        const rb=F.rhodoBush(x,y+6,54*(h.s||1));add(x,'rleaf',rb.leaf);add(x,'rbloom',rb.bloom);add(x,'rdot',rb.dot);
+        addRhodo(x,F.rhodoBush(x,y+6,54*(h.s||1)));
       }else if(h.fig==='boatBeach'){
-        add(x,'bld',G(x,y+6,h.s||1.4,F.boat()));
+        bld+=G(x,y+6,h.s||1.4,F.boat());
       }else if(F[h.fig]){
-        add(x,'bld',G(x,y+3,h.s||2,F[h.fig]()));
+        bld+=G(x,y+3,h.s||2,F[h.fig]());
       }
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=per[j]||{};
-      const d7=ridgeChunk(g7,H+M,u0,u1,8,.7,2);
-      const g7_grain=ridgeChunk(g7,H+M,u0,u1,8,.7,0);
-      let s=`<path class="c-ground" d="${d7}"/>`;
-      if(t.fall1)s+=`<path class="c-fall1" d="${t.fall1}"/>`;
-      if(t.fall2)s+=`<path class="c-fall2" d="${t.fall2}"/>`;
-      if(t.shell)s+=`<path class="c-pebble" d="${t.shell}"/>`;
-      if(t.tuft)s+=`<path class="c-tuft" d="${t.tuft}"/>`;
-      if(t.pebble)s+=`<path class="c-pebble" d="${t.pebble}"/>`;
-      if(t.fern||t.rleaf)s+=`<path class="c-fern" d="${t.fern||''}${t.rleaf||''}"/>`;
-      if(t.rbloom)s+=`<path class="c-bell" d="${t.rbloom}"/>`;
-      if(t.rdot)s+=`<path class="c-bell2" d="${t.rdot}"/>`;
-      if(t.burrow)s+=`<path class="c-burrow" d="${t.burrow}"/>`;
-      if(t.stems)s+=`<path class="c-stem" d="${t.stems}"/>`;
-      if(t.caps)s+=`<path class="c-cap" d="${t.caps}"/>`;
-      s+=`<path class="grain" d="${g7_grain}${t.stems||''}${t.caps||''}"/>`;
-      if(t.dots)s+=`<path class="c-dot glowdots" d="${t.dots}"/>`;
-      if(t.bld)s+=t.bld;
-      return s;
+    /* Litter, tufts, ferns, pebbles and rhododendron bushes are generated one
+       tile at a time: each tile asks for the handful of plate-scattered props
+       whose x lands inside it, and for its own run of grass tufts. */
+    LAZY.L7=(j)=>sandbox(TILE_SEED(j+17),()=>{
+      const x0=j*W-M,x1t=x0+W;
+      const per={tuft:'',fall1:'',fall2:'',pebble:'',fern:'',rleaf:'',rbloom:'',rdot:'',shell:''};
+      const add=(x,key,t)=>{if(x>=x0&&x<x1t)per[key]+=t;};
+      for(let x=x0;x<x1t;x+=rr(18,60)){const y=g7(x)+2,n=3+Math.floor(R()*3);let t='';for(let k=0;k<n;k++)t+=blade(x+k*2.2,y+2,rr(.9,2.1)*U,rr(-.6,.6)*U,rr(2,3.4));add(x,'tuft',t);}
+      const kFrom=Math.max(0,Math.ceil((x0/W-1.4)/f)),kTo=Math.min(N-1,Math.floor((x1t/W)/f)+1);
+      for(let k=kFrom;k<=kTo;k++){
+        const b=biome(ux(k,.5,f),f);
+        for(const [ff,sz,dr2] of [[.03,13,1],[.33,9,-1],[.47,7,1],[.72,10,1],[.96,12,-1]]){
+          const x=ux(k,ff,f);if(x<x0||x>=x1t)continue;if(occupied(x,150))continue;
+          const scale=b.goa>.5?.8:1;
+          add(x,'fern',F.fern(x,g7(x)+4,sz*U*scale,dr2)+F.fern(x+U*.8,g7(x)+4,sz*U*.7*scale,-dr2));
+        }
+        for(let i=0;i<9;i++){const x=ux(k,rr(.05,.95),f),y=g7(x)+rr(.6,3.5)*U,r=rr(.3,.75)*U;add(x,'pebble',cut(circ(x,y,r,9).map(([a,bb])=>[a,y+(bb-y)*.6]),.25,3));}
+        const nFall=Math.round(W/48);
+        for(let i=0;i<nFall;i++){
+          const x=ux(k,rr(-.02,1.02),f),top=g7(x)+U*2.2,y=top+Math.pow(R(),1.3)*(H*.965-top),sz=rr(.45,.9)*U,a=R()*Math.PI,ca=Math.cos(a),sa=Math.sin(a);
+          const lp=[[-1,0],[-.3,-.42],[.35,-.36],[1,0],[.3,.4],[-.35,.36]].map(([uu,v])=>[x+(uu*ca-v*sa*.8)*sz,y+(uu*sa+v*ca*.8)*sz*.62]);
+          if(b.goa>.5&&R()<.35){add(x,'shell',cut(circ(x,y,sz*.55,8).map(([a2,b2])=>[a2,y+(b2-y)*.7]),.2,3));}
+          else if(R()<.6)add(x,'fall1',cut(lp,.2,3));else add(x,'fall2',cut(lp,.2,3));
+        }
+        for(let i=0;i<Math.round(W/90);i++){const x=ux(k,R(),f),y=g7(x)+rr(.24,.8)*(H*.95-g7(x));let t='';for(let kk=0;kk<3;kk++)t+=blade(x+kk*2.4,y,rr(.6,1.4)*U,rr(-.5,.5)*U,rr(2,3));add(x,'tuft',t);}
+        if(b.sikkim>.5){for(let i=0;i<3;i++){const x=ux(k,rr(.02,.98),f);if(x<x0||x>=x1t)continue;if(occupied(x,170))continue;const rb=F.rhodoBush(x,g7(x)+rr(1,3)*U,rr(26,46));add(x,'rleaf',rb.leaf);add(x,'rbloom',rb.bloom);add(x,'rdot',rb.dot);}}
+      }
+      return `<path class="c-fall1" d="${per.fall1}"/><path class="c-fall2" d="${per.fall2}"/><path class="c-pebble" d="${per.shell}"/><path class="c-tuft" d="${per.tuft}"/><path class="c-pebble" d="${per.pebble}"/><path class="c-fern" d="${per.fern}${per.rleaf}"/><path class="c-bell" d="${per.rbloom}"/><path class="c-bell2" d="${per.rdot}"/>`;
     });
-    return `${tiles}<g id="puffs"></g><g id="pandaG">${F.panda()}</g>`;
+    return `<path class="c-ground" d="${d7}"/>${tiled(f,()=>'')}<path class="c-burrow" d="${burrow}"/><path class="c-stem" d="${stems}"/><path class="c-cap" d="${caps}"/><path class="grain" d="${d7}${stems}${caps}"/><path class="c-dot glowdots" d="${dots}"/>${bld}<path class="c-fern" d="${rhodoLeaf}"/><path class="c-bell" d="${rhodoBloom}"/><path class="c-bell2" d="${rhodoDot}"/><g id="puffs"></g><g id="pandaG">${F.panda()}</g>`;
   }
 
   /* ---------- sheet 8 — foreground grasses and tall flower spikes ---------- */
   function buildL8(){
     const f=LAYERS.L8.f,x1=widthOf(f)+M;
     const g8=wave(H*.945,[H*.008,H*.005],[W*.6,W*.2]);
+    const d8=ridge(g8,H+M,-M,x1,9,.8);
     const centers=[];for(let k=0;k<N;k++)centers.push(ux(k,.5,f));
-    const per={};const add=(x,key,t)=>{const j=Math.floor((x+M)/W);per[j]=per[j]||{fg:'',fg2:'',stalk:'',bell:'',inner:''};per[j][key]+=t;};
-    for(let x=-M;x<x1;x+=rr(3.5,9)){
-      let d=1e9;for(const c of centers)d=Math.min(d,Math.abs(x-c));
-      const s=d/(W/2),hm=H*(.018+.23*Math.pow(clamp(s,0,1.2),2.4)),h=hm*rr(.35,1),lean=rr(-.38,.38)*h,wb=rr(4,9)*(U/11+.4);
-      const b=blade(x,g8(x)+6,h,lean,wb);
-      if(R()<.3)add(x,'fg2',b);else add(x,'fg',b);
-    }
+    // the tall foxgloves / rhododendron spikes belong to one plate each: fixed
+    // positions, so they can be bucketed by tile right away.
+    const spikes={};
     for(let k=0;k<N;k++){
       const bm=biome(ux(k,.5,f),f);
       for(const [fx,fh,fl,sd] of [[.065,.4,.05,1],[.115,.29,-.03,1],[.925,.36,-.04,-1],[.885,.24,.03,-1]]){
         const x=ux(k,fx,f);const fn=bm.sikkim>.5?F.rhodoSpike:F.foxglove;
-        const fg=fn(x,g8(x)+4,H*fh,W*fl,sd);add(x,'stalk',fg.stalk);add(x,'bell',fg.bells);add(x,'inner',fg.inner);
+        const fg=fn(x,g8(x)+4,H*fh,W*fl,sd);
+        const j=Math.floor((x+M)/W);
+        spikes[j]=spikes[j]||{stalk:'',bells:'',inner:''};
+        spikes[j].stalk+=fg.stalk;spikes[j].bells+=fg.bells;spikes[j].inner+=fg.inner;
       }
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=per[j]||{};
-      const d8=ridgeChunk(g8,H+M,u0,u1,8,.8,2);
-      const g8_grain=ridgeChunk(g8,H+M,u0,u1,8,.8,0);
-      let s=`<path class="c-fg" d="${d8}${t.fg||''}${t.stalk||''}"/>`;
-      if(t.fg2)s+=`<path class="c-fg2" d="${t.fg2}"/>`;
-      if(t.bell)s+=`<path class="c-bell" d="${t.bell}"/>`;
-      if(t.inner)s+=`<path class="c-bell2" d="${t.inner}"/>`;
-      s+=`<path class="grain" d="${g8_grain}${t.fg||''}${t.fg2||''}${t.stalk||''}${t.bell||''}"/>`;
-      return s;
+    LAZY.L8=(j)=>sandbox(TILE_SEED(j+23),()=>{
+      const x0=j*W-M,x1t=x0+W;
+      let fg='',fg2='';
+      for(let x=x0;x<x1t;x+=rr(3.5,9)){
+        let d=1e9;for(const c of centers)d=Math.min(d,Math.abs(x-c));
+        const s=d/(W/2),hm=H*(.018+.23*Math.pow(clamp(s,0,1.2),2.4)),h=hm*rr(.35,1),lean=rr(-.38,.38)*h,wb=rr(4,9)*(U/11+.4);
+        const b=blade(x,g8(x)+6,h,lean,wb);
+        if(R()<.3)fg2+=b;else fg+=b;
+      }
+      const sp=spikes[j]||{stalk:'',bells:'',inner:''};
+      // No paper grain on the blades themselves: they are 2-6px wide, so the
+      // grain never had a pixel to sit in, yet duplicating every blade path to
+      // fill it cost ~35% of the deck's path data.  The ground's grain stays.
+      return `<path class="c-fg2" d="${fg2}"/><path class="c-fg" d="${fg}${sp.stalk}"/><path class="c-bell" d="${sp.bells}"/><path class="c-bell2" d="${sp.inner}"/>`;
     });
-    return tiles;
+    return `<path class="c-fg" d="${d8}"/>${tiled(f,()=>'')}<path class="grain" d="${d8}"/>`;
   }
 
   /* ---------- sheet 9 — the box: deckle-edged cream mat in a dark board frame ---------- */
@@ -382,5 +369,7 @@ const WORLD = (() => {
     F.setSeed(seed||1847);
     return {L1:buildL1(),L2:buildL2(),L3:buildL3(),L4:buildL4(),L5:buildL5(),L6:buildL6(),L7:buildL7(),L8:buildL8(),L9:buildFrame()};
   }
-  return {W,H,M,N,U,LAYERS,widthOf,ux,build,groundAt:u=>groundAt(u),biome};
+  // fill(key, j) draws one tile of a sheet the first time that tile is needed.
+  const fill=(key,j)=>{const g=LAZY[key];return g?g(j):'';};
+  return {W,H,M,N,U,LAYERS,widthOf,ux,build,fill,groundAt:u=>groundAt(u),biome};
 })();

@@ -132,7 +132,9 @@ body.night .vignette{box-shadow:inset 0 0 22vmin rgba(2,2,20,.55)}
 /* ---------- paper labels (the reference tag, extended into a family of cards) ---------- */
 .content{position:absolute;left:0;top:0;width:var(--W);height:var(--H);will-change:transform;pointer-events:none}
 .slot{position:absolute;top:0;width:var(--W);height:var(--H);contain:layout style}
-.slot:not(.on):not(.off){visibility:hidden;pointer-events:none}
+/* a plate that is not on stage needs neither layout nor paint; only the plate
+   being walked to (and the one leaving) is ever rendered in full */
+.slot:not(.on):not(.off){content-visibility:auto;contain-intrinsic-size:var(--W) var(--H);visibility:hidden;pointer-events:none}
 .slot.on,.slot.off{visibility:visible}
 .slot>*{position:absolute}
 .slot .anim{opacity:0}
@@ -278,6 +280,25 @@ body.night .hint{background:rgba(12,13,40,.8);color:#e7e1ef}
 .defs{position:absolute;width:0;height:0;overflow:hidden}
 .panda-btn{position:absolute;left:0;top:0;width:10px;height:10px;padding:0;margin:0;border:0;border-radius:40%;background:transparent;cursor:pointer;pointer-events:auto;touch-action:manipulation}
 .panda-btn:focus-visible{outline:2px dashed #fff6df;outline-offset:4px}
+/* ---------- lite tier (weak devices, see deck.js setLite) ----------
+   The drawing is identical; only the most expensive pixels are traded away:
+   the double gaussian drop shadow on each sheet becomes one hard paper edge,
+   the moving leaves and the glow dots lose their filters, and the twinkling
+   stars animate less often.                                                 */
+body.lite .layer.cut{filter:drop-shadow(0 4px 0 var(--shade))}
+body.lite .layer path,body.lite .layer circle{transition:fill .5s ease,opacity .5s ease}
+body.lite .leaf,body.lite .hang .obj{filter:none}
+body.lite .glowdots{filter:none}
+body.lite .glint{animation:none;opacity:.5}
+body.lite .pins .tw{animation-duration:4.4s}
+body.lite .tag-wrap{filter:drop-shadow(2px 6px 5px var(--shade))}
+body.lite .card-wrap{filter:drop-shadow(0 7px 6px var(--shade))}
+body.lite .poster-wrap{filter:drop-shadow(0 10px 9px var(--shade))}
+/* a filtered element that also *moves* re-runs its blur every single frame;
+   dropping the filter on the swinging tags is cheaper than dropping the swing */
+body.lite .tag-wrap.swingy{filter:none}
+body.lite .hang .swing{animation-duration:9s}
+
 @media (prefers-reduced-motion:reduce){
   .place>svg,.slot.on .anim,.slot.on li,.slot.on .row,.slot.on .mini,.slot.on .tl>div{animation-duration:.01s;animation-delay:0s}
   .hang .swing,.pins .tw{animation:none}
@@ -345,24 +366,52 @@ const PAPER = (() => {
   const lerp = (a,b,t) => a+(b-a)*t;
   const smooth = t => { t = clamp(t,0,1); return t*t*(3-2*t); };
 
-  /* ---------- paper geometry (reference) ---------- */
+  /* ---------- paper geometry (reference) ----------
+     Path data is emitted as one absolute M followed by *relative* implicit
+     linetos ("M10 20 4-1 4-1"), which is ~45% shorter than the equivalent
+     absolute "L" list while describing exactly the same outline.  Deltas are
+     rounded against the running (rounded) position, so rounding never drifts
+     along a long ridge.                                              */
+  const nf = v => { const r = Math.round(v*10)/10; return r === 0 ? '0' : String(r); };
+  function emit(pts, close){
+    if(!pts || !pts.length) return '';
+    let s = '', px = 0, py = 0;
+    for(let i=0;i<pts.length;i++){
+      const rx = Math.round(pts[i][0]*10)/10, ry = Math.round(pts[i][1]*10)/10;
+      if(i === 0){ s = 'M' + nf(rx) + ' ' + nf(ry); px = rx; py = ry; continue; }
+      const dx = Math.round((rx-px)*10)/10, dy = Math.round((ry-py)*10)/10;
+      px += dx; py += dy;
+      const sx = nf(dx), sy = nf(dy);
+      // a leading '-' is its own separator; anything else needs a space so that
+      // "1.2" followed by "4.4" can never fuse into "1.24.4".
+      s += (i === 1 ? 'l' : '') + (sx.charAt(0) === '-' ? '' : ' ') + sx + (sy.charAt(0) === '-' ? '' : ' ') + sy;
+    }
+    return close ? s + 'Z' : s;
+  }
   function area(p){let a=0;for(let i=0;i<p.length;i++){const u=p[i],v=p[(i+1)%p.length];a+=u[0]*v[1]-v[0]*u[1];}return a;}
   function orient(p){return area(p)<0?p.slice().reverse():p;}
   function trace(p,j,step){
-    let s='';const n=p.length;
+    const pts=[];const n=p.length;
     for(let i=0;i<n;i++){
-      const a=p[i],b=p[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,k=Math.max(1,Math.round(L/step)),nx=-dy/L,ny=dx/L;
+      const a=p[i],b=p[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;
+      // Very long edges (the deckle frame is ~5000px) get proportionally wider
+      // samples: the tear is a low-frequency wobble, so 7000px needs ~300
+      // samples, not 1000.  Short edges keep the original sampling, which also
+      // keeps the generated artwork identical.
+      let k=Math.max(1,Math.round(L/step));
+      if(L>1500) k=Math.min(k,Math.max(2,Math.round(L/24)));
+      const nx=-dy/L,ny=dx/L;
       for(let t=0;t<k;t++){
         let x=a[0]+dx*t/k,y=a[1]+dy*t/k;
         if(t>0){const o=(R()-.5)*2*j;x+=nx*o;y+=ny*o;}
-        s+=(s?'L':'M')+q(x)+' '+q(y);
+        pts.push([x,y]);
       }
     }
-    return s+'Z';
+    return emit(pts,true);
   }
   const cut  = (p,j=.7,step=7) => trace(orient(p),j,step);
   const hole = (p,j=.7,step=7) => trace(orient(p).slice().reverse(),j,step);
-  function poly(p){p=orient(p);let s='M'+q(p[0][0])+' '+q(p[0][1]);for(let i=1;i<p.length;i++)s+='L'+q(p[i][0])+' '+q(p[i][1]);return s+'Z';}
+  function poly(p){return emit(orient(p),true);}
   function circ(cx,cy,r,n){const p=[];n=n||Math.max(8,Math.round(r*1.4));for(let i=0;i<n;i++){const a=i/n*Math.PI*2;p.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}return p;}
   function ell(cx,cy,rx,ry,n){const p=[];n=n||Math.max(10,Math.round((rx+ry)*.8));for(let i=0;i<n;i++){const a=i/n*Math.PI*2;p.push([cx+Math.cos(a)*rx,cy+Math.sin(a)*ry]);}return p;}
   const rect = (x,y,w,h) => [[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
@@ -388,7 +437,7 @@ const PAPER = (() => {
   }
   function blade(bx,by,h,lean,wb){
     const L=[],Rt=[];
-    for(let i=0;i<=6;i++){const t=i/6,x=bx+lean*t*t,y=by-h*t,hw=wb*.5*(1-t)*(1-t*.15);L.push([x-hw,y]);if(i<6)Rt.push([x+hw,y]);}
+    for(let i=0;i<=4;i++){const t=i/4,x=bx+lean*t*t,y=by-h*t,hw=wb*.5*(1-t)*(1-t*.15);L.push([x-hw,y]);if(i<4)Rt.push([x+hw,y]);}
     return poly(L.concat(Rt.reverse()));
   }
   function mushroom(cx,by,s){
@@ -406,9 +455,9 @@ const PAPER = (() => {
     let d='';const tipX=bx+dir*len*.62,tipY=by-len*.86,cx=bx+dir*len*.02,cy=by-len*.78;
     const P=t=>[(1-t)*(1-t)*bx+2*(1-t)*t*cx+t*t*tipX,(1-t)*(1-t)*by+2*(1-t)*t*cy+t*t*tipY];
     const sp=[],sp2=[];
-    for(let i=0;i<=10;i++){const t=i/10,[x,y]=P(t),w=1.8*(1-t)+.4;sp.push([x-w,y]);sp2.push([x+w,y]);}
+    for(let i=0;i<=7;i++){const t=i/7,[x,y]=P(t),w=1.8*(1-t)+.4;sp.push([x-w,y]);sp2.push([x+w,y]);}
     d+=poly(sp.concat(sp2.reverse()));
-    for(let t=.1;t<.97;t+=.075){
+    for(let t=.1;t<.97;t+=.095){
       const [x,y]=P(t),[x2,y2]=P(Math.min(1,t+.01)),ta=Math.atan2(y2-y,x2-x),L=len*.26*(1-t*.78);
       for(const side of [-1,1]){
         const a=ta+side*1.05,ex=x+Math.cos(a)*L,ey=y+Math.sin(a)*L,mx=x+Math.cos(a)*L*.5,my=y+Math.sin(a)*L*.5,wd=L*.2;
@@ -460,23 +509,26 @@ const PAPER = (() => {
     let d=cut(trunk,.35,8);
     for(let i=0;i<nF;i++){
       const a=-Math.PI*.95+i/(nF-1)*Math.PI*.9+(R()-.5)*.18,len=h*(.38+R()*.14),droop=.9+R()*.5;
-      const pts=[];const S=8;
+      // only small palms (a few pixels on screen) can afford a coarse frond:
+      // a 800px- tall giant needs every one of its 8 sample points
+      const pts=[];const S=h<150?6:8;
       // frond centre line: starts along angle a, droops with t
       const px=t=>top[0]+Math.cos(a)*len*t+ (Math.cos(a)>0?1:-1)*0, py=t=>top[1]+Math.sin(a)*len*t+droop*len*t*t*.55;
       const L=[],Rt=[];
       for(let k=0;k<=S;k++){const t=k/S,w=h*.028*(1-t)*(t<.1?t*10:1)+.6;const x=px(t),y=py(t);
         const x2=px(Math.min(1,t+.02)),y2=py(Math.min(1,t+.02)),ta=Math.atan2(y2-y,x2-x),nx=-Math.sin(ta),ny=Math.cos(ta);
         L.push([x+nx*w*2.2,y+ny*w*2.2]);Rt.push([x-nx*w*2.2,y-ny*w*2.2]);}
-      d+=cut(L.concat(Rt.reverse()),Math.max(1.2,h*.02),Math.max(4,h*.03));
+      d+=cut(L.concat(Rt.reverse()),Math.max(1.2,h*.02),h<150?Math.max(5.5,h*.042):Math.max(4,h*.03));
     }
-    for(let k=0;k<3;k++)d+=cut(circ(top[0]+(k-1)*h*.03,top[1]+h*.03,h*.028,8),.2,3);
+    const nutR=h*.028;
+    for(let k=0;k<3;k++)d+=cut(circ(top[0]+(k-1)*h*.03,top[1]+h*.03,nutR,nutR>12?8:6),.2,3);
     return d;
   }
   // round broadleaf tree (mango / cashew / jackfruit)
   function roundTree(cx,by,h,w){
     let d=cut([[cx-w*.05,by+3],[cx-w*.035,by-h*.38],[cx+w*.035,by-h*.38],[cx+w*.05,by+3]],.3,6);
     const lobes=[[0,-.68,.48],[-.3,-.52,.36],[.3,-.5,.38],[-.16,-.78,.3],[.18,-.8,.3],[0,-.45,.4]];
-    for(const [lx,ly,lr] of lobes)d+=cut(circ(cx+lx*w,by+ly*h,lr*w*.62,14),Math.max(.6,h*.012),6);
+    for(const [lx,ly,lr] of lobes){const r=lr*w*.62;d+=cut(circ(cx+lx*w,by+ly*h,r,r>60?14:r>18?12:8),Math.max(.6,h*.012),7);}
     return d;
   }
   // rhododendron bush: dark leaves and a cluster of red-orange blooms
@@ -846,7 +898,10 @@ const PAPER = (() => {
   function lampDiya(){return P('c-cap',cut([[-6,0],[6,0],[4,-5],[-4,-5]],.2,3))+P('c-lamp',cut([[-2,-5],[2,-5],[0,-12]],.1,2));}
   function carnivalMask(){return P('c-bell2',cut([[-22,-8],[22,-8],[24,-20],[12,-30],[-12,-30],[-24,-20]],.4,3))+P('c-foxd',cut(ell(-9,-19,5,3.5,10),.1,2)+cut(ell(9,-19,5,3.5,10),.1,2))+P('c-cap',cut([[-6,-30],[6,-30],[2,-44],[-2,-44]],.2,3)+circPath(-18,-30,3)+circPath(18,-30,3))+P('c-river',circPath(-24,-34,3)+circPath(24,-34,3));}
 
-  return {setSeed,R:()=>R(),rr,q,clamp,lerp,smooth,cut,hole,poly,circ,ell,rect,wave,ridge,pine,blade,mushroom,fern,foxglove,rhodoSpike,palm,roundTree,rhodoBush,
+  // getR/setR let callers sandbox the random stream: a tile of artwork can be
+  // regenerated later without disturbing the sequence the other sheets rely on.
+  const getR=()=>R, setR=f=>{R=f;};
+  return {setSeed,getR,setR,R:()=>R(),rr,q,clamp,lerp,smooth,cut,hole,poly,circ,ell,rect,wave,ridge,pine,blade,mushroom,fern,foxglove,rhodoSpike,palm,roundTree,rhodoBush,
     P,G,church,house,gompa,chorten,hut,boat,flagLine,flagsSvg,panda,pader,woman,fugdiPair,ghodeModni,mandoCouple,snowLion,chaamDancer,maruni,drummer,lepchaPair,yak,tiatrCurtain,
     ghumot,violin,breadBasket,foodGoa,foodSikkim,butterLamp,prayerWheel,conch,coconutNut,lampDiya,carnivalMask};
 })();
@@ -1228,27 +1283,27 @@ const WORLD = (() => {
     SLIDES.forEach((sl,k)=>{const list=(sl.scene||{})[layer]||[];for(const h of list)out.push(Object.assign({k,u:ux(k,h.a,f)},h));});
     return out;
   }
-  function tileOpen(j){return `<g class="tile" data-j="${j}">`;}
+  // \u0001 marks a tile boundary: deck.js splits each layer on it so that only
+  // the tiles near the camera are ever put into the document (see deck.js).
+  function tileOpen(j){return `\u0001<g class="tile" data-j="${j}">`;}
   function tiled(f,fn){ // call fn(j,u0,u1) for consecutive W-wide tiles across the layer
     let s='';const n=Math.ceil((widthOf(f)+2*M)/W)+1;
-    for(let j=0;j<n;j++){const u0=j*W-M,u1=u0+W;s+=tileOpen(j)+fn(j,u0,u1)+'</g>';}
+    for(let j=0;j<n;j++){const u0=j*W-M,u1=u0+W;s+=tileOpen(j)+fn(j,u0,u1)+'</g>\u0001';}
     return s;
   }
   const winGlow=(x,y,r)=>`<circle class="winglow" cx="${q(x)}" cy="${q(y)}" r="${q(r)}" fill="url(#winGlowGrad)"/>`;
-  const jitter=(x,j)=>{if(j<=0)return 0;const h=Math.sin(x*127.1+311.7)*43758.5453123;return((h-Math.floor(h))-.5)*2*j;};
-  function ridgeChunk(fn,bottom,x0,x1,step=8,j=.9,overlap=2){
-    const p=[];const right=x1+overlap;
-    for(let x=x0;x<=right;x+=step)p.push([x,fn(x)+jitter(x,j)]);
-    if(p[p.length-1][0]<right)p.push([right,fn(right)+jitter(right,j)]);
-    p.push([right,bottom],[x0,bottom]);
-    return poly(p);
-  }
-  function riverChunk(yc,hw,x0,x1,step=10,overlap=2){
-    const T=[],B=[];const right=x1+overlap;
-    for(let u=x0;u<=right;u+=step){const jit=jitter(u*1.5,.8);T.push([u,yc(u)-hw(u)+jit]);B.push([u,yc(u)+hw(u)+jit]);}
-    if(T[T.length-1][0]<right){const jit=jitter(right*1.5,.8);T.push([right,yc(right)-hw(right)+jit]);B.push([right,yc(right)+hw(right)+jit]);}
-    return poly(T.concat(B.reverse()));
-  }
+
+  /* ---------- on-demand tiles ----------
+     A sheet is a long strip, but only a handful of its W-wide tiles are ever on
+     screen.  Tiles are therefore generated *when they are first needed*
+     (deck.js asks WORLD.fill(key,j)) from a random stream of their own, so the
+     work done at start-up, the strings kept in memory and the nodes in the
+     document are all proportional to what is on screen — not to the length of
+     the deck.  sandbox() keeps those private streams from disturbing the
+     sequence the other sheets are drawn from.                              */
+  const LAZY = {};
+  function sandbox(seed,fn){const saved=F.getR();F.setSeed(seed);try{return fn();}finally{F.setR(saved);}}
+  const TILE_SEED=k=>0x5EED ^ (k*2654435761);
 
   /* ---------- sheet 1 — far hills, rising into the Himalaya ---------- */
   function buildL1(){
@@ -1261,44 +1316,32 @@ const WORLD = (() => {
     peaks.push({c:1.78*W,w:W*.13,h:H*.33});peaks.push({c:1.7*W,w:W*.07,h:H*.24});peaks.push({c:1.87*W,w:W*.08,h:H*.26});
     const prof=u=>{let y=0;for(const p of peaks){const d=Math.abs(u-p.c);if(d<p.w)y=Math.max(y,p.h*(1-d/p.w));}return y;};
     const fn=u=>far(u)-env(u)*prof(u);
-    const snowPerTile={};
+    const d1=ridge(fn,H+M,-M,x1,8,.9);
+    let snow='';
     for(const p of peaks){
       const e=env(p.c);if(e<.25||p.c<1.5*W)continue;
       const top=[],bot=[];const a=p.c-p.w*.42,b=p.c+p.w*.42,n=14;
       for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;top.push([x,fn(x)+(R()-.5)*1.4]);}
       for(let i=n;i>=0;i--){const x=a+(b-a)*i/n,t=1-Math.abs((x-p.c)/(p.w*.42));bot.push([x,fn(x)+p.h*e*(.14+.24*t)+(i%2?6:-4)+(R()-.5)*4]);}
-      const j=Math.floor((p.c+M)/W);
-      snowPerTile[j]=(snowPerTile[j]||'')+poly(top.concat(bot));
+      snow+=poly(top.concat(bot));
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const d1=ridgeChunk(fn,H+M,u0,u1,8,.9,2);
-      const g1=ridgeChunk(fn,H+M,u0,u1,8,.9,0);
-      const sn=snowPerTile[j]||'';
-      return `<path class="c-far" d="${d1}"/><path class="c-snow" d="${sn}"/><path class="grain" d="${g1}"/>`;
-    });
-    return tiles;
+    return `<path class="c-far" d="${d1}"/><path class="c-snow" d="${snow}"/><path class="grain" d="${d1}"/>`;
   }
 
   /* ---------- sheet 2 — rolling hill with tiny trees and far buildings ---------- */
   function buildL2(){
     const f=LAYERS.L2.f,x1=widthOf(f)+M;
     const hill=wave(H*.47,[H*.036,H*.014,H*.006],[W*.9,W*.34,W*.13]);
+    let d2=ridge(hill,H+M,-M,x1,9,.9);
     const phs=R()*6;
-    const perTile={};
-    const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);perTile[j]=perTile[j]||{trees:'',roofs:'',wins:'',glows:'',bld:'',cuts:''};perTile[j][key]+=val;};
-    for(let x=-M;x<x1;x+=rr(5,15)){
-      if(Math.sin(x/W*8.5+phs)+Math.sin(x/W*21+phs*2)*.5>.35){
-        const h=rr(2.1,4.2)*U,b=pick(x,f);
-        if(b==='goa'){if(R()<.7)addPt(x,'trees',F.palm(x,hill(x)+3,h*1.1,rr(-.3,.3)*h,5));else addPt(x,'trees',F.roundTree(x,hill(x)+3,h*.8,h*.9));}
-        else addPt(x,'trees',pine(x,hill(x)+3,h,h*.55));
-      }
-    }
+    const heroTile={};
+    const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);heroTile[j]=heroTile[j]||{roofs:'',wins:'',glows:'',bld:''};heroTile[j][key]+=val;};
     for(const h of heroes('L2')){
       const cx=h.u;
       if(h.fig==='cottage'){
         const s=Math.max(12,U*2.3),by=hill(cx)+s*.25;
-        addPt(cx,'cuts',cut([[cx-s*.52,by],[cx-s*.52,by-s*.62],[cx+s*.52,by-s*.62],[cx+s*.52,by]],.4,5));
-        addPt(cx,'cuts',cut([[cx+s*.2,by-s*.8],[cx+s*.2,by-s*1.12],[cx+s*.36,by-s*1.12],[cx+s*.36,by-s*.7]],.3,4));
+        d2+=cut([[cx-s*.52,by],[cx-s*.52,by-s*.62],[cx+s*.52,by-s*.62],[cx+s*.52,by]],.4,5);
+        d2+=cut([[cx+s*.2,by-s*.8],[cx+s*.2,by-s*1.12],[cx+s*.36,by-s*1.12],[cx+s*.36,by-s*.7]],.3,4);
         addPt(cx,'roofs',cut([[cx-s*.66,by-s*.54],[cx,by-s*1.08],[cx+s*.66,by-s*.54]],.4,4));
         let wins='';
         for(const wx of [-.26,.18]){wins+=poly([[cx+wx*s,by-s*.42],[cx+(wx+.15)*s,by-s*.42],[cx+(wx+.15)*s,by-s*.24],[cx+wx*s,by-s*.24]]);}
@@ -1311,45 +1354,50 @@ const WORLD = (() => {
         addPt(cx,'glows',winGlow(cx,by-30*s,70*s));
       }
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=perTile[j]||{};
-      const d2=ridgeChunk(hill,H+M,u0,u1,8,.9,2);
-      const g2=ridgeChunk(hill,H+M,u0,u1,8,.9,0);
-      let s=`<path class="c-hill" d="${d2}${t.cuts||''}"/><path class="grain" d="${g2}"/>`;
-      if(t.trees)s+=`<path class="c-hill" d="${t.trees}"/><path class="grain" d="${t.trees}"/>`;
-      if(t.roofs)s+=`<path class="c-roof" d="${t.roofs}"/><path class="grain" d="${t.roofs}"/>`;
-      if(t.glows)s+=t.glows;
-      if(t.wins)s+=`<path class="c-win" d="${t.wins}"/>`;
-      if(t.bld)s+=t.bld;
+    LAZY.L2=(j)=>sandbox(TILE_SEED(j+2),()=>{
+      const x0=j*W-M,x1t=x0+W,t=heroTile[j];
+      let trees='';
+      for(let x=x0;x<x1t;x+=rr(5,15)){
+        if(Math.sin(x/W*8.5+phs)+Math.sin(x/W*21+phs*2)*.5>.35){
+          const h=rr(2.1,4.2)*U,b=pick(x,f);
+          if(b==='goa')trees+=R()<.7?F.palm(x,hill(x)+3,h*1.1,rr(-.3,.3)*h,5):F.roundTree(x,hill(x)+3,h*.8,h*.9);
+          else trees+=pine(x,hill(x)+3,h,h*.55);
+        }
+      }
+      let s='';
+      if(trees)s+=`<path class="c-hill" d="${trees}"/><path class="grain" d="${trees}"/>`;
+      if(t){
+        if(t.roofs)s+=`<path class="c-roof" d="${t.roofs}"/><path class="grain" d="${t.roofs}"/>`;
+        if(t.glows)s+=t.glows;
+        if(t.wins)s+=`<path class="c-win" d="${t.wins}"/>`;
+        if(t.bld)s+=t.bld;
+      }
       return s;
     });
-    return tiles;
+    return `<path class="c-hill" d="${d2}"/><path class="grain" d="${d2}"/>${tiled(f,()=>'')}`;
   }
 
   /* ---------- sheet 3 — the sage tree ridge: pines, palms, broadleaf ---------- */
   function buildL3(){
     const f=LAYERS.L3.f,x1=widthOf(f)+M;
     const rg=wave(H*.545,[H*.014,H*.007],[W*.7,W*.23]);
-    let x=-M;const perTile={};
-    while(x<x1){
-      const b=pick(x,f);let w;
-      if(b==='goa'){
-        if(R()<.62){const h=rr(4,8.2)*U;w=h*.9;perTile[Math.floor((x+M)/W)]=(perTile[Math.floor((x+M)/W)]||'')+F.palm(x,rg(x)+4,h,rr(-.25,.25)*h,rr(5,7)|0);x+=w*rr(.3,.55);}
-        else{const h=rr(3,5.2)*U;w=h*1.15;perTile[Math.floor((x+M)/W)]=(perTile[Math.floor((x+M)/W)]||'')+F.roundTree(x,rg(x)+4,h,w);x+=w*rr(.5,.8);}
-      }else{
-        const h=rr(3.6,7.8)*U;w=h*rr(.46,.58);
-        let t;
-        if(b==='sikkim'&&R()<.18){t=F.roundTree(x,rg(x)+4,h*.7,w*1.6);}else t=pine(x,rg(x)+4,h,w);
-        perTile[Math.floor((x+M)/W)]=(perTile[Math.floor((x+M)/W)]||'')+t;x+=w*rr(.42,.8);
+    const d3=ridge(rg,H+M,-M,x1,9,.9);
+    LAZY.L3=(j)=>sandbox(TILE_SEED(j+7),()=>{
+      const x0=j*W-M,x1t=x0+W;let d='',x=x0;
+      while(x<x1t){
+        const b=pick(x,f);let w;
+        if(b==='goa'){
+          if(R()<.62){const h=rr(4,8.2)*U;w=h*.9;d+=F.palm(x,rg(x)+4,h,rr(-.25,.25)*h,rr(5,7)|0);x+=w*rr(.3,.55);}
+          else{const h=rr(3,5.2)*U;w=h*1.15;d+=F.roundTree(x,rg(x)+4,h,w);x+=w*rr(.5,.8);}
+        }else{
+          const h=rr(3.6,7.8)*U;w=h*rr(.46,.58);
+          d+=(b==='sikkim'&&R()<.18)?F.roundTree(x,rg(x)+4,h*.7,w*1.6):pine(x,rg(x)+4,h,w);
+          x+=w*rr(.42,.8);
+        }
       }
-    }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const d3=ridgeChunk(rg,H+M,u0,u1,8,.9,2);
-      const g3=ridgeChunk(rg,H+M,u0,u1,8,.9,0);
-      const t=perTile[j]||'';
-      return `<path class="c-ridge" d="${d3}${t}"/><path class="grain" d="${g3}${t}"/>`;
+      return `<path class="c-ridge" d="${d}"/>`;
     });
-    return tiles;
+    return `<path class="c-ridge" d="${d3}"/>${tiled(f,()=>'')}<path class="grain" d="${d3}"/>`;
   }
 
   /* ---------- sheet 4 — meadow, the long river and its branches ---------- */
@@ -1357,10 +1405,14 @@ const WORLD = (() => {
   function buildL4(){
     const f=LAYERS.L4.f,x1=widthOf(f)+M;
     const md=wave(H*.6,[H*.008,H*.004],[W*.8,W*.25]);
+    const d4=ridge(md,H+M,-M,x1,10,.6);
     const p1=R()*6,p2=R()*6,p3=R()*6;
     const yc=u=>H*.705+H*.026*Math.sin(u/(.9*W)*Math.PI*2+p1)+H*.011*Math.sin(u/(.31*W)*Math.PI*2+p2);
     const hw=u=>H*.011+H*.036*biome(u,f).goa+H*.004*Math.sin(u/(.5*W)*Math.PI*2+p3);
     riverY=yc;
+    const T=[],B=[];
+    for(let u=-M;u<=x1;u+=10){T.push([u,yc(u)-hw(u)+(R()-.5)*1.6]);B.push([u,yc(u)+hw(u)+(R()-.5)*1.6]);}
+    let dr=poly(T.concat(B.reverse()));
     const perTile={};
     const addPt=(x,key,val)=>{const j=Math.floor((x+M)/W);perTile[j]=perTile[j]||{dr:'',rip:'',gl:'',bld:''};perTile[j][key]+=val;};
     // forward branches: one per plate, exactly like the reference river
@@ -1380,18 +1432,16 @@ const WORLD = (() => {
       for(let i=0;i<10;i++){const u=ux(k,R(),f),y=yc(u)+(R()-.5)*hw(u)*1.2,len=rr(10,30),th=1.2;addPt(u,'rip',poly([[u-len/2,y],[u,y-th],[u+len/2,y],[u,y+th*.6]]));}
     }
     for(const h of heroes('L4')){const s=h.s||1;addPt(h.u,'bld',G(h.u,yc(h.u)+hw(h.u)*.2,s,F.boat()));}
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=perTile[j]||{};
-      const d4=ridgeChunk(md,H+M,u0,u1,8,.6,2);
-      const g4=ridgeChunk(md,H+M,u0,u1,8,.6,0);
-      const dr=riverChunk(yc,hw,u0,u1,10,2);
-      let s=`<path class="c-meadow" d="${d4}"/><path class="c-river" d="${dr}${t.dr||''}"/><path class="grain" d="${g4}"/>`;
+    const tiles=tiled(f,(j)=>{
+      const t=perTile[j];if(!t)return '';
+      let s='';
+      if(t.dr)s+=`<path class="c-river" d="${t.dr}"/>`;
       if(t.rip)s+=`<path class="c-ripple" d="${t.rip}"/>`;
       if(t.gl)s+=t.gl;
       if(t.bld)s+=t.bld;
       return s;
     });
-    return tiles;
+    return `<path class="c-meadow" d="${d4}"/><path class="c-river" d="${dr}"/><path class="grain" d="${d4}"/>${tiles}`;
   }
 
   /* ---------- sheet 5 — moss banks with an opening on every plate ---------- */
@@ -1403,42 +1453,41 @@ const WORLD = (() => {
     const near=u=>{let d=1e9;for(const c of centers)d=Math.min(d,Math.abs(u-c));return d;};
     const yb=u=>{const d=near(u),s=clamp(1-(d-.09*W)/(.16*W),0,1);return y5+w5(u)+Math.pow(s,3)*(H+M-y5)*1.02;};
     bank5=yb;
-    const perTile={};const add=(x,t)=>{const j=Math.floor((x+M)/W);perTile[j]=(perTile[j]||'')+t;};
-    let x=-M;
-    while(x<x1){
-      const y=yb(x);const d=near(x),fromEdge=clamp(1-(d-.1*W)/(.25*W),0,1);
-      const b=pick(x,f);let w;
-      if(y<H*.95){
-        if(b==='goa'){const h=rr(H*.16,H*.3)*(1-fromEdge*.45);w=Math.min(h*.9,W*.14);if(R()<.7)add(x,F.palm(x,y+5,h,rr(-.3,.3)*h*.6,rr(5,8)|0));else add(x,F.roundTree(x,y+5,h*.7,w));x+=w*rr(.28,.5);}
-        else{const h=rr(H*.2,H*.36)*(1-fromEdge*.5);w=Math.min(h*.44,W*.14);add(x,pine(x,y+5,h,w));x+=w*rr(.4,.7);}
-      }else x+=rr(20,60);
-    }
-    // Sikkim: prayer-flag strings on the banks between the trees
+    const pts=[];for(let u=-M;u<=x1;u+=9)pts.push([u,Math.min(H+M,yb(u))+(R()-.5)*1.6]);pts.push([x1,H+M],[-M,H+M]);
+    const d5=poly(pts);
+    // the figures that stand on the banks, one bucket per tile
     const heroTile={};
     for(const h of heroes('L5')){
       const u=h.u,y=yb(u)+6,j=Math.floor((u+M)/W);
-      heroTile[j]=heroTile[j]||{svg:'',glows:''};
+      heroTile[j]=heroTile[j]||{svg:'',glows:'',trees:''};
       if(h.fig==='flags'){const fl=F.flagLine(u-95,y-150,u+125,y-125,28,12,15);heroTile[j].svg+=P('c-wood',poly([[u-97,y+2],[u-93,y+2],[u-94,y-150],[u-96,y-150]])+poly([[u+123,y+2],[u+127,y+2],[u+126,y-125],[u+124,y-125]]))+F.flagsSvg(fl);}
-      else if(h.fig==='palmTall'){add(u,F.palm(u,y,H*.34,rr(-.2,.2)*H*.1,8));}
+      else if(h.fig==='palmTall'){heroTile[j].trees+=F.palm(u,y,H*.34,rr(-.2,.2)*H*.1,8);}
       else if(F[h.fig]){const s=h.s||1.6;heroTile[j].svg+=G(u,y,s,F[h.fig](h.fig==='house'));if(h.fig!=='hut')heroTile[j].glows+=winGlow(u,y-28*s,80*s);}
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const d5=ridgeChunk(u=>Math.min(H+M,yb(u)),H+M,u0,u1,8,.8,2);
-      const g5=ridgeChunk(u=>Math.min(H+M,yb(u)),H+M,u0,u1,8,.8,0);
-      let s=`<path class="c-moss" d="${d5}${perTile[j]||''}"/>`;
+    LAZY.L5=(j)=>sandbox(TILE_SEED(j+11),()=>{
+      const x0=j*W-M,x1t=x0+W;
+      let trees=heroTile[j]?heroTile[j].trees:'';
+      let x=x0;
+      while(x<x1t){
+        const y=yb(x);const d=near(x),fromEdge=clamp(1-(d-.1*W)/(.25*W),0,1);
+        const b=pick(x,f);let w;
+        if(y<H*.95){
+          if(b==='goa'){const h=rr(H*.16,H*.3)*(1-fromEdge*.45);w=Math.min(h*.9,W*.14);trees+=R()<.7?F.palm(x,y+5,h,rr(-.3,.3)*h*.6,rr(5,8)|0):F.roundTree(x,y+5,h*.7,w);x+=w*rr(.28,.5);}
+          else{const h=rr(H*.2,H*.36)*(1-fromEdge*.5);w=Math.min(h*.44,W*.14);trees+=pine(x,y+5,h,w);x+=w*rr(.4,.7);}
+        }else x+=rr(20,60);
+      }
+      let s=`<path class="c-moss" d="${trees}"/>`;
       const ht=heroTile[j];
       if(ht){if(ht.svg)s+=ht.svg;if(ht.glows)s+=ht.glows;}
-      s+=`<path class="grain" d="${g5}"/>`;
       return s;
     });
-    return tiles;
+    return `<path class="c-moss" d="${d5}"/>${tiled(f,()=>'')}<path class="grain" d="${d5}"/>`;
   }
 
   /* ---------- sheet 6 — the tall teal giants that frame every plate ---------- */
   function buildL6(){
     const f=LAYERS.L6.f;const y6=H*.82;
-    let tiles='';
-    for(let k=0;k<N;k++){
+    LAZY.L6=(k)=>sandbox(TILE_SEED(k+13),()=>{
       const b=biome(ux(k,.5,f),f);const goa=b.goa>.5;
       let d6='';
       const giants=[[.015,1.02,1],[.098,.7,1],[.975,.96,-1],[.9,.64,-1]];
@@ -1447,9 +1496,9 @@ const WORLD = (() => {
         if(goa){d6+=F.palm(x,y6+8,h*.86,side*h*.14,8);}
         else{const w=Math.min(h*.4,W*.2);d6+=pine(x,y6+8,h,w);}
       }
-      tiles+=tileOpen(k)+`<path class="c-teal" d="${d6}"/><path class="grain" d="${d6}"/>`+'</g>';
-    }
-    return tiles;
+      return `<path class="c-teal" d="${d6}"/><path class="grain" d="${d6}"/>`;
+    });
+    return tiled(f,()=>'');
   }
 
   /* ---------- sheet 7 — the ochre forest floor: props, figures, the red panda ---------- */
@@ -1457,107 +1506,100 @@ const WORLD = (() => {
   function buildL7(){
     const f=LAYERS.L7.f,x1=widthOf(f)+M;
     const g7w=wave(H*.785,[H*.011,H*.006],[W*.95,W*.3]);
-    const burrows=heroes('L7').filter(h=>h.fig==='burrow').map(h=>h.u);
+    const hs=heroes('L7');
+    const burrows=hs.filter(h=>h.fig==='burrow').map(h=>h.u);
     const burR=W*.1;
     const g7=u=>{let y=g7w(u);for(const b of burrows)y-=H*.04*Math.exp(-Math.pow((u-b)/burR,2));return y;};
     groundAt=g7;
-    const hs=heroes('L7');
+    const d7=ridge(g7,H+M,-M,x1,8,.7);
     const occupied=(u,r)=>hs.some(h=>h.fig!=='burrow'&&h.fig!=='mushrooms'&&Math.abs(h.u-u)<r);
-    const per={};const add=(x,key,t)=>{const j=Math.floor((x+M)/W);per[j]=per[j]||{tuft:'',fall1:'',fall2:'',pebble:'',fern:'',rleaf:'',rbloom:'',rdot:'',shell:'',burrow:'',stems:'',caps:'',dots:'',bld:''};per[j][key]+=t;};
-    // tufts
-    for(let x=-M;x<x1;x+=rr(18,60)){const y=g7(x)+2,n=3+Math.floor(R()*3);let t='';for(let k=0;k<n;k++)t+=blade(x+k*2.2,y+2,rr(.9,2.1)*U,rr(-.6,.6)*U,rr(2,3.4));add(x,'tuft',t);}
-    // per plate: ferns, pebbles, fallen leaves, low tufts, biome extras
-    for(let k=0;k<N;k++){
-      const b=biome(ux(k,.5,f),f);
-      for(const [ff,sz,dr2] of [[.03,13,1],[.33,9,-1],[.47,7,1],[.72,10,1],[.96,12,-1]]){
-        const x=ux(k,ff,f);if(occupied(x,150))continue;
-        const scale=b.goa>.5?.8:1;
-        add(x,'fern',F.fern(x,g7(x)+4,sz*U*scale,dr2)+F.fern(x+U*.8,g7(x)+4,sz*U*.7*scale,-dr2));
-      }
-      for(let i=0;i<9;i++){const x=ux(k,rr(.05,.95),f),y=g7(x)+rr(.6,3.5)*U,r=rr(.3,.75)*U;add(x,'pebble',cut(circ(x,y,r,9).map(([a,bb])=>[a,y+(bb-y)*.6]),.25,3));}
-      const nFall=Math.round(W/48);
-      for(let i=0;i<nFall;i++){
-        const x=ux(k,rr(-.02,1.02),f),top=g7(x)+U*2.2,y=top+Math.pow(R(),1.3)*(H*.965-top),sz=rr(.45,.9)*U,a=R()*Math.PI,ca=Math.cos(a),sa=Math.sin(a);
-        const lp=[[-1,0],[-.3,-.42],[.35,-.36],[1,0],[.3,.4],[-.35,.36]].map(([uu,v])=>[x+(uu*ca-v*sa*.8)*sz,y+(uu*sa+v*ca*.8)*sz*.62]);
-        if(b.goa>.5&&R()<.35){add(x,'shell',cut(circ(x,y,sz*.55,8).map(([a2,b2])=>[a2,y+(b2-y)*.7]),.2,3));}
-        else if(R()<.6)add(x,'fall1',cut(lp,.2,3));else add(x,'fall2',cut(lp,.2,3));
-      }
-      for(let i=0;i<Math.round(W/90);i++){const x=ux(k,R(),f),y=g7(x)+rr(.24,.8)*(H*.95-g7(x));let t='';for(let kk=0;kk<3;kk++)t+=blade(x+kk*2.4,y,rr(.6,1.4)*U,rr(-.5,.5)*U,rr(2,3));add(x,'tuft',t);}
-      if(b.sikkim>.5){for(let i=0;i<3;i++){const x=ux(k,rr(.02,.98),f);if(occupied(x,170))continue;const rb=F.rhodoBush(x,g7(x)+rr(1,3)*U,rr(26,46));add(x,'rleaf',rb.leaf);add(x,'rbloom',rb.bloom);add(x,'rdot',rb.dot);}}
-    }
-    // heroes
+    let burrow='',stems='',caps='',dots='',bld='',rhodoLeaf='',rhodoBloom='',rhodoDot='';
+    const addRhodo=(x,rb)=>{rhodoLeaf+=rb.leaf;rhodoBloom+=rb.bloom;rhodoDot+=rb.dot;};
+    // the standing figures are one-per-slide: cheap, so they live on the sheet
     for(const h of hs){
       const x=h.u,y=g7(x);
       if(h.fig==='burrow'){
         const bw=Math.max(18,W*.042),bh=bw*.72,by0=g7(x)+bh*1.25;
         const arch=[[x-bw/2,by0]];for(let i=0;i<=12;i++){const a=Math.PI+i/12*Math.PI;arch.push([x+Math.cos(a)*bw/2,by0-bh*.35+Math.sin(a)*bh*.9]);}arch.push([x+bw/2,by0]);
-        add(x,'burrow',cut(arch,.6,5));
+        burrow+=cut(arch,.6,5);
       }else if(h.fig==='mushrooms'){
         const n=h.n||3;
-        for(let k=0;k<n;k++){const mx=x+(k-(n-1)/2)*U*rr(1.4,2.6),s=U*rr(1.1,3.1)*(k===Math.floor(n/2)?1.25:1);const m=F.mushroom(mx,g7(mx)+s*.18,s);add(mx,'stems',m.stem);add(mx,'caps',m.cap);add(mx,'dots',m.dots);}
+        for(let k=0;k<n;k++){const mx=x+(k-(n-1)/2)*U*rr(1.4,2.6),s=U*rr(1.1,3.1)*(k===Math.floor(n/2)?1.25:1);const m=F.mushroom(mx,g7(mx)+s*.18,s);stems+=m.stem;caps+=m.cap;dots+=m.dots;}
       }else if(h.fig==='rhodo'){
-        const rb=F.rhodoBush(x,y+6,54*(h.s||1));add(x,'rleaf',rb.leaf);add(x,'rbloom',rb.bloom);add(x,'rdot',rb.dot);
+        addRhodo(x,F.rhodoBush(x,y+6,54*(h.s||1)));
       }else if(h.fig==='boatBeach'){
-        add(x,'bld',G(x,y+6,h.s||1.4,F.boat()));
+        bld+=G(x,y+6,h.s||1.4,F.boat());
       }else if(F[h.fig]){
-        add(x,'bld',G(x,y+3,h.s||2,F[h.fig]()));
+        bld+=G(x,y+3,h.s||2,F[h.fig]());
       }
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=per[j]||{};
-      const d7=ridgeChunk(g7,H+M,u0,u1,8,.7,2);
-      const g7_grain=ridgeChunk(g7,H+M,u0,u1,8,.7,0);
-      let s=`<path class="c-ground" d="${d7}"/>`;
-      if(t.fall1)s+=`<path class="c-fall1" d="${t.fall1}"/>`;
-      if(t.fall2)s+=`<path class="c-fall2" d="${t.fall2}"/>`;
-      if(t.shell)s+=`<path class="c-pebble" d="${t.shell}"/>`;
-      if(t.tuft)s+=`<path class="c-tuft" d="${t.tuft}"/>`;
-      if(t.pebble)s+=`<path class="c-pebble" d="${t.pebble}"/>`;
-      if(t.fern||t.rleaf)s+=`<path class="c-fern" d="${t.fern||''}${t.rleaf||''}"/>`;
-      if(t.rbloom)s+=`<path class="c-bell" d="${t.rbloom}"/>`;
-      if(t.rdot)s+=`<path class="c-bell2" d="${t.rdot}"/>`;
-      if(t.burrow)s+=`<path class="c-burrow" d="${t.burrow}"/>`;
-      if(t.stems)s+=`<path class="c-stem" d="${t.stems}"/>`;
-      if(t.caps)s+=`<path class="c-cap" d="${t.caps}"/>`;
-      s+=`<path class="grain" d="${g7_grain}${t.stems||''}${t.caps||''}"/>`;
-      if(t.dots)s+=`<path class="c-dot glowdots" d="${t.dots}"/>`;
-      if(t.bld)s+=t.bld;
-      return s;
+    /* Litter, tufts, ferns, pebbles and rhododendron bushes are generated one
+       tile at a time: each tile asks for the handful of plate-scattered props
+       whose x lands inside it, and for its own run of grass tufts. */
+    LAZY.L7=(j)=>sandbox(TILE_SEED(j+17),()=>{
+      const x0=j*W-M,x1t=x0+W;
+      const per={tuft:'',fall1:'',fall2:'',pebble:'',fern:'',rleaf:'',rbloom:'',rdot:'',shell:''};
+      const add=(x,key,t)=>{if(x>=x0&&x<x1t)per[key]+=t;};
+      for(let x=x0;x<x1t;x+=rr(18,60)){const y=g7(x)+2,n=3+Math.floor(R()*3);let t='';for(let k=0;k<n;k++)t+=blade(x+k*2.2,y+2,rr(.9,2.1)*U,rr(-.6,.6)*U,rr(2,3.4));add(x,'tuft',t);}
+      const kFrom=Math.max(0,Math.ceil((x0/W-1.4)/f)),kTo=Math.min(N-1,Math.floor((x1t/W)/f)+1);
+      for(let k=kFrom;k<=kTo;k++){
+        const b=biome(ux(k,.5,f),f);
+        for(const [ff,sz,dr2] of [[.03,13,1],[.33,9,-1],[.47,7,1],[.72,10,1],[.96,12,-1]]){
+          const x=ux(k,ff,f);if(x<x0||x>=x1t)continue;if(occupied(x,150))continue;
+          const scale=b.goa>.5?.8:1;
+          add(x,'fern',F.fern(x,g7(x)+4,sz*U*scale,dr2)+F.fern(x+U*.8,g7(x)+4,sz*U*.7*scale,-dr2));
+        }
+        for(let i=0;i<9;i++){const x=ux(k,rr(.05,.95),f),y=g7(x)+rr(.6,3.5)*U,r=rr(.3,.75)*U;add(x,'pebble',cut(circ(x,y,r,9).map(([a,bb])=>[a,y+(bb-y)*.6]),.25,3));}
+        const nFall=Math.round(W/48);
+        for(let i=0;i<nFall;i++){
+          const x=ux(k,rr(-.02,1.02),f),top=g7(x)+U*2.2,y=top+Math.pow(R(),1.3)*(H*.965-top),sz=rr(.45,.9)*U,a=R()*Math.PI,ca=Math.cos(a),sa=Math.sin(a);
+          const lp=[[-1,0],[-.3,-.42],[.35,-.36],[1,0],[.3,.4],[-.35,.36]].map(([uu,v])=>[x+(uu*ca-v*sa*.8)*sz,y+(uu*sa+v*ca*.8)*sz*.62]);
+          if(b.goa>.5&&R()<.35){add(x,'shell',cut(circ(x,y,sz*.55,8).map(([a2,b2])=>[a2,y+(b2-y)*.7]),.2,3));}
+          else if(R()<.6)add(x,'fall1',cut(lp,.2,3));else add(x,'fall2',cut(lp,.2,3));
+        }
+        for(let i=0;i<Math.round(W/90);i++){const x=ux(k,R(),f),y=g7(x)+rr(.24,.8)*(H*.95-g7(x));let t='';for(let kk=0;kk<3;kk++)t+=blade(x+kk*2.4,y,rr(.6,1.4)*U,rr(-.5,.5)*U,rr(2,3));add(x,'tuft',t);}
+        if(b.sikkim>.5){for(let i=0;i<3;i++){const x=ux(k,rr(.02,.98),f);if(x<x0||x>=x1t)continue;if(occupied(x,170))continue;const rb=F.rhodoBush(x,g7(x)+rr(1,3)*U,rr(26,46));add(x,'rleaf',rb.leaf);add(x,'rbloom',rb.bloom);add(x,'rdot',rb.dot);}}
+      }
+      return `<path class="c-fall1" d="${per.fall1}"/><path class="c-fall2" d="${per.fall2}"/><path class="c-pebble" d="${per.shell}"/><path class="c-tuft" d="${per.tuft}"/><path class="c-pebble" d="${per.pebble}"/><path class="c-fern" d="${per.fern}${per.rleaf}"/><path class="c-bell" d="${per.rbloom}"/><path class="c-bell2" d="${per.rdot}"/>`;
     });
-    return `${tiles}<g id="puffs"></g><g id="pandaG">${F.panda()}</g>`;
+    return `<path class="c-ground" d="${d7}"/>${tiled(f,()=>'')}<path class="c-burrow" d="${burrow}"/><path class="c-stem" d="${stems}"/><path class="c-cap" d="${caps}"/><path class="grain" d="${d7}${stems}${caps}"/><path class="c-dot glowdots" d="${dots}"/>${bld}<path class="c-fern" d="${rhodoLeaf}"/><path class="c-bell" d="${rhodoBloom}"/><path class="c-bell2" d="${rhodoDot}"/><g id="puffs"></g><g id="pandaG">${F.panda()}</g>`;
   }
 
   /* ---------- sheet 8 — foreground grasses and tall flower spikes ---------- */
   function buildL8(){
     const f=LAYERS.L8.f,x1=widthOf(f)+M;
     const g8=wave(H*.945,[H*.008,H*.005],[W*.6,W*.2]);
+    const d8=ridge(g8,H+M,-M,x1,9,.8);
     const centers=[];for(let k=0;k<N;k++)centers.push(ux(k,.5,f));
-    const per={};const add=(x,key,t)=>{const j=Math.floor((x+M)/W);per[j]=per[j]||{fg:'',fg2:'',stalk:'',bell:'',inner:''};per[j][key]+=t;};
-    for(let x=-M;x<x1;x+=rr(3.5,9)){
-      let d=1e9;for(const c of centers)d=Math.min(d,Math.abs(x-c));
-      const s=d/(W/2),hm=H*(.018+.23*Math.pow(clamp(s,0,1.2),2.4)),h=hm*rr(.35,1),lean=rr(-.38,.38)*h,wb=rr(4,9)*(U/11+.4);
-      const b=blade(x,g8(x)+6,h,lean,wb);
-      if(R()<.3)add(x,'fg2',b);else add(x,'fg',b);
-    }
+    // the tall foxgloves / rhododendron spikes belong to one plate each: fixed
+    // positions, so they can be bucketed by tile right away.
+    const spikes={};
     for(let k=0;k<N;k++){
       const bm=biome(ux(k,.5,f),f);
       for(const [fx,fh,fl,sd] of [[.065,.4,.05,1],[.115,.29,-.03,1],[.925,.36,-.04,-1],[.885,.24,.03,-1]]){
         const x=ux(k,fx,f);const fn=bm.sikkim>.5?F.rhodoSpike:F.foxglove;
-        const fg=fn(x,g8(x)+4,H*fh,W*fl,sd);add(x,'stalk',fg.stalk);add(x,'bell',fg.bells);add(x,'inner',fg.inner);
+        const fg=fn(x,g8(x)+4,H*fh,W*fl,sd);
+        const j=Math.floor((x+M)/W);
+        spikes[j]=spikes[j]||{stalk:'',bells:'',inner:''};
+        spikes[j].stalk+=fg.stalk;spikes[j].bells+=fg.bells;spikes[j].inner+=fg.inner;
       }
     }
-    const tiles=tiled(f,(j,u0,u1)=>{
-      const t=per[j]||{};
-      const d8=ridgeChunk(g8,H+M,u0,u1,8,.8,2);
-      const g8_grain=ridgeChunk(g8,H+M,u0,u1,8,.8,0);
-      let s=`<path class="c-fg" d="${d8}${t.fg||''}${t.stalk||''}"/>`;
-      if(t.fg2)s+=`<path class="c-fg2" d="${t.fg2}"/>`;
-      if(t.bell)s+=`<path class="c-bell" d="${t.bell}"/>`;
-      if(t.inner)s+=`<path class="c-bell2" d="${t.inner}"/>`;
-      s+=`<path class="grain" d="${g8_grain}${t.fg||''}${t.fg2||''}${t.stalk||''}${t.bell||''}"/>`;
-      return s;
+    LAZY.L8=(j)=>sandbox(TILE_SEED(j+23),()=>{
+      const x0=j*W-M,x1t=x0+W;
+      let fg='',fg2='';
+      for(let x=x0;x<x1t;x+=rr(3.5,9)){
+        let d=1e9;for(const c of centers)d=Math.min(d,Math.abs(x-c));
+        const s=d/(W/2),hm=H*(.018+.23*Math.pow(clamp(s,0,1.2),2.4)),h=hm*rr(.35,1),lean=rr(-.38,.38)*h,wb=rr(4,9)*(U/11+.4);
+        const b=blade(x,g8(x)+6,h,lean,wb);
+        if(R()<.3)fg2+=b;else fg+=b;
+      }
+      const sp=spikes[j]||{stalk:'',bells:'',inner:''};
+      // No paper grain on the blades themselves: they are 2-6px wide, so the
+      // grain never had a pixel to sit in, yet duplicating every blade path to
+      // fill it cost ~35% of the deck's path data.  The ground's grain stays.
+      return `<path class="c-fg2" d="${fg2}"/><path class="c-fg" d="${fg}${sp.stalk}"/><path class="c-bell" d="${sp.bells}"/><path class="c-bell2" d="${sp.inner}"/>`;
     });
-    return tiles;
+    return `<path class="c-fg" d="${d8}"/>${tiled(f,()=>'')}<path class="grain" d="${d8}"/>`;
   }
 
   /* ---------- sheet 9 — the box: deckle-edged cream mat in a dark board frame ---------- */
@@ -1578,7 +1620,9 @@ const WORLD = (() => {
     F.setSeed(seed||1847);
     return {L1:buildL1(),L2:buildL2(),L3:buildL3(),L4:buildL4(),L5:buildL5(),L6:buildL6(),L7:buildL7(),L8:buildL8(),L9:buildFrame()};
   }
-  return {W,H,M,N,U,LAYERS,widthOf,ux,build,groundAt:u=>groundAt(u),biome};
+  // fill(key, j) draws one tile of a sheet the first time that tile is needed.
+  const fill=(key,j)=>{const g=LAZY[key];return g?g(j):'';};
+  return {W,H,M,N,U,LAYERS,widthOf,ux,build,fill,groundAt:u=>groundAt(u),biome};
 })();
 
 </script>
@@ -1598,6 +1642,44 @@ const WORLD = (() => {
   const body=document.body, stage=$('stage'), vp=$('vp');
   const reduceMQ=matchMedia('(prefers-reduced-motion: reduce)'); let reduce=reduceMQ.matches;
   reduceMQ.addEventListener&&reduceMQ.addEventListener('change',e=>{reduce=e.matches;});
+
+  /* ---------- quality tiers ----------
+     "full" is the deck exactly as designed.  "lite" trades only the most
+     expensive pixels — per-layer gaussian drop shadows, the grain on thin
+     blades, the blur on falling leaves, half the particles, the idle camera
+     drift — for a deck that is still unmistakably the same paper diorama on a
+     device that cannot afford all those blurs.  It switches itself on when the
+     device advertises that it is weak, or when the first second of the deck
+     genuinely runs below ~38 fps.  It never switches back, so it can't flicker. */
+  const perf={lite:false,checked:false,frames:0,slow:0};
+  function setLite(on){
+    if(perf.lite===on)return;
+    perf.lite=on;body.classList.toggle('lite',on);
+  }
+  (function detect(){
+    // ?lite / #lite forces the tier (handy for judging it on a fast machine or
+    // for a projector laptop that is slow only on battery); ?full forces the
+    // design as drawn.
+    if(/[?&]lite\b/.test(location.search)||/#lite\b/.test(location.hash))return setLite(true);
+    if(/[?&]full\b/.test(location.search))return;
+    const c=navigator.connection||{};
+    if(c.saveData)return setLite(true);
+    if((navigator.deviceMemory||8)<=2)return setLite(true);
+    if((navigator.hardwareConcurrency||8)<=2)return setLite(true);
+  })();
+  function noteFrame(dt){
+    if(perf.checked)return;
+    perf.frames++;
+    if(perf.frames>20){                             // ignore the warm-up frames
+      if(dt>0.034)perf.slow++;                      // slower than ~29fps
+      if(perf.frames===140){
+        perf.checked=true;
+        // a few hiccups are normal; a machine whose first two seconds are a
+        // fifth slow frames needs the cheaper tier
+        if(perf.slow>24)setLite(true);
+      }
+    }
+  }
   const live=$('live'); const say=s=>{live.textContent=s;};
   const ROMAN=n=>{const v=[[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let s='';for(const [a,b] of v)while(n>=a){s+=b;n-=a;}return s;};
 
@@ -1616,17 +1698,42 @@ const WORLD = (() => {
   }
   try{$('grainImg').setAttribute('href',makeGrain());}catch(e){}
 
-  /* ---------- the nine sheets ---------- */
+  /* ---------- the nine sheets ----------
+     Each sheet is generated as one long strip, but it is split on the \u0001
+     tile marks into W-wide pieces.  Only the pieces in and around the camera
+     are ever put in the document: a phone that shows plate V has ~4 tiles per
+     sheet mounted instead of all 99, so the DOM stays small, the style tree
+     stays small, and navigation never pays for art that is 10 m off-screen.  */
   const art=WORLD.build(1847);
   const layersHost=$('layers'), layerEls=[];      // {el,f,depth,tiles}
   const order=[['L1',3],['L2',3],['L3',4],['L4',4],['L5',5],['L6',6],['L7',6]];
+  const SVGNS='http://www.w3.org/2000/svg';
+  function splitArt(s){
+    const parts=s.split('\u0001'), head=parts.shift();
+    const tail=(parts.length&&parts[parts.length-1].indexOf('<g class="tile"')!==0)?parts.pop():'';
+    const tiles=[];
+    for(const p of parts){
+      const m=p.match(/^<g class="tile" data-j="(\d+)">/);
+      if(!m)continue;
+      // inner = everything between the opening tag and the tile's own closing </g>
+      tiles.push({j:+m[1],inner:p.slice(p.indexOf('>')+1,-4)});
+    }
+    return {head,tail,tiles};
+  }
   function addLayer(key,sh,i,host){
-    const L=LAYERS[key],lw=WORLD.widthOf(L.f)+2*M,lh=H+2*M;
+    const L=LAYERS[key],lw=WORLD.widthOf(L.f)+2*M,lh=H+2*M,spec=splitArt(art[key]);
     const el=document.createElement('div');el.className='layer cut place';el.id=key;el.dataset.depth=L.depth;
     el.style.cssText=`--i:${i};--sh:${sh};left:${-M}px;top:${-M}px;width:${lw}px;height:${lh}px`;
-    el.innerHTML=`<svg width="${lw}" height="${lh}" viewBox="${-M} ${-M} ${lw} ${lh}" focusable="false" aria-hidden="true">${art[key]}</svg>`;
+    el.innerHTML=`<svg width="${lw}" height="${lh}" viewBox="${-M} ${-M} ${lw} ${lh}" focusable="false" aria-hidden="true">${spec.head}<g class="tiles"></g>${spec.tail}</svg>`;
     host.appendChild(el);
-    const rec={el,f:L.f,depth:L.depth,df:depthF(L.depth),tiles:Array.from(el.querySelectorAll('g.tile'))};layerEls.push(rec);return rec;
+    const hostG=el.querySelector('g.tiles');
+    const tiles=spec.tiles.map(t=>{
+      const g=document.createElementNS(SVGNS,'g');g.setAttribute('class','tile');g.setAttribute('data-j',t.j);
+      hostG.appendChild(g);
+      return {j:t.j,el:g,key,inner:t.inner,on:false};
+    });
+    const rec={el,key,f:L.f,depth:L.depth,df:depthF(L.depth),tiles};
+    layerEls.push(rec);return rec;
   }
   order.forEach(([k,sh],i)=>addLayer(k,sh,i,layersHost));
   const fliesC=document.createElement('canvas');fliesC.className='layer';fliesC.id='flies';fliesC.dataset.depth='7.4';fliesC.style.cssText=`left:${-M}px;top:${-M}px`;layersHost.appendChild(fliesC);
@@ -1666,13 +1773,16 @@ const WORLD = (() => {
     hang.innerHTML=items.map(it=>{const len=it.y+M,up=len+it.h*1.6+40;
       return `<div class="hang ${it.cls}" style="left:${q(it.x)}px;--len:${q(len)}px;--up:${q(up)};--hd:${it.delay}s"><div class="swing" style="--sd:${(4+R()*3).toFixed(2)}s;--sdl:-${(R()*4).toFixed(2)}s"><span class="string"></span><div class="obj">${it.html}</div></div></div>`;}).join('');
   }
+  let pinsBuilt=false;
   function buildPins(){
+    if(pinsBuilt)return;pinsBuilt=true;
     const pins=$('pins');pins.setAttribute('viewBox',`0 0 ${W} ${H}`);F.setSeed(5);const R=()=>F.R();
     let s='';const n=Math.round(W*H/9000);
-    for(let i=0;i<n;i++){const x=R()*W,y=Math.pow(R(),1.4)*H*.5,r=F.rr(.5,1.5);s+=`<circle${R()<.35?' class="tw"':''} style="animation-delay:-${(R()*3).toFixed(2)}s" cx="${q(x)}" cy="${q(y)}" r="${q(r)}"/>`;}
+    const twMax=perf.lite?16:40;let tw=0;
+    for(let i=0;i<n;i++){const x=R()*W,y=Math.pow(R(),1.4)*H*.5,r=F.rr(.5,1.5);const on=R()<.35&&tw<twMax;if(on)tw++;s+=`<circle${on?' class="tw"':''} style="animation-delay:-${(R()*3).toFixed(2)}s" cx="${q(x)}" cy="${q(y)}" r="${q(r)}"/>`;}
     pins.innerHTML=s;
   }
-  buildHangers();buildPins();
+  buildHangers();
 
   /* ---------- the paper labels ---------- */
   const grainSvg=cls=>`<svg class="${cls}" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>`;
@@ -1714,7 +1824,15 @@ const WORLD = (() => {
     let dataUrl='';
     const show=src=>{img.src=src;ph.classList.add('has');};
     const tryLoad=(list)=>{if(!list.length)return;const src=list[0];const t=new Image();t.onload=()=>show(src);t.onerror=()=>tryLoad(list.slice(1));t.src=src;};
-    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);else tryLoad(['poster.jpg','poster.png','poster.jpeg','poster.webp']);
+    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);
+    else{
+      // The poster is a 350 KB photograph on a plate that is 13 plates away:
+      // don't spend a slow connection's bandwidth on it until it is wanted.
+      let asked=false;
+      const ask=()=>{if(asked)return;asked=true;tryLoad(['poster.jpg','poster.png','poster.jpeg','poster.webp']);};
+      (window.requestIdleCallback||(f=>setTimeout(f,4000)))(ask,{timeout:6000});
+      document.addEventListener('deck:poster',ask,{once:true});
+    }
     const input=document.createElement('input');input.type='file';input.accept='image/*';input.style.display='none';document.body.appendChild(input);
     input.addEventListener('change',()=>{const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{dataUrl=r.result;show(dataUrl);embed.hidden=false;say('Poster loaded. Use "Save copy with poster" to keep it inside the file.');};r.readAsDataURL(f);});
     const open=e=>{e.stopPropagation();input.click();};
@@ -1742,20 +1860,109 @@ const WORLD = (() => {
   window.addEventListener('scroll',lockScroll,{passive:true});
   stage.addEventListener('scroll',lockScroll,{passive:true});
   vp.addEventListener('scroll',lockScroll,{passive:true});
-
   function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
-  function cull(a,b){ // keep only the tiles between slide positions a..b alive
-    for(const L of layerEls){if(!L.tiles.length)continue;const u0=Math.min(a,b)*W*L.f-W*.3,u1=Math.max(a,b)*W*L.f+W*1.3;
-      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-M,t1=t0+W;t.style.display=(t1<u0||t0>u1)?'none':'';}}
+  /* ---------- background fill ----------
+     Tiles are drawn on demand.  While the deck is idle we quietly draw the
+     ones the talk is likely to need next, nearest plate first, a few
+     milliseconds at a time — so walking forward never has to wait for paper. */
+  const tileIndex={};
+  for(const L of layerEls){const m=tileIndex[L.key]=tileIndex[L.key]||{};for(const t of L.tiles)m[t.j]=t;}
+  const idle=window.requestIdleCallback
+    ? (f)=>window.requestIdleCallback(f,{timeout:1500})
+    : (f)=>setTimeout(()=>f({timeRemaining:()=>8}),60);
+  let prefetchQ=[],prefetching=false;
+  function pumpPrefetch(){
+    if(prefetching||!prefetchQ.length)return;
+    prefetching=true;
+    const step=(deadline)=>{
+      const left=deadline&&deadline.timeRemaining?()=>deadline.timeRemaining():()=>0;
+      let n=0;
+      while(prefetchQ.length&&n<3&&(n===0||left()>5)){
+        const t=prefetchQ.shift();
+        if(!t.inner)t.inner=WORLD.fill(t.key,t.j)||'';
+        n++;
+      }
+      prefetching=false;
+      if(prefetchQ.length)idle(step);
+    };
+    idle(step);
+  }
+  function drainPrefetch(n){
+    while(n-->0&&prefetchQ.length){
+      const t=prefetchQ.shift();
+      if(!t.inner)t.inner=WORLD.fill(t.key,t.j)||'';
+    }
+  }
+  function schedulePrefetch(centre){
+    const seen=new Set();prefetchQ=[];
+    // lite devices only look one plate ahead: enough, and it keeps the fan quiet
+    const reach=perf.lite?1:N;
+    const at=centre==null?cur:centre;
+    const order=[];
+    for(let d=0;d<reach;d++){
+      if(d===0)order.push(at);
+      else{order.push(at-d,at+d);}
+    }
+    for(const k of order){
+      if(k<0||k>=N)continue;
+      for(const key in tileIndex){
+        const f=LAYERS[key].f;
+        const j0=Math.max(0,Math.floor((k*W*f+M)/W)-1),j1=Math.floor(((k+1)*W*f+M)/W);
+        for(let j=j0;j<=j1;j++){
+          const t=tileIndex[key][j];
+          if(t&&!t.inner&&!seen.has(key+':'+j)){seen.add(key+':'+j);prefetchQ.push(t);}
+        }
+      }
+    }
+    pumpPrefetch();
+  }
+
+  /* ---------- tile window ----------
+     A tile is *mounted* (its art injected) only while it is in, or just
+     outside, the camera window — or on the plate we are walking to.  Anything
+     else has zero nodes in the document, which is what keeps this deck usable
+     on a low-end machine: no memory for path data that cannot be seen and no
+     style recalculation over it when day turns to night.                  */
+  const MARGIN=.34;            // slide-widths of art kept just outside the frame
+  let lastTileCam=-999;
+  function mountTile(t,on,onlyIfReady){
+    if(on===t.on)return;
+    if(on){
+      // tiles are drawn the first time they are needed; after that the markup
+      // is kept so walking back and forth stays instant
+      if(!t.inner){
+        if(onlyIfReady)return;                 // will be mounted on a later frame
+        t.inner=WORLD.fill(t.key,t.j)||'';
+      }
+      t.el.innerHTML=t.inner;
+    }else t.el.textContent='';
+    t.on=on;
+  }
+  function applyTiles(){
+    const a=cam-MARGIN,b=cam+1+MARGIN;              // what the camera window shows
+    const c=cur-.18,d=cur+1.18;                     // the plate on stage
+    const e=tween?tween.to-.18:0,f=tween?tween.to+1.18:-1;   // the plate we walk to
+    for(const L of layerEls){
+      if(!L.tiles.length)continue;
+      const j0=Math.max(0,Math.floor((a*W*L.f+M)/W)-1),j1=Math.min(L.tiles.length-1,Math.floor((b*W*L.f+M)/W));
+      const k0=Math.max(0,Math.floor((c*W*L.f+M)/W)-1),k1=Math.min(L.tiles.length-1,Math.floor((d*W*L.f+M)/W));
+      const n0=Math.max(0,Math.floor((e*W*L.f+M)/W)-1),n1=Math.min(L.tiles.length-1,Math.floor((f*W*L.f+M)/W));
+      for(const t of L.tiles){
+        if(t.j>=j0&&t.j<=j1)mountTile(t,true,false);
+        else if((t.j>=k0&&t.j<=k1)||(t.j>=n0&&t.j<=n1))mountTile(t,true,true);
+        else mountTile(t,false);
+      }
+    }
   }
   const MAX_HOP_SPEED=440; // max horizontal speed (px/sec) to keep movement grounded & weighted
   const MIN_HOP_DUR=0.66;  // minimum time per hop (s) for clear squash, parabolic float, and landing
   const MAX_HOP_DUR=0.80;  // maximum time per hop (s) to prevent zero-gravity float
   function goTo(k,instant){
     k=clamp(k,0,N-1);if(k===cur&&!instant&&tween===null)return;
+    if(SLIDES[k]&&/poster/.test(SLIDES[k].id||''))document.dispatchEvent(new Event('deck:poster'));
     const prev=cur;cur=k;
     if(dflt(prev)!==dflt(k)||instant){manual=false;setNight(dflt(k),true);}
-    if(location.hash!=='#'+(k+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));
+    if(location.hash!=='#'+(k+1)){try{history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));}catch(e){}}
     updateCounter();
     updatePosterTabindex();
     const d=Math.abs(k-cam);
@@ -1765,10 +1972,10 @@ const WORLD = (() => {
         if(i===k){s.classList.add('on');s.removeAttribute('inert');s.removeAttribute('aria-hidden');}
         else{s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
       });
-      cam=k;tween=null;slots[k].classList.add('on');cull(k,k);applyCamera(true);pandaTo(k,true);
+      cam=k;tween=null;applyTiles();schedulePrefetch(k);applyCamera(true);pandaTo(k,true);
     }
     else{
-      // Switching transition time decreased by 30% (* 0.70) while fox maintains its natural speed
+      // Switching transition time decreased by 30% (* 0.70) while the panda keeps its natural hop speed
       const baseCamDur=clamp(2.4+0.6*d,2.6,4.5);
       const camDur=baseCamDur*0.70;
       slots.forEach((s,i)=>{
@@ -1776,20 +1983,15 @@ const WORLD = (() => {
         if(i!==k&&i!==prev){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
       });
       tween={from:cam,to:k,t:0,dur:camDur,shown:false};
-      cull(Math.min(prev,k),Math.max(prev,k));
+      applyTiles();schedulePrefetch(k);
       pandaTo(k,false);
     }
     say('Plate '+(k+1)+' of '+N+': '+(SLIDES[k].title||SLIDES[k].id));
   }
-  let lastCullCam=-999;
   function stepCamera(dt){
     if(!tween)return;
     const tw=tween;tw.t+=dt/tw.dur;const t=Math.min(1,tw.t),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
     cam=tw.from+(tw.to-tw.from)*e;
-    if(Math.abs(tw.to-tw.from)>1&&Math.abs(cam-lastCullCam)>.35){
-      lastCullCam=cam;
-      cull(cam-.2,cam+1.2);
-    }
     if(!tw.shown&&t>.5){
       tw.shown=true;
       slots[tw.to].classList.add('on');
@@ -1797,13 +1999,7 @@ const WORLD = (() => {
       slots[tw.to].removeAttribute('aria-hidden');
     }
     if(t>=1){
-      const fromK=Math.round(tw.from), toK=tw.to;
-      cam=toK;tween=null;
-      if(panda.hop||panda.hops.length){
-        cull(Math.min(fromK,toK),Math.max(fromK,toK));
-      }else{
-        cull(cur,cur);
-      }
+      cam=tw.to;tween=null;applyTiles();
       slots.forEach((s,i)=>{if(i!==cur){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}});
       updatePosterTabindex();
     }
@@ -1883,7 +2079,7 @@ const WORLD = (() => {
       renderPanda(lift);
       if(t>=1){
         panda.hop=null;panda.sx=panda.sy=1;renderPanda(0);
-        if(!panda.hops.length&&!tween){cull(cur,cur);}
+        if(!panda.hops.length&&!tween){applyTiles();}
       }
     }
     for(const p of puffs){if(!p||p.t>=1)continue;p.t+=dt*1.8;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=160*dt;p.r+=dt*8;
@@ -1894,10 +2090,10 @@ const WORLD = (() => {
   const leafShapes=['M0 -9C5 -6 6 1 0 9C-6 1 -5 -6 0 -9Z','M0 -9L2.5 -4L6.5 -5L4.5 0L7 3L2 3.5L0 9L-2 3.5L-7 3L-4.5 0L-6.5 -5L-2.5 -4Z','M0 -9C3 -7 4.5 -3 3.5 0C5 2 4 6 0 9C-4 6 -5 2 -3.5 0C-4.5 -3 -3 -7 0 -9Z'];
   const leafCls=['lf-a','lf-b','lf-c','lf-a','lf-b'];const leaves=[];
   function makeLeaves(){
-    const n=18;let html='';
+    const n=perf.lite?10:16;let html='';
     for(let i=0;i<n;i++){html+=`<div class="leaf"><svg viewBox="-10 -10 20 20" width="20" height="20"><path class="${leafCls[i%5]}" d="${leafShapes[i%3]}"/><path class="lf-v" d="M0 -7V8"/></svg></div>`;}
     leavesEl.innerHTML=html;
-    Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<8}));
+    Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<6}));
     leaves.forEach(l=>{if(l.ambient)spawnLeaf(l,Math.random()*W,Math.random()*H*.9);else l.el.style.opacity='0';});
   }
   function spawnLeaf(l,x,y,burst){l.on=true;l.x=x;l.y=y;l.vx=burst?rr(-80,80):rr(8,26);l.vy=burst?rr(-70,-20):rr(18,34);l.rot=Math.random()*360;l.vr=rr(-90,90);l.sz=rr(.8,1.5)*clamp(U/9,.7,1.4);l.el.style.opacity='1';}
@@ -1912,14 +2108,22 @@ const WORLD = (() => {
 
   /* ---------- fireflies (and day-time pollen) ---------- */
   const fx=fliesC.getContext('2d');let dpr=1,flies=[],nightAmt=0,sprite=null;
+  // The glow layer is drawn at half resolution: fireflies and pollen are soft
+  // round lights, so upscaling 2x is invisible — and it is 4x less canvas to
+  // clear and upload on every frame, which is exactly what low-end GPUs hate.
+  const FLY_DPR=.5;
   function sizeFlies(){
-    dpr=1;fliesC.width=W+2*M;fliesC.height=H+2*M;fliesC.style.width=(W+2*M)+'px';fliesC.style.height=(H+2*M)+'px';
-    flies=[];for(let i=0;i<38;i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
+    dpr=FLY_DPR;const cw=Math.round((W+2*M)*dpr),ch=Math.round((H+2*M)*dpr);
+    fliesC.width=cw;fliesC.height=ch;fliesC.style.width=(W+2*M)+'px';fliesC.style.height=(H+2*M)+'px';
+    flies=[];const nf=perf.lite?22:38;
+    for(let i=0;i<nf;i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
     sprite=document.createElement('canvas');sprite.width=sprite.height=64;const g=sprite.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,250,200,1)');gr.addColorStop(.14,'rgba(246,236,130,.95)');gr.addColorStop(.4,'rgba(214,230,110,.28)');gr.addColorStop(1,'rgba(200,220,100,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
   }
   let ptr={x:-9999,y:-9999,t:0};
   function stepFlies(dt,t){
-    fx.setTransform(1,0,0,1,M,M);fx.clearRect(-M,-M,W+2*M,H+2*M);const na=nightAmt;
+    const na=nightAmt;
+    if(na<.02&&!flies.length)return;
+    fx.setTransform(dpr,0,0,dpr,M*dpr,M*dpr);fx.clearRect(-M,-M,W+2*M,H+2*M);
     for(const f of flies){
       f.a+=(Math.sin(t*.7+f.ph)*1.6)*dt;let vx=Math.cos(f.a)*f.sp,vy=Math.sin(f.a)*f.sp*.6;
       if(na>.5&&performance.now()-ptr.t<2500){const dx=ptr.x-f.x,dy=ptr.y-f.y,d=Math.hypot(dx,dy);if(d<W*.3&&d>20){vx+=dx/d*22;vy+=dy/d*22;}}
@@ -1945,12 +2149,20 @@ const WORLD = (() => {
   const kickTags=v=>{for(const tg of physTags)tg.v+=v;};
 
   /* ---------- the frame loop ---------- */
-  let raf=0,last=performance.now(),clock=0;
+  let raf=0,last=performance.now(),clock=0,flyAcc=0;
   function frame(now){
     raf=requestAnimationFrame(frame);
     const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
+    noteFrame(dt);
     const target=body.classList.contains('night')?1:0;nightAmt+=(target-nightAmt)*(1-Math.exp(-dt*1.6));
-    stepCamera(dt);stepParallax(dt,clock);applyCamera();stepTags(dt,clock);stepLeaves(dt,clock);stepPanda(dt);stepFlies(dt,clock);
+    stepCamera(dt);
+    if(tween&&prefetchQ.length){drainPrefetch(1);lastTileCam=-999;}
+    if(Math.abs(cam-lastTileCam)>0.035){lastTileCam=cam;applyTiles();}
+    stepParallax(dt,clock);applyCamera();stepTags(dt,clock);stepLeaves(dt,clock);stepPanda(dt);
+    // the glow layer runs at 30fps in lite mode (motion is identical, it is just
+    // sampled less often; the *cost* is what halves)
+    flyAcc+=dt;
+    if(!perf.lite||flyAcc>=1/30){stepFlies(flyAcc,clock);flyAcc=0;}
   }
   function start(){if(!raf){last=performance.now();raf=requestAnimationFrame(frame);}}
   function stop(){cancelAnimationFrame(raf);raf=0;}
@@ -1980,6 +2192,7 @@ const WORLD = (() => {
 
   const toggle=$('toggle'),toggleLabel=$('toggleLabel');
   function setNight(on,auto){
+    if(on)buildPins();                       // the stars are drawn on first need
     body.classList.toggle('night',on);toggle.setAttribute('aria-pressed',String(on));toggleLabel.textContent=on?'Night':'Day';
     const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',on?'#161a45':'#f3e8d2');
     if(!auto){manual=true;say(on?'Night falls on the diorama: windows light up and fireflies come out.':'Morning returns.');}
@@ -2010,15 +2223,19 @@ const WORLD = (() => {
 
   /* ---------- go ---------- */
   makeLeaves();sizeFlies();
-  const k0=hashK();cur=k0;cam=k0;cull(k0,k0);
+  idle(()=>buildPins());                       // stars only matter at night
+  schedulePrefetch();                           // draw the neighbours while idle
+  const k0=hashK();cur=k0;cam=k0;applyTiles();
   slots.forEach((s,i)=>{if(i===k0){s.removeAttribute('inert');s.removeAttribute('aria-hidden');}else{s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}});
   updatePosterTabindex();
-  if(dflt(k0)){body.classList.add('night');nightAmt=1;toggle.setAttribute('aria-pressed','true');toggleLabel.textContent='Night';}
+  if(dflt(k0)){buildPins();body.classList.add('night');nightAmt=1;toggle.setAttribute('aria-pressed','true');toggleLabel.textContent='Night';}
   updateCounter();pandaTo(k0,true);applyCamera();
   setTimeout(()=>slots[k0].classList.add('on'),reduce?0:650);
-  if(location.hash!=='#'+(k0+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k0+1));
+  if(location.hash!=='#'+(k0+1)){try{history.replaceState(null,'',(location.pathname||'')+'#'+(k0+1));}catch(e){}}
   start();
-  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},hop:hopLocal,setCam(x){tween=null;cam=x;cull(Math.floor(x),Math.ceil(x));applyCamera();}};
+  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},get lite(){return perf.lite;},
+    stats(){let total=0,mounted=0,drawn=0;for(const L of layerEls)for(const t of L.tiles){total++;if(t.on)mounted++;if(t.inner)drawn++;}
+      return {tiles:total,mounted,drawn,elements:document.getElementsByTagName('*').length};},hop:hopLocal,setCam(x){tween=null;cam=x;applyTiles();applyCamera();}};
 })();
 
 </script>
