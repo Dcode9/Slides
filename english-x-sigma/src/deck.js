@@ -104,15 +104,15 @@
       let inner='';
       (sl.items||[]).forEach((it,i)=>{
         if(it.type==='tag'){
-          inner+=`<div class="tag-wrap${it.physics?' phys':' swingy'}" style="left:${it.x}px;top:0;width:${it.w}px;--sd:${(4.5+(i*1.3)%3).toFixed(1)}s;--sdl:-${(i*1.7)%4}s"><div class="anim drop" style="--i:${i}"><span class="tag-string" style="--len:${it.len||54}px"></span><div class="tag${it.small?' small':''}" style="--tw:${it.w}px">${grainSvg('tag-grain')}<span class="tag-knot"></span><span class="tag-hole"></span>${it.html}</div></div></div>`;
+          inner+=`<div class="tag-wrap${it.physics?' phys':' swingy'}${it.cls?' '+it.cls:''}" style="left:${it.x}px;top:0;width:${it.w}px;--sd:${(4.5+(i*1.3)%3).toFixed(1)}s;--sdl:-${(i*1.7)%4}s"><div class="anim drop" style="--i:${i}"><span class="tag-string" style="--len:${it.len||54}px"></span><div class="tag${it.small?' small':''}" style="--tw:${it.w}px">${grainSvg('tag-grain')}<span class="tag-knot"></span><span class="tag-hole"></span>${it.html}</div></div></div>`;
         }else if(it.type==='card'){
           const jx=Math.min(1.1,700/it.w), c1=tornClip(100+k*10+i,9,jx,1.0), c2=tornClip(200+k*10+i,7,jx*.6,.6);
-          inner+=`<div class="card-pos" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;transform:rotate(${it.rot||0}deg)"><div class="card-wrap anim${it.pin?' pinned':''}" style="--i:${i}"><div class="card${it.cls?' '+it.cls:''}" style="--clip:${c1};--clip2:${c2}">${grainSvg('card-grain')}${it.html}</div></div></div>`;
+          inner+=`<div class="card-pos${it.cls?' '+it.cls+'-pos':''}" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;transform:rotate(${it.rot||0}deg)"><div class="card-wrap anim${it.pin?' pinned':''}" style="--i:${i}"><div class="card${it.cls?' '+it.cls:''}" style="--clip:${c1};--clip2:${c2}">${grainSvg('card-grain')}${it.html}</div></div></div>`;
         }else if(it.type==='note'){
           inner+=`<div class="scene-note anim" style="left:${it.x}px;top:${it.y}px;--i:${i}">${it.html}</div>`;
         }else if(it.type==='poster'){
           const c1=tornClip(300+k,9,.9,.8);
-          inner+=`<div class="poster-pos" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px"><div class="poster-wrap anim" style="--i:${i}"><div class="poster" style="--clip:${c1};width:${it.w}px;height:${it.h}px">${grainSvg('card-grain')}<div class="ph" id="posterPh" role="button" tabindex="0" aria-label="Group poster. Click to choose an image file."><img id="posterImg" alt="Group poster promoting the folk dance of Sikkim"><div class="ph-text"><b>Group poster</b>Promoting the folk dance of Sikkim<br><span class="small">Save your Photoshop export as <b style="display:inline;font-size:inherit">poster.jpg</b> beside this file — or click here to choose it.</span></div><span class="corner tl" style="left:14px;top:14px"></span><span class="corner tr" style="right:14px;top:14px"></span><span class="corner br" style="right:14px;bottom:14px"></span><span class="corner bl" style="left:14px;bottom:14px"></span></div></div></div></div>`;
+          inner+=`<div class="poster-pos" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px"><div class="poster-wrap anim" style="--i:${i}"><div class="poster" style="--clip:${c1};width:${it.w}px;height:${it.h}px">${grainSvg('card-grain')}<div class="ph" id="posterPh" role="button" tabindex="0" aria-label="Group poster. Click to choose an image file."><img id="posterImg" alt="Handmade poster promoting the folk dance of Sikkim by Aditya Jagdale"><div class="ph-text"><b>Handmade Group Poster</b>Promoting the folk dance of Sikkim<br><span class="small">Illustrated by Aditya Jagdale (Group 3)</span></div><span class="corner tl" style="left:14px;top:14px"></span><span class="corner tr" style="right:14px;top:14px"></span><span class="corner br" style="right:14px;bottom:14px"></span><span class="corner bl" style="left:14px;bottom:14px"></span></div></div></div></div>`;
         }
       });
       html+=`<div class="slot" id="slot${k}" style="left:${k*W}px" data-k="${k}">${inner}</div>`;
@@ -129,7 +129,7 @@
     let dataUrl='';
     const show=src=>{img.src=src;ph.classList.add('has');};
     const tryLoad=(list)=>{if(!list.length)return;const src=list[0];const t=new Image();t.onload=()=>show(src);t.onerror=()=>tryLoad(list.slice(1));t.src=src;};
-    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);else tryLoad(['poster.jpg','poster.png','poster.jpeg','poster.webp']);
+    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);else tryLoad(['poster.webp','poster.jpg','poster.png','poster.jpeg']);
     const input=document.createElement('input');input.type='file';input.accept='image/*';input.style.display='none';document.body.appendChild(input);
     input.addEventListener('change',()=>{const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{dataUrl=r.result;show(dataUrl);embed.hidden=false;say('Poster loaded. Use "Save copy with poster" to keep it inside the file.');};r.readAsDataURL(f);});
     const open=e=>{e.stopPropagation();input.click();};
@@ -170,6 +170,18 @@
     k=clamp(k,0,N-1);if(k===cur&&!instant&&tween===null)return;
     const prev=cur;cur=k;
     if(dflt(prev)!==dflt(k)||instant){manual=false;setNight(dflt(k),true);}
+    if(k!==17){
+      const s17=$('slot17');
+      if(s17&&s17.classList.contains('show-sources')){
+        s17.classList.remove('show-sources');
+        const btn=$('sourcesToggleBtn');
+        if(btn){
+          btn.setAttribute('aria-expanded','false');
+          const l=btn.querySelector('.sources-btn-label');if(l)l.textContent='Sources & References';
+          const ic=btn.querySelector('.sources-btn-icon');if(ic)ic.textContent='↓';
+        }
+      }
+    }
     if(location.hash!=='#'+(k+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));
     updateCounter();
     updatePosterTabindex();
@@ -387,6 +399,19 @@
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.4&&dtm<900){goTo(cur+(dx<0?1:-1));hideHint();}
   });
   stage.addEventListener('pointerleave',()=>{lastPX=null;swipe=null;});
+  document.addEventListener('click',e=>{
+    const btn=e.target.closest('#sourcesToggleBtn,.sources-btn');
+    if(!btn)return;
+    e.stopPropagation();
+    const s17=$('slot17');if(!s17)return;
+    s17.classList.toggle('show-sources');
+    const open=s17.classList.contains('show-sources');
+    btn.setAttribute('aria-expanded',String(open));
+    const label=btn.querySelector('.sources-btn-label');
+    if(label)label.textContent=open?'Hide Sources':'Sources & References';
+    const icon=btn.querySelector('.sources-btn-icon');
+    if(icon)icon.textContent=open?'↑':'↓';
+  });
   stage.addEventListener('click',e=>{
     if(e.target.closest('button,.ph,a'))return;
     const p=toStage(e);leafBurst(p.x+px*fLeaves,p.y+py*fLeaves*.55);kickTags((Math.random()-.5)*30);hideHint();
