@@ -33,3 +33,11 @@ Change `group`, each `roll`, the `task` text and the `outcomes` text, save, relo
 - `Glimpses_of_India_X_Sigma.html` — the finished, self-contained presentation (no internet needed).
 - `src/` — the readable sources: `style.css` (the Foxglove Hollow design system), `paper.js` (hand-coded paper-cut shapes, figures, buildings), `content.js` (all text + where figures stand), `world.js` (the continuous nine-sheet diorama), `deck.js` (camera, parallax, night, controls).
 - `build.py` — stitches `src/` into the single HTML file.
+
+## Low-end mode
+The current-main renderer and all later poster/content/clipping fixes are preserved.
+The performance branch's lightweight quality tier is integrated instead of replacing
+that renderer with the older virtualization implementation. Weak devices and
+sustained slow frames select it automatically. Add `?lite` to choose it or `?full`
+to keep the full effects. Low-end mode simplifies shadows and reduces particles;
+all 18 plates, text, poster, controls and night mode remain.

@@ -315,6 +315,21 @@ body.night .speaker-tag{color:#d5ceea;background:rgba(123,90,166,.2);border-colo
 body.night .sources-btn{background:#2a2448;color:#eee6f7;border-color:rgba(176,186,255,.35)}
 body.night .sources-btn:hover{background:#352e5a;border-color:var(--kick)}
 
+/* Low-end quality tier: preserve content and geometry, simplify costly effects. */
+body.lite .layer.cut{filter:drop-shadow(0 4px 0 var(--shade))}
+body.lite .layer path,body.lite .layer circle{transition:fill .5s ease,opacity .5s ease}
+body.lite .leaf,body.lite .hang .obj{filter:none}
+body.lite .glowdots{filter:none}
+body.lite .glint{animation:none;opacity:.5}
+body.lite .pins .tw{animation-duration:4.4s}
+body.lite .tag-wrap{filter:drop-shadow(2px 6px 5px var(--shade))}
+body.lite .card-wrap{filter:drop-shadow(0 7px 6px var(--shade))}
+body.lite .poster-wrap{filter:drop-shadow(0 10px 9px var(--shade))}
+/* a filtered element that also *moves* re-runs its blur every single frame;
+   dropping the filter on the swinging tags is cheaper than dropping the swing */
+body.lite .tag-wrap.swingy{filter:none}
+body.lite .hang .swing{animation-duration:9s}
+
 </style>
 </head>
 <body>
@@ -1675,6 +1690,44 @@ const WORLD = (() => {
   const body=document.body, stage=$('stage'), vp=$('vp');
   const reduceMQ=matchMedia('(prefers-reduced-motion: reduce)'); let reduce=reduceMQ.matches;
   reduceMQ.addEventListener&&reduceMQ.addEventListener('change',e=>{reduce=e.matches;});
+  /* ---------- quality tiers ----------
+     "full" is the deck exactly as designed.  "lite" trades only the most
+     expensive pixels — per-layer gaussian drop shadows, the grain on thin
+     blades, the blur on falling leaves, half the particles, the idle camera
+     drift — for a deck that is still unmistakably the same paper diorama on a
+     device that cannot afford all those blurs.  It switches itself on when the
+     device advertises that it is weak, or when the first second of the deck
+     genuinely runs below ~38 fps.  It never switches back, so it can't flicker. */
+  const perf={lite:false,checked:false,frames:0,slow:0};
+  function setLite(on){
+    if(perf.lite===on)return;
+    perf.lite=on;body.classList.toggle('lite',on);
+    if(on)document.querySelectorAll('.tile g.pc').forEach(g=>g.removeAttribute('filter'));
+  }
+  (function detect(){
+    // ?lite / #lite forces the tier (handy for judging it on a fast machine or
+    // for a projector laptop that is slow only on battery); ?full forces the
+    // design as drawn.
+    if(/[?&]lite\b/.test(location.search)||/#lite\b/.test(location.hash))return setLite(true);
+    if(/[?&]full\b/.test(location.search))return;
+    const c=navigator.connection||{};
+    if(c.saveData)return setLite(true);
+    if((navigator.deviceMemory||8)<=2)return setLite(true);
+    if((navigator.hardwareConcurrency||8)<=2)return setLite(true);
+  })();
+  function noteFrame(dt){
+    if(perf.checked)return;
+    perf.frames++;
+    if(perf.frames>20){                             // ignore the warm-up frames
+      if(dt>0.034)perf.slow++;                      // slower than ~29fps
+      if(perf.frames===140){
+        perf.checked=true;
+        // a few hiccups are normal; a machine whose first two seconds are a
+        // fifth slow frames needs the cheaper tier
+        if(perf.slow>24)setLite(true);
+      }
+    }
+  }
   const live=$('live'); const say=s=>{live.textContent=s;};
   const ROMAN=n=>{const v=[[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let s='';for(const [a,b] of v)while(n>=a){s+=b;n-=a;}return s;};
 
@@ -1766,7 +1819,7 @@ const WORLD = (() => {
       s.style.cssText=`width:${tileW}px;height:${hh}px;display:block;overflow:visible`;
 
       const wrap=document.createElementNS('http://www.w3.org/2000/svg','g');
-      wrap.setAttribute('class','pc');wrap.setAttribute('filter',`url(#${fid})`);
+      wrap.setAttribute('class','pc');if(!perf.lite)wrap.setAttribute('filter',`url(#${fid})`);
       wrap.appendChild(g);s.appendChild(wrap);
       tw.appendChild(s);
       frag.appendChild(tw);rec.tiles.push(tw);
@@ -2068,7 +2121,7 @@ const WORLD = (() => {
   const leafShapes=['M0 -9C5 -6 6 1 0 9C-6 1 -5 -6 0 -9Z','M0 -9L2.5 -4L6.5 -5L4.5 0L7 3L2 3.5L0 9L-2 3.5L-7 3L-4.5 0L-6.5 -5L-2.5 -4Z','M0 -9C3 -7 4.5 -3 3.5 0C5 2 4 6 0 9C-4 6 -5 2 -3.5 0C-4.5 -3 -3 -7 0 -9Z'];
   const leafCls=['lf-a','lf-b','lf-c','lf-a','lf-b'];const leaves=[];
   function makeLeaves(){
-    const n=18;let html='';
+    const n=perf.lite?10:18;let html='';
     for(let i=0;i<n;i++){html+=`<div class="leaf"><svg viewBox="-10 -10 20 20" width="20" height="20"><path class="${leafCls[i%5]}" d="${leafShapes[i%3]}"/><path class="lf-v" d="M0 -7V8"/></svg></div>`;}
     leavesEl.innerHTML=html;
     Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<8}));
@@ -2088,7 +2141,7 @@ const WORLD = (() => {
   const fx=fliesC.getContext('2d');let dpr=1,flies=[],nightAmt=0,sprite=null;
   function sizeFlies(){
     dpr=1;fliesC.width=W+2*M;fliesC.height=H+2*M;fliesC.style.width=(W+2*M)+'px';fliesC.style.height=(H+2*M)+'px';
-    flies=[];for(let i=0;i<38;i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
+    flies=[];for(let i=0;i<(perf.lite?22:38);i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
     sprite=document.createElement('canvas');sprite.width=sprite.height=64;const g=sprite.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,250,200,1)');gr.addColorStop(.14,'rgba(246,236,130,.95)');gr.addColorStop(.4,'rgba(214,230,110,.28)');gr.addColorStop(1,'rgba(200,220,100,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
   }
   let ptr={x:-9999,y:-9999,t:0};
@@ -2122,7 +2175,7 @@ const WORLD = (() => {
   let raf=0,last=performance.now(),clock=0;
   function frame(now){
     raf=requestAnimationFrame(frame);
-    const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
+    const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;noteFrame(dt);
     const target=body.classList.contains('night')?1:0;nightAmt+=(target-nightAmt)*(1-Math.exp(-dt*1.6));
     stepCamera(dt);stepParallax(dt,clock);applyCamera();stepTags(dt,clock);stepLeaves(dt,clock);stepPanda(dt);stepFlies(dt,clock);
   }
@@ -2205,7 +2258,7 @@ const WORLD = (() => {
   setTimeout(()=>slots[k0].classList.add('on'),reduce?0:650);
   if(location.hash!=='#'+(k0+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k0+1));
   start();
-  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},hop:hopLocal,setCam(x){tween=null;cam=x;cull(Math.floor(x),Math.ceil(x));applyCamera();}};
+  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},get lite(){return perf.lite;},hop:hopLocal,setCam(x){tween=null;cam=x;cull(Math.floor(x),Math.ceil(x));applyCamera();}};
 })();
 
 </script>

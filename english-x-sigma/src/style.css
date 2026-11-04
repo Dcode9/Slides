@@ -305,3 +305,18 @@ body.night .speaker-tag{color:#d5ceea;background:rgba(123,90,166,.2);border-colo
 .sources-btn-icon{display:inline-block;transition:transform .3s ease;font-style:normal;font-size:16px;font-weight:bold}
 body.night .sources-btn{background:#2a2448;color:#eee6f7;border-color:rgba(176,186,255,.35)}
 body.night .sources-btn:hover{background:#352e5a;border-color:var(--kick)}
+
+/* Low-end quality tier: preserve content and geometry, simplify costly effects. */
+body.lite .layer.cut{filter:drop-shadow(0 4px 0 var(--shade))}
+body.lite .layer path,body.lite .layer circle{transition:fill .5s ease,opacity .5s ease}
+body.lite .leaf,body.lite .hang .obj{filter:none}
+body.lite .glowdots{filter:none}
+body.lite .glint{animation:none;opacity:.5}
+body.lite .pins .tw{animation-duration:4.4s}
+body.lite .tag-wrap{filter:drop-shadow(2px 6px 5px var(--shade))}
+body.lite .card-wrap{filter:drop-shadow(0 7px 6px var(--shade))}
+body.lite .poster-wrap{filter:drop-shadow(0 10px 9px var(--shade))}
+/* a filtered element that also *moves* re-runs its blur every single frame;
+   dropping the filter on the swinging tags is cheaper than dropping the swing */
+body.lite .tag-wrap.swingy{filter:none}
+body.lite .hang .swing{animation-duration:9s}
