@@ -13,7 +13,6 @@
   const body=document.body, stage=$('stage'), vp=$('vp');
   const reduceMQ=matchMedia('(prefers-reduced-motion: reduce)'); let reduce=reduceMQ.matches;
   reduceMQ.addEventListener&&reduceMQ.addEventListener('change',e=>{reduce=e.matches;});
-
   /* ---------- quality tiers ----------
      "full" is the deck exactly as designed.  "lite" trades only the most
      expensive pixels — per-layer gaussian drop shadows, the grain on thin
@@ -26,6 +25,7 @@
   function setLite(on){
     if(perf.lite===on)return;
     perf.lite=on;body.classList.toggle('lite',on);
+    if(on)document.querySelectorAll('.tile g.pc').forEach(g=>g.removeAttribute('filter'));
   }
   (function detect(){
     // ?lite / #lite forces the tier (handy for judging it on a fast machine or
@@ -70,41 +70,93 @@
   try{$('grainImg').setAttribute('href',makeGrain());}catch(e){}
 
   /* ---------- the nine sheets ----------
-     Each sheet is generated as one long strip, but it is split on the \u0001
-     tile marks into W-wide pieces.  Only the pieces in and around the camera
-     are ever put in the document: a phone that shows plate V has ~4 tiles per
-     sheet mounted instead of all 99, so the DOM stays small, the style tree
-     stays small, and navigation never pays for art that is 10 m off-screen.  */
+     Each sheet is a long strip, cut into plate-wide tiles. The paper-cut
+     shadow is *not* a CSS filter: a CSS filter on a composited element is
+     re-run by the compositor on every single frame, which cost more than
+     everything else in this deck put together. It is an SVG filter inside the
+     artwork instead (see cutFilter below), so it is rastered once per tile and
+     moving a sheet is a plain texture blit. */
   const art=WORLD.build(1847);
   const layersHost=$('layers'), layerEls=[];      // {el,f,depth,tiles}
   const order=[['L1',3],['L2',3],['L3',4],['L4',4],['L5',5],['L6',6],['L7',6]];
-  const SVGNS='http://www.w3.org/2000/svg';
-  function splitArt(s){
-    const parts=s.split('\u0001'), head=parts.shift();
-    const tail=(parts.length&&parts[parts.length-1].indexOf('<g class="tile"')!==0)?parts.pop():'';
-    const tiles=[];
-    for(const p of parts){
-      const m=p.match(/^<g class="tile" data-j="(\d+)">/);
-      if(!m)continue;
-      // inner = everything between the opening tag and the tile's own closing </g>
-      tiles.push({j:+m[1],inner:p.slice(p.indexOf('>')+1,-4)});
-    }
-    return {head,tail,tiles};
+  /* The paper-cut shadow, as artwork rather than CSS. These are the same two
+     shadows the stylesheet draws for the HTML cards — a hairline lit top edge
+     plus a soft dark lift — expressed as an SVG filter, so it is baked into a
+     sheet's raster once instead of being re-run by the compositor every frame.
+     One filter per shadow depth, shared by every tile that uses it. */
+  function cutFilter(sh){
+    return `<filter id="cutS${sh}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB" x="-60000" y="-60000" width="120000" height="120000">`
+      // Silhouette the paper, tint it twice, and blur only the shadow passes:
+      // the artwork itself is composited untouched, exactly like drop-shadow().
+      +`<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="sil"/>`
+      +`<feFlood class="pe" result="ec"/><feComposite in="ec" in2="sil" operator="in" result="a"/>`
+      +`<feGaussianBlur in="sil" stdDeviation="${q(sh*.75)}" result="sb"/>`
+      +`<feFlood class="ps" result="sc"/><feComposite in="sc" in2="sb" operator="in" result="b"/>`
+      +`<feOffset in="b" dy="${sh}" result="b2"/>`
+      +`<feMerge><feMergeNode in="a"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge>`
+      +`</filter>`;
   }
+  (function buildCutDefs(){
+    const depths=[...new Set(order.map(([,sh])=>sh).concat([9]))];
+    const host=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    host.setAttribute('class','cutdefs');host.setAttribute('aria-hidden','true');host.setAttribute('focusable','false');
+    host.style.cssText='position:absolute;left:0;top:0;width:0;height:0;overflow:hidden';
+    host.innerHTML='<defs>'+depths.map(cutFilter).join('')+'</defs>';
+    layersHost.appendChild(host);
+  })();
   function addLayer(key,sh,i,host){
-    const L=LAYERS[key],lw=WORLD.widthOf(L.f)+2*M,lh=H+2*M,spec=splitArt(art[key]);
-    const el=document.createElement('div');el.className='layer cut place';el.id=key;el.dataset.depth=L.depth;
+    const L=LAYERS[key],lw=WORLD.widthOf(L.f)+2*M,lh=H+2*M;
+    const el=document.createElement('div');el.className='layer place';el.id=key;el.dataset.depth=L.depth;
     el.style.cssText=`--i:${i};--sh:${sh};left:${-M}px;top:${-M}px;width:${lw}px;height:${lh}px`;
-    el.innerHTML=`<svg width="${lw}" height="${lh}" viewBox="${-M} ${-M} ${lw} ${lh}" focusable="false" aria-hidden="true">${spec.head}<g class="tiles"></g>${spec.tail}</svg>`;
+    const src=art[key],tilesHtml=typeof src==='string'?src:src.html,extra=typeof src==='string'?'':src.extra;
+    el.innerHTML=`<svg class="sheet" width="${lw}" height="${lh}" viewBox="${-M} ${-M} ${lw} ${lh}" focusable="false" aria-hidden="true"><g class="pc">${tilesHtml}</g></svg>`;
     host.appendChild(el);
-    const hostG=el.querySelector('g.tiles');
-    const tiles=spec.tiles.map(t=>{
-      const g=document.createElementNS(SVGNS,'g');g.setAttribute('class','tile');g.setAttribute('data-j',t.j);
-      hostG.appendChild(g);
-      return {j:t.j,el:g,key,inner:t.inner,on:false};
-    });
-    const rec={el,key,f:L.f,depth:L.depth,df:depthF(L.depth),tiles};
-    layerEls.push(rec);return rec;
+    const rec={el,f:L.f,depth:L.depth,df:depthF(L.depth),tiles:[]};layerEls.push(rec);
+    const sheet=el.querySelector('svg.sheet'),pc=sheet.querySelector('g.pc');
+    const gs=Array.from(pc.querySelectorAll('g.tile'));
+    if(!gs.length){                               // the frame: a single sheet already
+      el.classList.add('cut');
+      if(extra)sheet.insertAdjacentHTML('beforeend',extra);
+      return rec;
+    }
+    /* Slice the strip into plate-wide tiles. Two reasons, both invisible:
+       a 42,000 px layer blows past the raster memory budget and is re-drawn
+       every frame, and the paper-cut filter can then be cached per tile.
+       Each tile gets its own trimmed band (1:1 viewBox, so nothing shifts
+       by a pixel); all tiles share one shadow filter per depth. */
+    const frag=document.createDocumentFragment();
+    const pad = 380;
+    const tileW = W + 2 * pad;
+    for(const g of gs){
+      const j=+g.dataset.j,u0=j*W-pad;
+      let y0=-M-80,y1=H+M;
+      try{const bb=g.getBBox();if(bb.height>1){y0=Math.floor(bb.y-60);y1=Math.ceil(bb.y+bb.height+60);}}catch(e){}
+      const hh=Math.max(80,y1-y0);
+      const tw=document.createElement('div');
+      tw.className='tile';tw.dataset.j=j;
+      tw.style.cssText=`left:${j*W - pad + M}px;top:${y0+M}px;width:${tileW}px;height:${hh}px`;
+      const fid='cutS'+sh;
+      const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      s.setAttribute('viewBox',`${u0} ${y0} ${tileW} ${hh}`);
+      s.setAttribute('aria-hidden','true');s.setAttribute('focusable','false');
+      s.style.cssText=`width:${tileW}px;height:${hh}px;display:block;overflow:visible`;
+
+      const wrap=document.createElementNS('http://www.w3.org/2000/svg','g');
+      wrap.setAttribute('class','pc');if(!perf.lite)wrap.setAttribute('filter',`url(#${fid})`);
+      wrap.appendChild(g);s.appendChild(wrap);
+      tw.appendChild(s);
+      frag.appendChild(tw);rec.tiles.push(tw);
+    }
+    el.appendChild(frag);sheet.remove();
+    if(extra){                                   // the red panda: its own little sheet
+      const fx=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      fx.setAttribute('class','fx');fx.setAttribute('viewBox',`${-M} ${-M} ${q(lw)} ${q(H+2*M)}`);
+      fx.setAttribute('aria-hidden','true');fx.setAttribute('focusable','false');
+      fx.style.cssText=`width:${lw}px;height:${H+2*M}px;display:block;overflow:visible`;
+      fx.innerHTML=extra;
+      el.appendChild(fx);
+    }
+    return rec;
   }
   order.forEach(([k,sh],i)=>addLayer(k,sh,i,layersHost));
   const fliesC=document.createElement('canvas');fliesC.className='layer';fliesC.id='flies';fliesC.dataset.depth='7.4';fliesC.style.cssText=`left:${-M}px;top:${-M}px`;layersHost.appendChild(fliesC);
@@ -113,11 +165,15 @@
   // the content sheet rides with the floor
   const content=$('content');layersHost.appendChild(content);
   const vig=document.createElement('div');vig.className='vignette';layersHost.appendChild(vig);
-  // the frame: fixed, with a gentle parallax of its own
-  const L9=document.createElement('div');L9.className='layer cut';L9.id='L9';L9.dataset.depth='2.2';L9.style.cssText=`--i:8;--sh:9;left:${-M}px;top:${-M}px`;
-  L9.innerHTML=`<svg width="${W+2*M}" height="${H+2*M}" viewBox="${-M} ${-M} ${W+2*M} ${H+2*M}" focusable="false" aria-hidden="true">${art.L9}</svg>`;layersHost.appendChild(L9);
+  // the frame: fixed, with a gentle parallax of its own. One tile, one svg,
+  // 1:1 with the stage so its deckle edge lands on exactly the same pixels.
+  const L9=document.createElement('div');L9.className='layer';L9.id='L9';L9.dataset.depth='0';L9.style.cssText=`--i:8;--sh:9;left:${-M-80}px;top:${-M-80}px;width:${W+2*M+160}px;height:${H+2*M+160}px`;
+  L9.innerHTML=`<div class="tile" style="left:0;top:0;width:${W+2*M+160}px;height:${H+2*M+160}px">`
+    +`<svg viewBox="${-M-80} ${-M-80} ${W+2*M+160} ${H+2*M+160}" focusable="false" aria-hidden="true" style="width:${W+2*M+160}px;height:${H+2*M+160}px;display:block;overflow:visible">`
+    +`<g class="pc" filter="url(#cutS9)">${art.L9}</g></svg></div>`;
+  layersHost.appendChild(L9);
   const pandaBtn=document.createElement('button');pandaBtn.type='button';pandaBtn.className='panda-btn';pandaBtn.setAttribute('aria-label','The red panda. Press to make it hop');$('L7').appendChild(pandaBtn);
-  const f7=depthF(7), fh=depthF(.4), fFlies=depthF(7.4), fLeaves=depthF(7.7), f9=depthF(2.2);
+  const f7=depthF(7), fh=depthF(.4), fFlies=depthF(7.4), fLeaves=depthF(7.7), f9=0;
 
   /* ---------- hanging things: sun, moon, clouds, stars on threads ---------- */
   const F=PAPER;
@@ -144,16 +200,13 @@
     hang.innerHTML=items.map(it=>{const len=it.y+M,up=len+it.h*1.6+40;
       return `<div class="hang ${it.cls}" style="left:${q(it.x)}px;--len:${q(len)}px;--up:${q(up)};--hd:${it.delay}s"><div class="swing" style="--sd:${(4+R()*3).toFixed(2)}s;--sdl:-${(R()*4).toFixed(2)}s"><span class="string"></span><div class="obj">${it.html}</div></div></div>`;}).join('');
   }
-  let pinsBuilt=false;
   function buildPins(){
-    if(pinsBuilt)return;pinsBuilt=true;
     const pins=$('pins');pins.setAttribute('viewBox',`0 0 ${W} ${H}`);F.setSeed(5);const R=()=>F.R();
     let s='';const n=Math.round(W*H/9000);
-    const twMax=perf.lite?16:40;let tw=0;
-    for(let i=0;i<n;i++){const x=R()*W,y=Math.pow(R(),1.4)*H*.5,r=F.rr(.5,1.5);const on=R()<.35&&tw<twMax;if(on)tw++;s+=`<circle${on?' class="tw"':''} style="animation-delay:-${(R()*3).toFixed(2)}s" cx="${q(x)}" cy="${q(y)}" r="${q(r)}"/>`;}
+    for(let i=0;i<n;i++){const x=R()*W,y=Math.pow(R(),1.4)*H*.5,r=F.rr(.5,1.5);s+=`<circle${R()<.35?' class="tw"':''} style="animation-delay:-${(R()*3).toFixed(2)}s" cx="${q(x)}" cy="${q(y)}" r="${q(r)}"/>`;}
     pins.innerHTML=s;
   }
-  buildHangers();
+  buildHangers();buildPins();
 
   /* ---------- the paper labels ---------- */
   const grainSvg=cls=>`<svg class="${cls}" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="url(#grainPat)"/></svg>`;
@@ -170,15 +223,15 @@
       let inner='';
       (sl.items||[]).forEach((it,i)=>{
         if(it.type==='tag'){
-          inner+=`<div class="tag-wrap${it.physics?' phys':' swingy'}" style="left:${it.x}px;top:0;width:${it.w}px;--sd:${(4.5+(i*1.3)%3).toFixed(1)}s;--sdl:-${(i*1.7)%4}s"><div class="anim drop" style="--i:${i}"><span class="tag-string" style="--len:${it.len||54}px"></span><div class="tag${it.small?' small':''}" style="--tw:${it.w}px">${grainSvg('tag-grain')}<span class="tag-knot"></span><span class="tag-hole"></span>${it.html}</div></div></div>`;
+          inner+=`<div class="tag-wrap${it.physics?' phys':' swingy'}${it.cls?' '+it.cls:''}" style="left:${it.x}px;top:0;width:${it.w}px;--sd:${(4.5+(i*1.3)%3).toFixed(1)}s;--sdl:-${(i*1.7)%4}s"><div class="anim drop" style="--i:${i}"><span class="tag-string" style="--len:${it.len||54}px"></span><div class="tag${it.small?' small':''}" style="--tw:${it.w}px">${grainSvg('tag-grain')}<span class="tag-knot"></span><span class="tag-hole"></span>${it.html}</div></div></div>`;
         }else if(it.type==='card'){
           const jx=Math.min(1.1,700/it.w), c1=tornClip(100+k*10+i,9,jx,1.0), c2=tornClip(200+k*10+i,7,jx*.6,.6);
-          inner+=`<div class="card-pos" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;transform:rotate(${it.rot||0}deg)"><div class="card-wrap anim${it.pin?' pinned':''}" style="--i:${i}"><div class="card${it.cls?' '+it.cls:''}" style="--clip:${c1};--clip2:${c2}">${grainSvg('card-grain')}${it.html}</div></div></div>`;
+          inner+=`<div class="card-pos${it.cls?' '+it.cls+'-pos':''}" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;transform:rotate(${it.rot||0}deg)"><div class="card-wrap anim${it.pin?' pinned':''}" style="--i:${i}"><div class="card${it.cls?' '+it.cls:''}" style="--clip:${c1};--clip2:${c2}">${grainSvg('card-grain')}${it.html}</div></div></div>`;
         }else if(it.type==='note'){
           inner+=`<div class="scene-note anim" style="left:${it.x}px;top:${it.y}px;--i:${i}">${it.html}</div>`;
         }else if(it.type==='poster'){
           const c1=tornClip(300+k,9,.9,.8);
-          inner+=`<div class="poster-pos" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px"><div class="poster-wrap anim" style="--i:${i}"><div class="poster" style="--clip:${c1};width:${it.w}px;height:${it.h}px">${grainSvg('card-grain')}<div class="ph" id="posterPh" role="button" tabindex="0" aria-label="Group poster. Click to choose an image file."><img id="posterImg" alt="Group poster promoting the folk dance of Sikkim"><div class="ph-text"><b>Group poster</b>Promoting the folk dance of Sikkim<br><span class="small">Save your Photoshop export as <b style="display:inline;font-size:inherit">poster.jpg</b> beside this file — or click here to choose it.</span></div><span class="corner tl" style="left:14px;top:14px"></span><span class="corner tr" style="right:14px;top:14px"></span><span class="corner br" style="right:14px;bottom:14px"></span><span class="corner bl" style="left:14px;bottom:14px"></span></div></div></div></div>`;
+          inner+=`<div class="poster-pos" style="left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px"><div class="poster-wrap anim" style="--i:${i}"><div class="poster" style="--clip:${c1};width:${it.w}px;height:${it.h}px">${grainSvg('card-grain')}<div class="ph" id="posterPh" role="button" tabindex="0" aria-label="Group poster. Click to choose an image file."><img id="posterImg" alt="Handmade poster promoting the folk dance of Sikkim by Aditya Jagdale"><div class="ph-text"><b>Handmade Group Poster</b>Promoting the folk dance of Sikkim<br><span class="small">Illustrated by Aditya Jagdale (Group 3)</span></div><span class="corner tl" style="left:14px;top:14px"></span><span class="corner tr" style="right:14px;top:14px"></span><span class="corner br" style="right:14px;bottom:14px"></span><span class="corner bl" style="left:14px;bottom:14px"></span></div></div></div></div>`;
         }
       });
       html+=`<div class="slot" id="slot${k}" style="left:${k*W}px" data-k="${k}">${inner}</div>`;
@@ -195,15 +248,7 @@
     let dataUrl='';
     const show=src=>{img.src=src;ph.classList.add('has');};
     const tryLoad=(list)=>{if(!list.length)return;const src=list[0];const t=new Image();t.onload=()=>show(src);t.onerror=()=>tryLoad(list.slice(1));t.src=src;};
-    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);
-    else{
-      // The poster is a 350 KB photograph on a plate that is 13 plates away:
-      // don't spend a slow connection's bandwidth on it until it is wanted.
-      let asked=false;
-      const ask=()=>{if(asked)return;asked=true;tryLoad(['poster.jpg','poster.png','poster.jpeg','poster.webp']);};
-      (window.requestIdleCallback||(f=>setTimeout(f,4000)))(ask,{timeout:6000});
-      document.addEventListener('deck:poster',ask,{once:true});
-    }
+    if(typeof POSTER_SRC==='string'&&POSTER_SRC)show(POSTER_SRC);else tryLoad(['poster.webp','poster.jpg','/english-x-sigma/poster.webp','/english-x-sigma/poster.jpg','poster.png','poster.jpeg']);
     const input=document.createElement('input');input.type='file';input.accept='image/*';input.style.display='none';document.body.appendChild(input);
     input.addEventListener('change',()=>{const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{dataUrl=r.result;show(dataUrl);embed.hidden=false;say('Poster loaded. Use "Save copy with poster" to keep it inside the file.');};r.readAsDataURL(f);});
     const open=e=>{e.stopPropagation();input.click();};
@@ -231,109 +276,36 @@
   window.addEventListener('scroll',lockScroll,{passive:true});
   stage.addEventListener('scroll',lockScroll,{passive:true});
   vp.addEventListener('scroll',lockScroll,{passive:true});
-  function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
-  /* ---------- background fill ----------
-     Tiles are drawn on demand.  While the deck is idle we quietly draw the
-     ones the talk is likely to need next, nearest plate first, a few
-     milliseconds at a time — so walking forward never has to wait for paper. */
-  const tileIndex={};
-  for(const L of layerEls){const m=tileIndex[L.key]=tileIndex[L.key]||{};for(const t of L.tiles)m[t.j]=t;}
-  const idle=window.requestIdleCallback
-    ? (f)=>window.requestIdleCallback(f,{timeout:1500})
-    : (f)=>setTimeout(()=>f({timeRemaining:()=>8}),60);
-  let prefetchQ=[],prefetching=false;
-  function pumpPrefetch(){
-    if(prefetching||!prefetchQ.length)return;
-    prefetching=true;
-    const step=(deadline)=>{
-      const left=deadline&&deadline.timeRemaining?()=>deadline.timeRemaining():()=>0;
-      let n=0;
-      while(prefetchQ.length&&n<3&&(n===0||left()>5)){
-        const t=prefetchQ.shift();
-        if(!t.inner)t.inner=WORLD.fill(t.key,t.j)||'';
-        n++;
-      }
-      prefetching=false;
-      if(prefetchQ.length)idle(step);
-    };
-    idle(step);
-  }
-  function drainPrefetch(n){
-    while(n-->0&&prefetchQ.length){
-      const t=prefetchQ.shift();
-      if(!t.inner)t.inner=WORLD.fill(t.key,t.j)||'';
-    }
-  }
-  function schedulePrefetch(centre){
-    const seen=new Set();prefetchQ=[];
-    // lite devices only look one plate ahead: enough, and it keeps the fan quiet
-    const reach=perf.lite?1:N;
-    const at=centre==null?cur:centre;
-    const order=[];
-    for(let d=0;d<reach;d++){
-      if(d===0)order.push(at);
-      else{order.push(at-d,at+d);}
-    }
-    for(const k of order){
-      if(k<0||k>=N)continue;
-      for(const key in tileIndex){
-        const f=LAYERS[key].f;
-        const j0=Math.max(0,Math.floor((k*W*f+M)/W)-1),j1=Math.floor(((k+1)*W*f+M)/W);
-        for(let j=j0;j<=j1;j++){
-          const t=tileIndex[key][j];
-          if(t&&!t.inner&&!seen.has(key+':'+j)){seen.add(key+':'+j);prefetchQ.push(t);}
-        }
-      }
-    }
-    pumpPrefetch();
-  }
 
-  /* ---------- tile window ----------
-     A tile is *mounted* (its art injected) only while it is in, or just
-     outside, the camera window — or on the plate we are walking to.  Anything
-     else has zero nodes in the document, which is what keeps this deck usable
-     on a low-end machine: no memory for path data that cannot be seen and no
-     style recalculation over it when day turns to night.                  */
-  const MARGIN=.34;            // slide-widths of art kept just outside the frame
-  let lastTileCam=-999;
-  function mountTile(t,on,onlyIfReady){
-    if(on===t.on)return;
-    if(on){
-      // tiles are drawn the first time they are needed; after that the markup
-      // is kept so walking back and forth stays instant
-      if(!t.inner){
-        if(onlyIfReady)return;                 // will be mounted on a later frame
-        t.inner=WORLD.fill(t.key,t.j)||'';
-      }
-      t.el.innerHTML=t.inner;
-    }else t.el.textContent='';
-    t.on=on;
-  }
-  function applyTiles(){
-    const a=cam-MARGIN,b=cam+1+MARGIN;              // what the camera window shows
-    const c=cur-.18,d=cur+1.18;                     // the plate on stage
-    const e=tween?tween.to-.18:0,f=tween?tween.to+1.18:-1;   // the plate we walk to
-    for(const L of layerEls){
-      if(!L.tiles.length)continue;
-      const j0=Math.max(0,Math.floor((a*W*L.f+M)/W)-1),j1=Math.min(L.tiles.length-1,Math.floor((b*W*L.f+M)/W));
-      const k0=Math.max(0,Math.floor((c*W*L.f+M)/W)-1),k1=Math.min(L.tiles.length-1,Math.floor((d*W*L.f+M)/W));
-      const n0=Math.max(0,Math.floor((e*W*L.f+M)/W)-1),n1=Math.min(L.tiles.length-1,Math.floor((f*W*L.f+M)/W));
-      for(const t of L.tiles){
-        if(t.j>=j0&&t.j<=j1)mountTile(t,true,false);
-        else if((t.j>=k0&&t.j<=k1)||(t.j>=n0&&t.j<=n1))mountTile(t,true,true);
-        else mountTile(t,false);
-      }
-    }
+  function updateCounter(){$('counter').innerHTML=`Plate <b>${ROMAN(cur+1)}</b> <span style="opacity:.55">/ ${ROMAN(N)}</span>`;$('prev').disabled=cur===0;$('next').disabled=cur===N-1;}
+  function cull(a,b){ // keep only the tiles between slide positions a..b alive
+    for(const L of layerEls){if(!L.tiles.length)continue;const u0=Math.min(a,b)*W*L.f-W*.3,u1=Math.max(a,b)*W*L.f+W*1.3;
+      for(const t of L.tiles){const j=+t.dataset.j,t0=j*W-380,t1=j*W+W+380;t.style.display=(t1<u0||t0>u1)?'none':'';}}
+    // the paper cards are a sheet of their own: only the plates in play are
+    // laid out, so the content layer stays ~3 plates wide instead of 18
+    const lo=Math.min(a,b)-1,hi=Math.max(a,b)+1;
+    slots.forEach((s,i)=>{s.style.display=(i<lo||i>hi)?'none':'';});
   }
   const MAX_HOP_SPEED=440; // max horizontal speed (px/sec) to keep movement grounded & weighted
   const MIN_HOP_DUR=0.66;  // minimum time per hop (s) for clear squash, parabolic float, and landing
   const MAX_HOP_DUR=0.80;  // maximum time per hop (s) to prevent zero-gravity float
   function goTo(k,instant){
     k=clamp(k,0,N-1);if(k===cur&&!instant&&tween===null)return;
-    if(SLIDES[k]&&/poster/.test(SLIDES[k].id||''))document.dispatchEvent(new Event('deck:poster'));
     const prev=cur;cur=k;
     if(dflt(prev)!==dflt(k)||instant){manual=false;setNight(dflt(k),true);}
-    if(location.hash!=='#'+(k+1)){try{history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));}catch(e){}}
+    if(k!==17){
+      const s17=$('slot17');
+      if(s17&&s17.classList.contains('show-sources')){
+        s17.classList.remove('show-sources');
+        const btn=$('sourcesToggleBtn');
+        if(btn){
+          btn.setAttribute('aria-expanded','false');
+          const l=btn.querySelector('.sources-btn-label');if(l)l.textContent='Sources & References';
+          const ic=btn.querySelector('.sources-btn-icon');if(ic)ic.textContent='↓';
+        }
+      }
+    }
+    if(location.hash!=='#'+(k+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k+1));
     updateCounter();
     updatePosterTabindex();
     const d=Math.abs(k-cam);
@@ -343,10 +315,10 @@
         if(i===k){s.classList.add('on');s.removeAttribute('inert');s.removeAttribute('aria-hidden');}
         else{s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
       });
-      cam=k;tween=null;applyTiles();schedulePrefetch(k);applyCamera(true);pandaTo(k,true);
+      cam=k;tween=null;slots[k].classList.add('on');cull(k,k);applyCamera(true);pandaTo(k,true);
     }
     else{
-      // Switching transition time decreased by 30% (* 0.70) while the panda keeps its natural hop speed
+      // Switching transition time decreased by 30% (* 0.70) while fox maintains its natural speed
       const baseCamDur=clamp(2.4+0.6*d,2.6,4.5);
       const camDur=baseCamDur*0.70;
       slots.forEach((s,i)=>{
@@ -354,15 +326,20 @@
         if(i!==k&&i!==prev){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}
       });
       tween={from:cam,to:k,t:0,dur:camDur,shown:false};
-      applyTiles();schedulePrefetch(k);
+      cull(Math.min(prev,k),Math.max(prev,k));
       pandaTo(k,false);
     }
     say('Plate '+(k+1)+' of '+N+': '+(SLIDES[k].title||SLIDES[k].id));
   }
+  let lastCullCam=-999;
   function stepCamera(dt){
     if(!tween)return;
     const tw=tween;tw.t+=dt/tw.dur;const t=Math.min(1,tw.t),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
     cam=tw.from+(tw.to-tw.from)*e;
+    if(Math.abs(tw.to-tw.from)>1&&Math.abs(cam-lastCullCam)>.35){
+      lastCullCam=cam;
+      cull(cam-.2,cam+1.2);
+    }
     if(!tw.shown&&t>.5){
       tw.shown=true;
       slots[tw.to].classList.add('on');
@@ -370,7 +347,13 @@
       slots[tw.to].removeAttribute('aria-hidden');
     }
     if(t>=1){
-      cam=tw.to;tween=null;applyTiles();
+      const fromK=Math.round(tw.from), toK=tw.to;
+      cam=toK;tween=null;
+      if(panda.hop||panda.hops.length){
+        cull(Math.min(fromK,toK),Math.max(fromK,toK));
+      }else{
+        cull(cur,cur);
+      }
       slots.forEach((s,i)=>{if(i!==cur){s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}});
       updatePosterTabindex();
     }
@@ -450,7 +433,7 @@
       renderPanda(lift);
       if(t>=1){
         panda.hop=null;panda.sx=panda.sy=1;renderPanda(0);
-        if(!panda.hops.length&&!tween){applyTiles();}
+        if(!panda.hops.length&&!tween){cull(cur,cur);}
       }
     }
     for(const p of puffs){if(!p||p.t>=1)continue;p.t+=dt*1.8;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=160*dt;p.r+=dt*8;
@@ -461,10 +444,10 @@
   const leafShapes=['M0 -9C5 -6 6 1 0 9C-6 1 -5 -6 0 -9Z','M0 -9L2.5 -4L6.5 -5L4.5 0L7 3L2 3.5L0 9L-2 3.5L-7 3L-4.5 0L-6.5 -5L-2.5 -4Z','M0 -9C3 -7 4.5 -3 3.5 0C5 2 4 6 0 9C-4 6 -5 2 -3.5 0C-4.5 -3 -3 -7 0 -9Z'];
   const leafCls=['lf-a','lf-b','lf-c','lf-a','lf-b'];const leaves=[];
   function makeLeaves(){
-    const n=perf.lite?10:16;let html='';
+    const n=perf.lite?10:18;let html='';
     for(let i=0;i<n;i++){html+=`<div class="leaf"><svg viewBox="-10 -10 20 20" width="20" height="20"><path class="${leafCls[i%5]}" d="${leafShapes[i%3]}"/><path class="lf-v" d="M0 -7V8"/></svg></div>`;}
     leavesEl.innerHTML=html;
-    Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<6}));
+    Array.from(leavesEl.children).forEach((el,i)=>leaves.push({el,on:false,x:0,y:0,vx:0,vy:0,rot:0,vr:0,ph:Math.random()*6,sz:1,ambient:i<8}));
     leaves.forEach(l=>{if(l.ambient)spawnLeaf(l,Math.random()*W,Math.random()*H*.9);else l.el.style.opacity='0';});
   }
   function spawnLeaf(l,x,y,burst){l.on=true;l.x=x;l.y=y;l.vx=burst?rr(-80,80):rr(8,26);l.vy=burst?rr(-70,-20):rr(18,34);l.rot=Math.random()*360;l.vr=rr(-90,90);l.sz=rr(.8,1.5)*clamp(U/9,.7,1.4);l.el.style.opacity='1';}
@@ -479,22 +462,14 @@
 
   /* ---------- fireflies (and day-time pollen) ---------- */
   const fx=fliesC.getContext('2d');let dpr=1,flies=[],nightAmt=0,sprite=null;
-  // The glow layer is drawn at half resolution: fireflies and pollen are soft
-  // round lights, so upscaling 2x is invisible — and it is 4x less canvas to
-  // clear and upload on every frame, which is exactly what low-end GPUs hate.
-  const FLY_DPR=.5;
   function sizeFlies(){
-    dpr=FLY_DPR;const cw=Math.round((W+2*M)*dpr),ch=Math.round((H+2*M)*dpr);
-    fliesC.width=cw;fliesC.height=ch;fliesC.style.width=(W+2*M)+'px';fliesC.style.height=(H+2*M)+'px';
-    flies=[];const nf=perf.lite?22:38;
-    for(let i=0;i<nf;i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
+    dpr=1;fliesC.width=W+2*M;fliesC.height=H+2*M;fliesC.style.width=(W+2*M)+'px';fliesC.style.height=(H+2*M)+'px';
+    flies=[];for(let i=0;i<(perf.lite?22:38);i++)flies.push({x:Math.random()*W,y:H*(.45+Math.random()*.5),a:Math.random()*6.28,sp:rr(12,26),ph:Math.random()*6.28,bl:rr(.6,1.4),z:rr(.6,1.2)});
     sprite=document.createElement('canvas');sprite.width=sprite.height=64;const g=sprite.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,250,200,1)');gr.addColorStop(.14,'rgba(246,236,130,.95)');gr.addColorStop(.4,'rgba(214,230,110,.28)');gr.addColorStop(1,'rgba(200,220,100,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
   }
   let ptr={x:-9999,y:-9999,t:0};
   function stepFlies(dt,t){
-    const na=nightAmt;
-    if(na<.02&&!flies.length)return;
-    fx.setTransform(dpr,0,0,dpr,M*dpr,M*dpr);fx.clearRect(-M,-M,W+2*M,H+2*M);
+    fx.setTransform(1,0,0,1,M,M);fx.clearRect(-M,-M,W+2*M,H+2*M);const na=nightAmt;
     for(const f of flies){
       f.a+=(Math.sin(t*.7+f.ph)*1.6)*dt;let vx=Math.cos(f.a)*f.sp,vy=Math.sin(f.a)*f.sp*.6;
       if(na>.5&&performance.now()-ptr.t<2500){const dx=ptr.x-f.x,dy=ptr.y-f.y,d=Math.hypot(dx,dy);if(d<W*.3&&d>20){vx+=dx/d*22;vy+=dy/d*22;}}
@@ -520,20 +495,12 @@
   const kickTags=v=>{for(const tg of physTags)tg.v+=v;};
 
   /* ---------- the frame loop ---------- */
-  let raf=0,last=performance.now(),clock=0,flyAcc=0;
+  let raf=0,last=performance.now(),clock=0;
   function frame(now){
     raf=requestAnimationFrame(frame);
-    const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
-    noteFrame(dt);
+    const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;noteFrame(dt);
     const target=body.classList.contains('night')?1:0;nightAmt+=(target-nightAmt)*(1-Math.exp(-dt*1.6));
-    stepCamera(dt);
-    if(tween&&prefetchQ.length){drainPrefetch(1);lastTileCam=-999;}
-    if(Math.abs(cam-lastTileCam)>0.035){lastTileCam=cam;applyTiles();}
-    stepParallax(dt,clock);applyCamera();stepTags(dt,clock);stepLeaves(dt,clock);stepPanda(dt);
-    // the glow layer runs at 30fps in lite mode (motion is identical, it is just
-    // sampled less often; the *cost* is what halves)
-    flyAcc+=dt;
-    if(!perf.lite||flyAcc>=1/30){stepFlies(flyAcc,clock);flyAcc=0;}
+    stepCamera(dt);stepParallax(dt,clock);applyCamera();stepTags(dt,clock);stepLeaves(dt,clock);stepPanda(dt);stepFlies(dt,clock);
   }
   function start(){if(!raf){last=performance.now();raf=requestAnimationFrame(frame);}}
   function stop(){cancelAnimationFrame(raf);raf=0;}
@@ -555,6 +522,19 @@
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.4&&dtm<900){goTo(cur+(dx<0?1:-1));hideHint();}
   });
   stage.addEventListener('pointerleave',()=>{lastPX=null;swipe=null;});
+  document.addEventListener('click',e=>{
+    const btn=e.target.closest('#sourcesToggleBtn,.sources-btn');
+    if(!btn)return;
+    e.stopPropagation();
+    const s17=$('slot17');if(!s17)return;
+    s17.classList.toggle('show-sources');
+    const open=s17.classList.contains('show-sources');
+    btn.setAttribute('aria-expanded',String(open));
+    const label=btn.querySelector('.sources-btn-label');
+    if(label)label.textContent=open?'Hide Sources':'Sources & References';
+    const icon=btn.querySelector('.sources-btn-icon');
+    if(icon)icon.textContent=open?'↑':'↓';
+  });
   stage.addEventListener('click',e=>{
     if(e.target.closest('button,.ph,a'))return;
     const p=toStage(e);leafBurst(p.x+px*fLeaves,p.y+py*fLeaves*.55);kickTags((Math.random()-.5)*30);hideHint();
@@ -563,7 +543,6 @@
 
   const toggle=$('toggle'),toggleLabel=$('toggleLabel');
   function setNight(on,auto){
-    if(on)buildPins();                       // the stars are drawn on first need
     body.classList.toggle('night',on);toggle.setAttribute('aria-pressed',String(on));toggleLabel.textContent=on?'Night':'Day';
     const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',on?'#161a45':'#f3e8d2');
     if(!auto){manual=true;say(on?'Night falls on the diorama: windows light up and fireflies come out.':'Morning returns.');}
@@ -594,17 +573,13 @@
 
   /* ---------- go ---------- */
   makeLeaves();sizeFlies();
-  idle(()=>buildPins());                       // stars only matter at night
-  schedulePrefetch();                           // draw the neighbours while idle
-  const k0=hashK();cur=k0;cam=k0;applyTiles();
+  const k0=hashK();cur=k0;cam=k0;cull(k0,k0);
   slots.forEach((s,i)=>{if(i===k0){s.removeAttribute('inert');s.removeAttribute('aria-hidden');}else{s.setAttribute('inert','');s.setAttribute('aria-hidden','true');}});
   updatePosterTabindex();
-  if(dflt(k0)){buildPins();body.classList.add('night');nightAmt=1;toggle.setAttribute('aria-pressed','true');toggleLabel.textContent='Night';}
+  if(dflt(k0)){body.classList.add('night');nightAmt=1;toggle.setAttribute('aria-pressed','true');toggleLabel.textContent='Night';}
   updateCounter();pandaTo(k0,true);applyCamera();
   setTimeout(()=>slots[k0].classList.add('on'),reduce?0:650);
-  if(location.hash!=='#'+(k0+1)){try{history.replaceState(null,'',(location.pathname||'')+'#'+(k0+1));}catch(e){}}
+  if(location.hash!=='#'+(k0+1))history.replaceState(null,'',(location.pathname||'')+'#'+(k0+1));
   start();
-  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},get lite(){return perf.lite;},
-    stats(){let total=0,mounted=0,drawn=0;for(const L of layerEls)for(const t of L.tiles){total++;if(t.on)mounted++;if(t.inner)drawn++;}
-      return {tiles:total,mounted,drawn,elements:document.getElementsByTagName('*').length};},hop:hopLocal,setCam(x){tween=null;cam=x;applyTiles();applyCamera();}};
+  window.DECK={goTo,setNight,get cur(){return cur;},get cam(){return cam;},get lite(){return perf.lite;},hop:hopLocal,setCam(x){tween=null;cam=x;cull(Math.floor(x),Math.ceil(x));applyCamera();}};
 })();
